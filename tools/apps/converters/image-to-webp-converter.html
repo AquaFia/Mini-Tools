@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark" />
+  <title>Image → WebP Converter</title>
+  <style>
+    :root {
+      --bg: #070911;
+      --panel: rgba(18, 22, 38, 0.86);
+      --panel-2: rgba(13, 16, 29, 0.9);
+      --line: rgba(255,255,255,.11);
+      --line-strong: rgba(138, 117, 255, .48);
+      --text: #f4f2ff;
+      --muted: #a9a6bb;
+      --purple: #8b72ff;
+      --cyan: #58d5ff;
+      --pink: #ff74b8;
+      --good: #62e6a7;
+      --warn: #ffce6b;
+      --danger: #ff7088;
+      --shadow: 0 28px 90px rgba(0,0,0,.42);
+      --radius: 24px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 12% 5%, rgba(139,114,255,.16), transparent 30%),
+        radial-gradient(circle at 88% 0%, rgba(88,213,255,.13), transparent 28%),
+        radial-gradient(circle at 50% 110%, rgba(255,116,184,.09), transparent 36%),
+        var(--bg);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+      background-size: 28px 28px;
+      mask-image: linear-gradient(to bottom, black, transparent 85%);
+    }
+
+    button, input, select { font: inherit; }
+    button { color: inherit; }
+
+    .shell {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 56px 0 72px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: end;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 11px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255,255,255,.04);
+      color: #c8c3e4;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--good);
+      box-shadow: 0 0 14px rgba(98,230,167,.9);
+    }
+
+    h1 {
+      margin: 16px 0 8px;
+      max-width: 850px;
+      font-size: clamp(38px, 6vw, 76px);
+      line-height: .98;
+      letter-spacing: -.055em;
+    }
+
+    .gradient-text {
+      background: linear-gradient(100deg, #fff 12%, #b8a7ff 48%, #69dcff 82%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .lead {
+      margin: 0;
+      max-width: 710px;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.65;
+    }
+
+    .privacy-badge {
+      align-self: start;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 12px 14px;
+      border: 1px solid rgba(98,230,167,.24);
+      border-radius: 16px;
+      background: rgba(98,230,167,.07);
+      color: #c7f8df;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .privacy-badge svg { width: 18px; height: 18px; }
+
+    .app {
+      position: relative;
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      background: linear-gradient(180deg, rgba(17,21,36,.94), rgba(9,12,22,.97));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .app::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(139,114,255,.9), rgba(88,213,255,.75), transparent);
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 14px;
+      padding: 20px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,.015);
+    }
+
+    .control {
+      min-width: 0;
+      padding: 13px 14px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255,255,255,.025);
+    }
+
+    .control label,
+    .control .label {
+      display: block;
+      margin-bottom: 8px;
+      color: #aaa5bd;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+
+    .control-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--purple);
+    }
+
+    input[type="number"], select {
+      width: 100%;
+      min-height: 39px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      padding: 8px 10px;
+      background: rgba(5,7,14,.75);
+      color: var(--text);
+      outline: none;
+    }
+
+    input[type="number"]:focus, select:focus {
+      border-color: var(--line-strong);
+      box-shadow: 0 0 0 3px rgba(139,114,255,.12);
+    }
+
+    .quality-value {
+      min-width: 50px;
+      color: #ddd7ff;
+      font-weight: 800;
+      text-align: right;
+    }
+
+    .switch-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 39px;
+      gap: 12px;
+    }
+
+    .switch-copy strong { display: block; font-size: 13px; }
+    .switch-copy span { color: var(--muted); font-size: 11px; }
+
+    .switch {
+      position: relative;
+      flex: 0 0 auto;
+      width: 48px;
+      height: 27px;
+    }
+
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute;
+      inset: 0;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #222635;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+    .slider::after {
+      content: "";
+      position: absolute;
+      width: 19px;
+      height: 19px;
+      left: 3px;
+      top: 3px;
+      border-radius: 50%;
+      background: white;
+      transition: .2s ease;
+      box-shadow: 0 2px 10px rgba(0,0,0,.3);
+    }
+    .switch input:checked + .slider {
+      background: linear-gradient(90deg, var(--purple), #6d8cff);
+      border-color: transparent;
+    }
+    .switch input:checked + .slider::after { transform: translateX(21px); }
+
+    .workspace { padding: 20px; }
+
+    .dropzone {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-height: 250px;
+      padding: 30px;
+      border: 1.5px dashed rgba(148,134,220,.48);
+      border-radius: 22px;
+      text-align: center;
+      background:
+        radial-gradient(circle at center, rgba(139,114,255,.09), transparent 48%),
+        rgba(255,255,255,.015);
+      cursor: pointer;
+      transition: .22s ease;
+    }
+
+    .dropzone:hover,
+    .dropzone.dragging {
+      border-color: var(--cyan);
+      background:
+        radial-gradient(circle at center, rgba(88,213,255,.11), transparent 48%),
+        rgba(255,255,255,.025);
+      transform: translateY(-1px);
+    }
+
+    .dropzone input { display: none; }
+
+    .drop-icon {
+      display: grid;
+      place-items: center;
+      width: 68px;
+      height: 68px;
+      margin: 0 auto 16px;
+      border: 1px solid rgba(139,114,255,.4);
+      border-radius: 21px;
+      background: linear-gradient(145deg, rgba(139,114,255,.18), rgba(88,213,255,.08));
+      box-shadow: inset 0 1px rgba(255,255,255,.08), 0 14px 30px rgba(0,0,0,.22);
+    }
+    .drop-icon svg { width: 31px; height: 31px; }
+
+    .dropzone h2 { margin: 0 0 8px; font-size: 21px; }
+    .dropzone p { margin: 0; color: var(--muted); line-height: 1.55; }
+    .dropzone .browse { color: #c7bcff; font-weight: 800; }
+    .formats { margin-top: 14px; color: #777589; font-size: 12px; }
+
+    .queue-header {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 24px 0 12px;
+    }
+    .queue-header.visible { display: flex; }
+    .queue-title { font-size: 15px; font-weight: 850; }
+    .queue-meta { margin-left: 8px; color: var(--muted); font-size: 13px; font-weight: 500; }
+
+    .button-row { display: flex; flex-wrap: wrap; gap: 9px; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      padding: 10px 15px;
+      background: rgba(255,255,255,.045);
+      color: var(--text);
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 13px;
+      transition: .18s ease;
+    }
+    .btn:hover:not(:disabled) { transform: translateY(-1px); border-color: rgba(255,255,255,.22); }
+    .btn:disabled { opacity: .42; cursor: not-allowed; }
+    .btn.primary {
+      border-color: transparent;
+      background: linear-gradient(110deg, #785bff, #647dff 55%, #39bde8);
+      box-shadow: 0 10px 25px rgba(108,96,255,.23);
+    }
+    .btn.good {
+      border-color: rgba(98,230,167,.3);
+      background: rgba(98,230,167,.09);
+      color: #c8f8df;
+    }
+    .btn.danger { color: #ffb3c0; }
+    .btn svg { width: 16px; height: 16px; }
+
+    .queue { display: grid; gap: 12px; }
+
+    .file-card {
+      display: grid;
+      grid-template-columns: 84px minmax(0,1fr) auto;
+      gap: 16px;
+      align-items: center;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255,255,255,.025);
+    }
+
+    .thumb-wrap {
+      position: relative;
+      width: 84px;
+      height: 72px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background:
+        linear-gradient(45deg, #262936 25%, transparent 25%),
+        linear-gradient(-45deg, #262936 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #262936 75%),
+        linear-gradient(-45deg, transparent 75%, #262936 75%), #1b1e29;
+      background-size: 16px 16px;
+      background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+    }
+    .thumb-wrap img { width: 100%; height: 100%; object-fit: contain; display: block; }
+
+    .file-info { min-width: 0; }
+    .file-name {
+      overflow: hidden;
+      margin-bottom: 7px;
+      font-weight: 850;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .file-details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px 14px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .result-line {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 9px;
+      font-size: 12px;
+    }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #b8b4c8;
+    }
+    .status::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #676477;
+    }
+    .status.processing::before { background: var(--warn); box-shadow: 0 0 10px rgba(255,206,107,.7); }
+    .status.done::before { background: var(--good); box-shadow: 0 0 10px rgba(98,230,167,.7); }
+    .status.error::before { background: var(--danger); }
+    .saving { color: var(--good); font-weight: 850; }
+    .larger { color: var(--warn); font-weight: 850; }
+
+    .card-actions { display: flex; align-items: center; gap: 8px; }
+    .icon-btn {
+      display: grid;
+      place-items: center;
+      width: 39px;
+      height: 39px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255,255,255,.035);
+      cursor: pointer;
+      transition: .18s ease;
+    }
+    .icon-btn:hover:not(:disabled) { border-color: rgba(255,255,255,.24); transform: translateY(-1px); }
+    .icon-btn:disabled { opacity: .35; cursor: not-allowed; }
+    .icon-btn svg { width: 17px; height: 17px; }
+
+    .summary {
+      display: none;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .summary.visible { display: grid; }
+    .stat {
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: rgba(255,255,255,.025);
+    }
+    .stat span { display: block; color: var(--muted); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+    .stat strong { display: block; margin-top: 6px; font-size: 20px; }
+    .stat.good strong { color: var(--good); }
+
+    .footer-note {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      margin-top: 18px;
+      color: #777487;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .toast {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      z-index: 10;
+      max-width: min(390px, calc(100vw - 44px));
+      padding: 13px 15px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(18,22,38,.96);
+      box-shadow: 0 18px 60px rgba(0,0,0,.45);
+      color: #eeeaff;
+      font-size: 13px;
+      opacity: 0;
+      transform: translateY(15px);
+      pointer-events: none;
+      transition: .2s ease;
+    }
+    .toast.show { opacity: 1; transform: none; }
+
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; }
+      .privacy-badge { justify-self: start; }
+      .toolbar { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 620px) {
+      .shell { width: min(100% - 18px, 1180px); padding-top: 28px; }
+      .app { border-radius: 23px; }
+      .toolbar { grid-template-columns: 1fr; padding: 13px; }
+      .workspace { padding: 13px; }
+      .dropzone { min-height: 220px; padding: 24px 16px; }
+      .file-card { grid-template-columns: 66px minmax(0,1fr); }
+      .thumb-wrap { width: 66px; height: 62px; }
+      .card-actions { grid-column: 1 / -1; justify-content: flex-end; }
+      .queue-header { align-items: flex-start; flex-direction: column; }
+      .summary { grid-template-columns: 1fr; }
+      .footer-note { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div>
+        <div class="eyebrow">Local image utility</div>
+        <h1><span class="gradient-text">Image → WebP</span><br />Converter</h1>
+        <p class="lead">Compress, resize, and convert images directly in your browser. Your files stay on your device from start to finish.</p>
+      </div>
+      <div class="privacy-badge" title="No file uploads">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-3 8-10V5l-8-3-8 3v7c0 7 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
+        100% browser-only
+      </div>
+    </header>
+
+    <section class="app">
+      <div class="toolbar">
+        <div class="control">
+          <label for="quality">WebP quality</label>
+          <div class="control-row">
+            <input id="quality" type="range" min="1" max="100" value="82" />
+            <span class="quality-value" id="qualityValue">82%</span>
+          </div>
+        </div>
+
+        <div class="control">
+          <label for="resizeMode">Resize mode</label>
+          <select id="resizeMode">
+            <option value="none">Keep original size</option>
+            <option value="max">Maximum dimension</option>
+            <option value="width">Exact width</option>
+            <option value="height">Exact height</option>
+            <option value="percent">Percentage</option>
+          </select>
+        </div>
+
+        <div class="control">
+          <label for="resizeValue">Resize value</label>
+          <div class="control-row">
+            <input id="resizeValue" type="number" min="1" max="20000" value="1024" disabled />
+            <span id="resizeUnit" style="color:var(--muted);font-size:12px;min-width:20px">px</span>
+          </div>
+        </div>
+
+        <div class="control">
+          <span class="label">Transparency</span>
+          <div class="switch-wrap">
+            <div class="switch-copy">
+              <strong>Preserve alpha</strong>
+              <span>For sprites and cutouts</span>
+            </div>
+            <label class="switch" aria-label="Preserve transparency">
+              <input id="preserveAlpha" type="checkbox" checked />
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="workspace">
+        <label class="dropzone" id="dropzone">
+          <input id="fileInput" type="file" accept="image/*" multiple />
+          <div>
+            <div class="drop-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M20 15v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4"/></svg>
+            </div>
+            <h2>Drop images here</h2>
+            <p>or <span class="browse">browse your device</span> to add one or more files</p>
+            <div class="formats">PNG, JPEG, GIF, BMP, SVG, AVIF, WebP, and other browser-supported images</div>
+          </div>
+        </label>
+
+        <div class="queue-header" id="queueHeader">
+          <div class="queue-title">Conversion queue <span class="queue-meta" id="queueMeta"></span></div>
+          <div class="button-row">
+            <button class="btn danger" id="clearBtn" type="button">Clear</button>
+            <button class="btn primary" id="convertBtn" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v6h-6"/></svg>
+              Convert all
+            </button>
+            <button class="btn good" id="downloadAllBtn" type="button" disabled>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+              Download all
+            </button>
+          </div>
+        </div>
+
+        <div class="queue" id="queue"></div>
+
+        <div class="summary" id="summary">
+          <div class="stat"><span>Original total</span><strong id="originalTotal">0 B</strong></div>
+          <div class="stat"><span>WebP total</span><strong id="outputTotal">0 B</strong></div>
+          <div class="stat good"><span>Space saved</span><strong id="savedTotal">0%</strong></div>
+        </div>
+
+        <div class="footer-note">
+          <span>Animated images are converted as a single static frame because browser canvas does not preserve animation.</span>
+          <span>No uploads · No tracking · No account</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const state = { items: [], converting: false };
+
+    const els = {
+      fileInput: document.getElementById('fileInput'),
+      dropzone: document.getElementById('dropzone'),
+      quality: document.getElementById('quality'),
+      qualityValue: document.getElementById('qualityValue'),
+      resizeMode: document.getElementById('resizeMode'),
+      resizeValue: document.getElementById('resizeValue'),
+      resizeUnit: document.getElementById('resizeUnit'),
+      preserveAlpha: document.getElementById('preserveAlpha'),
+      queueHeader: document.getElementById('queueHeader'),
+      queueMeta: document.getElementById('queueMeta'),
+      queue: document.getElementById('queue'),
+      convertBtn: document.getElementById('convertBtn'),
+      clearBtn: document.getElementById('clearBtn'),
+      downloadAllBtn: document.getElementById('downloadAllBtn'),
+      summary: document.getElementById('summary'),
+      originalTotal: document.getElementById('originalTotal'),
+      outputTotal: document.getElementById('outputTotal'),
+      savedTotal: document.getElementById('savedTotal'),
+      toast: document.getElementById('toast')
+    };
+
+    const icons = {
+      download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>',
+      remove: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>'
+    };
+
+    els.quality.addEventListener('input', () => {
+      els.qualityValue.textContent = `${els.quality.value}%`;
+      markResultsStale();
+    });
+
+    els.resizeMode.addEventListener('change', () => {
+      const enabled = els.resizeMode.value !== 'none';
+      els.resizeValue.disabled = !enabled;
+      els.resizeUnit.textContent = els.resizeMode.value === 'percent' ? '%' : 'px';
+      if (els.resizeMode.value === 'percent' && Number(els.resizeValue.value) > 500) els.resizeValue.value = 50;
+      if (els.resizeMode.value !== 'percent' && Number(els.resizeValue.value) <= 100) els.resizeValue.value = 1024;
+      markResultsStale();
+    });
+    els.resizeValue.addEventListener('input', markResultsStale);
+    els.preserveAlpha.addEventListener('change', markResultsStale);
+
+    ['dragenter','dragover'].forEach(type => els.dropzone.addEventListener(type, event => {
+      event.preventDefault();
+      els.dropzone.classList.add('dragging');
+    }));
+    ['dragleave','drop'].forEach(type => els.dropzone.addEventListener(type, event => {
+      event.preventDefault();
+      els.dropzone.classList.remove('dragging');
+    }));
+    els.dropzone.addEventListener('drop', event => addFiles(event.dataTransfer.files));
+    els.fileInput.addEventListener('change', event => {
+      addFiles(event.target.files);
+      event.target.value = '';
+    });
+
+    els.convertBtn.addEventListener('click', convertAll);
+    els.clearBtn.addEventListener('click', clearAll);
+    els.downloadAllBtn.addEventListener('click', downloadAll);
+
+    function showToast(message) {
+      els.toast.textContent = message;
+      els.toast.classList.add('show');
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => els.toast.classList.remove('show'), 2600);
+    }
+
+    function formatBytes(bytes) {
+      if (!Number.isFinite(bytes) || bytes <= 0) return '0 B';
+      const units = ['B','KB','MB','GB'];
+      const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+      const value = bytes / Math.pow(1024, index);
+      return `${value >= 100 || index === 0 ? value.toFixed(0) : value.toFixed(1)} ${units[index]}`;
+    }
+
+    function baseName(filename) {
+      return filename.replace(/\.[^/.]+$/, '') || 'converted-image';
+    }
+
+    function uniqueName(filename) {
+      const existing = new Set(state.items.map(item => item.outputName));
+      let name = `${baseName(filename)}.webp`;
+      let i = 2;
+      while (existing.has(name)) name = `${baseName(filename)}-${i++}.webp`;
+      return name;
+    }
+
+    async function addFiles(fileList) {
+      const files = [...fileList].filter(file => file.type.startsWith('image/'));
+      if (!files.length) {
+        showToast('No supported image files were found.');
+        return;
+      }
+
+      for (const file of files) {
+        try {
+          const url = URL.createObjectURL(file);
+          const dimensions = await readDimensions(url);
+          state.items.push({
+            id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+            file, url,
+            width: dimensions.width,
+            height: dimensions.height,
+            outputName: uniqueName(file.name),
+            status: 'ready',
+            blob: null,
+            outputWidth: null,
+            outputHeight: null,
+            error: null
+          });
+        } catch {
+          showToast(`Could not read ${file.name}.`);
+        }
+      }
+      render();
+    }
+
+    function readDimensions(url) {
+      return new Promise((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => resolve({ width: image.naturalWidth, height: image.naturalHeight });
+        image.onerror = reject;
+        image.src = url;
+      });
+    }
+
+    function getOutputDimensions(width, height) {
+      const mode = els.resizeMode.value;
+      const raw = Math.max(1, Number(els.resizeValue.value) || 1);
+      if (mode === 'none') return { width, height };
+      if (mode === 'percent') {
+        const scale = raw / 100;
+        return { width: Math.max(1, Math.round(width * scale)), height: Math.max(1, Math.round(height * scale)) };
+      }
+      if (mode === 'max') {
+        const scale = Math.min(1, raw / Math.max(width, height));
+        return { width: Math.max(1, Math.round(width * scale)), height: Math.max(1, Math.round(height * scale)) };
+      }
+      if (mode === 'width') return { width: Math.round(raw), height: Math.max(1, Math.round(height * (raw / width))) };
+      return { width: Math.max(1, Math.round(width * (raw / height))), height: Math.round(raw) };
+    }
+
+    function markResultsStale() {
+      for (const item of state.items) {
+        if (item.blob) {
+          item.status = 'ready';
+          item.blob = null;
+          item.outputWidth = null;
+          item.outputHeight = null;
+        }
+      }
+      render();
+    }
+
+    function render() {
+      els.queue.innerHTML = '';
+      els.queueHeader.classList.toggle('visible', state.items.length > 0);
+      els.queueMeta.textContent = state.items.length ? `${state.items.length} image${state.items.length === 1 ? '' : 's'}` : '';
+
+      for (const item of state.items) {
+        const card = document.createElement('article');
+        card.className = 'file-card';
+        const statusClass = item.status === 'done' ? 'done' : item.status === 'processing' ? 'processing' : item.status === 'error' ? 'error' : '';
+        const statusText = item.status === 'done' ? 'Converted' : item.status === 'processing' ? 'Converting…' : item.status === 'error' ? item.error || 'Conversion failed' : 'Ready';
+        let result = '';
+        if (item.blob) {
+          const saved = (1 - item.blob.size / item.file.size) * 100;
+          const className = saved >= 0 ? 'saving' : 'larger';
+          result = `<span>→ ${item.outputWidth} × ${item.outputHeight}</span><span>${formatBytes(item.blob.size)}</span><span class="${className}">${saved >= 0 ? `${saved.toFixed(1)}% smaller` : `${Math.abs(saved).toFixed(1)}% larger`}</span>`;
+        }
+
+        card.innerHTML = `
+          <div class="thumb-wrap"><img src="${item.url}" alt="" /></div>
+          <div class="file-info">
+            <div class="file-name" title="${escapeHtml(item.file.name)}">${escapeHtml(item.file.name)}</div>
+            <div class="file-details"><span>${item.width} × ${item.height}</span><span>${formatBytes(item.file.size)}</span><span>${escapeHtml(item.file.type || 'image')}</span></div>
+            <div class="result-line"><span class="status ${statusClass}">${escapeHtml(statusText)}</span>${result}</div>
+          </div>
+          <div class="card-actions">
+            <button class="icon-btn download-one" type="button" title="Download converted image" ${item.blob ? '' : 'disabled'}>${icons.download}</button>
+            <button class="icon-btn remove-one" type="button" title="Remove image">${icons.remove}</button>
+          </div>`;
+
+        card.querySelector('.download-one').addEventListener('click', () => downloadItem(item));
+        card.querySelector('.remove-one').addEventListener('click', () => removeItem(item.id));
+        els.queue.appendChild(card);
+      }
+
+      const completed = state.items.filter(item => item.blob);
+      els.downloadAllBtn.disabled = completed.length === 0 || state.converting;
+      els.convertBtn.disabled = state.items.length === 0 || state.converting;
+      els.clearBtn.disabled = state.converting;
+      els.convertBtn.lastChild.textContent = state.converting ? ' Converting…' : ' Convert all';
+
+      const original = completed.reduce((sum, item) => sum + item.file.size, 0);
+      const output = completed.reduce((sum, item) => sum + item.blob.size, 0);
+      els.summary.classList.toggle('visible', completed.length > 0);
+      els.originalTotal.textContent = formatBytes(original);
+      els.outputTotal.textContent = formatBytes(output);
+      const saved = original ? (1 - output / original) * 100 : 0;
+      els.savedTotal.textContent = `${saved >= 0 ? '' : '+'}${Math.abs(saved).toFixed(1)}%${saved < 0 ? ' larger' : ''}`;
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>'"]/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[char]));
+    }
+
+    async function convertAll() {
+      if (!state.items.length || state.converting) return;
+      state.converting = true;
+      render();
+
+      for (const item of state.items) {
+        item.status = 'processing';
+        item.error = null;
+        render();
+        try {
+          const result = await convertItem(item);
+          item.blob = result.blob;
+          item.outputWidth = result.width;
+          item.outputHeight = result.height;
+          item.status = 'done';
+        } catch (error) {
+          console.error(error);
+          item.status = 'error';
+          item.error = 'Conversion failed';
+        }
+        render();
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
+
+      state.converting = false;
+      render();
+      const successful = state.items.filter(item => item.blob).length;
+      showToast(`Converted ${successful} of ${state.items.length} image${state.items.length === 1 ? '' : 's'}.`);
+    }
+
+    async function convertItem(item) {
+      const bitmap = await createImageBitmap(item.file);
+      const dimensions = getOutputDimensions(bitmap.width, bitmap.height);
+      const canvas = document.createElement('canvas');
+      canvas.width = dimensions.width;
+      canvas.height = dimensions.height;
+      const ctx = canvas.getContext('2d', { alpha: true });
+
+      if (!els.preserveAlpha.checked) {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      bitmap.close();
+
+      const quality = Number(els.quality.value) / 100;
+      const blob = await new Promise((resolve, reject) => {
+        canvas.toBlob(result => result ? resolve(result) : reject(new Error('WebP encoding is unavailable.')), 'image/webp', quality);
+      });
+
+      if (blob.type !== 'image/webp') throw new Error('This browser does not support WebP encoding.');
+      return { blob, width: canvas.width, height: canvas.height };
+    }
+
+    function downloadItem(item) {
+      if (!item.blob) return;
+      const url = URL.createObjectURL(item.blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = item.outputName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1500);
+    }
+
+    async function downloadAll() {
+      const completed = state.items.filter(item => item.blob);
+      for (const item of completed) {
+        downloadItem(item);
+        await new Promise(resolve => setTimeout(resolve, 180));
+      }
+      showToast(`Started ${completed.length} download${completed.length === 1 ? '' : 's'}. Your browser may ask for permission.`);
+    }
+
+    function removeItem(id) {
+      const index = state.items.findIndex(item => item.id === id);
+      if (index < 0) return;
+      URL.revokeObjectURL(state.items[index].url);
+      state.items.splice(index, 1);
+      render();
+    }
+
+    function clearAll() {
+      for (const item of state.items) URL.revokeObjectURL(item.url);
+      state.items = [];
+      render();
+    }
+
+    render();
+  </script>
+</body>
+</html>

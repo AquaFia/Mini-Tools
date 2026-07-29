@@ -34,7 +34,7 @@
       "accent": "#ffb86b",
       "description": "Convert PNG, JPEG, or WebP images into copyable Base64 data URLs.",
       "tags": ["image", "converter"]
-    }
+    },
     {
       "title": "Image to WebP",
       "file": "tools/apps/converters/image-to-webp-converter",

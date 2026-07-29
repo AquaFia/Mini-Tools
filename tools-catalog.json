@@ -33,7 +33,15 @@
       "icon": "▧",
       "accent": "#ffb86b",
       "description": "Convert PNG, JPEG, or WebP images into copyable Base64 data URLs.",
-      "tags": ["image", "converter", "base64"]
+      "tags": ["image", "converter"]
+    }
+    {
+      "title": "Image to WebP",
+      "file": "tools/apps/converters/image-to-webp-converter",
+      "icon": "▧",
+      "accent": "#ffb86b",
+      "description": "Convert PNG, JPEG, GIF, BMP, SVG, AVIF, WebP, and other browser-supported images in a compressed WebP format.",
+      "tags": ["image", "converter"]
     }
   ]
 }

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Image to Base64</title>
+</head>
+<body>
+  <input id="file" type="file" accept="image/png,image/jpeg,image/webp">
+  <p>Choose an image, then copy the result below.</p>
+  <textarea id="output" style="width:100%;height:400px"></textarea>
+
+  <script>
+    const fileInput = document.querySelector('#file');
+    const output = document.querySelector('#output');
+
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        output.value = reader.result;
+        output.select();
+      };
+
+      reader.onerror = () => {
+        output.value = 'The image could not be read.';
+      };
+
+      reader.readAsDataURL(file);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+{
+  "title": "Oddball Tools",
+  "eyebrow": "Personal Utility Archive",
+  "description": "A shelf for standalone HTML experiments, editors, converters, and tiny utilities.",
+  "tools": [
+    {
+      "title": "Worldscript Compass",
+      "file": "tools/apps/worldbuilding/Worldscript Compass.html",
+      "icon": "✧",
+      "accent": "#a970ff",
+      "description": "Translate text into the custom scripts used across your fictional worlds.",
+      "tags": ["language", "writing", "export", "worldbuilding"]
+    },
+    {
+      "title": "Companion Episode Studio",
+      "file": "tools/apps/companion/Companion Episode Studio.html",
+      "icon": "◇",
+      "accent": "#4cc9f0",
+      "description": "Build, arrange, validate, import, and export branching companion episodes.",
+      "tags": ["editor", "json", "companion"]
+    },
+    {
+      "title": "Jacey Companion Debugging Panel",
+      "file": "tools/apps/companion/jacey_companion_debugging_panel.html",
+      "icon": "⌁",
+      "accent": "#79efb4",
+      "description": "Load a Jacey companion HTML file into a standalone inspection and testing harness.",
+      "tags": ["debug", "testing", "companion"]
+    },
+    {
+      "title": "Image to Base64",
+      "file": "tools/apps/converters/image-to-base64.html",
+      "icon": "▧",
+      "accent": "#ffb86b",
+      "description": "Convert PNG, JPEG, or WebP images into copyable Base64 data URLs.",
+      "tags": ["image", "converter", "base64"]
+    }
+  ]
+}

@@ -42,6 +42,14 @@
       "accent": "#ffb86b",
       "description": "Convert PNG, JPEG, GIF, BMP, SVG, AVIF, WebP, and other browser-supported images in a compressed WebP format.",
       "tags": ["image", "converter"]
+    },
+    {
+      "title": "Jacey Cosmo Companion Chat Box",
+      "file": "tools/apps/companion/jacey_companion_framework_v6_2_content_library",
+      "icon": "▧",
+      "accent": "#ffb86b",
+      "description": "The Jacey Companion Test.",
+      "tags": ["companion", "jacey"]
     }
   ]
 }

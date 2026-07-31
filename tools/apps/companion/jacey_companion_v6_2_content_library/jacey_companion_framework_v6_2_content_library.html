@@ -623,17 +623,6 @@ body:before{
 .episode-choice.episode-return::before{content:"↩"}
 .episode-choice:disabled{opacity:.55;cursor:default}
 </style>
-
-<style id="external-data-loader-styles">
-.data-status{
-  position:absolute;left:18px;bottom:8px;z-index:140;
-  font:700 8px/1 ui-monospace,SFMono-Regular,Consolas,monospace;
-  letter-spacing:.1em;color:var(--muted);pointer-events:none
-}
-.data-status.ready{color:#7ef7c1}
-.data-status.partial{color:#ffd36e}
-</style>
-
 <style id="unlockable-choice-styles-phase4-6">
 .episode-options{
   overflow-x:auto;
@@ -2544,7 +2533,6 @@ const BUILTIN_LISTS=Object.freeze({
   episodes:'episodes/episode_list.json',
   messageBanks:'message_banks/message_bank_list.json'
 });
-const IMPORT_STORAGE_KEY='jacey.content.library.v1';
 
 const dataLoadBtn=document.querySelector('#dataLoadBtn');
 const memorySaveBtn=document.querySelector('#memorySaveBtn');
@@ -2552,17 +2540,12 @@ const dataFileInput=document.querySelector('#dataFileInput');
 const libraryBtn=document.querySelector('#libraryBtn');
 const libraryPanel=document.querySelector('#libraryPanel');
 const closeLibraryBtn=document.querySelector('#closeLibraryBtn');
-
-const dataStatus=document.createElement('div');
-dataStatus.className='data-status';
-document.querySelector('#terminal').append(dataStatus);
-
 function normalizeTitle(value){return String(value||'').trim().toLocaleLowerCase();}
 function fileLabel(fileName){return String(fileName||'Message Bank').replace(/\.json$/i,'').replace(/[_-]+/g,' ').replace(/\s+/g,' ').trim();}
 
 const EpisodeManager={
   records:new Map(),
-  add(data,{source='imported',fileName='episode.json',enabled=true,persist=true}={}){
+  add(data,{source='imported',fileName='episode.json',enabled=true}={}){
     const title=String(data?.title||'').trim();
     if(!title)throw new Error('Episode requires a title.');
     const key=normalizeTitle(title);
@@ -2580,19 +2563,18 @@ const EpisodeManager={
       EXTERNAL_ACHIEVEMENTS[achievement.id]={...achievement,id:achievement.id,episodeId:episode.id,identity:achievement.identity||episode.identity||'jace'};
     }
     this.records.set(key,{title,type:'episode',source,fileName,enabled,data:episode,raw:data});
-    if(persist)saveImportedContent();
     refreshContentUI();
     return previous?'replaced':'added';
   },
-  toggle(title,enabled){const r=this.records.get(normalizeTitle(title));if(!r)return;r.enabled=Boolean(enabled);r.data.__enabled=r.enabled;saveImportedContent();refreshContentUI();},
-  remove(title){const key=normalizeTitle(title),r=this.records.get(key);if(!r||r.source==='builtin')return false;if(episodeState.episodeId===r.data.id)abandonEpisode(false);delete EPISODE_LIBRARY[r.data.id];for(const [id,a] of Object.entries(EXTERNAL_ACHIEVEMENTS)){if(a.episodeId===r.data.id)delete EXTERNAL_ACHIEVEMENTS[id];}this.records.delete(key);saveImportedContent();refreshContentUI();renderExternalAchievements();return true;},
+  toggle(title,enabled){const r=this.records.get(normalizeTitle(title));if(!r)return;r.enabled=Boolean(enabled);r.data.__enabled=r.enabled;refreshContentUI();},
+  remove(title){const key=normalizeTitle(title),r=this.records.get(key);if(!r||r.source==='builtin')return false;if(episodeState.episodeId===r.data.id)abandonEpisode(false);delete EPISODE_LIBRARY[r.data.id];for(const [id,a] of Object.entries(EXTERNAL_ACHIEVEMENTS)){if(a.episodeId===r.data.id)delete EXTERNAL_ACHIEVEMENTS[id];}this.records.delete(key);refreshContentUI();renderExternalAchievements();return true;},
   list(){return [...this.records.values()].sort((a,b)=>a.title.localeCompare(b.title));}
 };
 
 const MessageBankManager={
   records:new Map(),
   activeKey:null,
-  add(data,{source='imported',fileName='message_bank.json',enabled=true,persist=true}={}){
+  add(data,{source='imported',fileName='message_bank.json',enabled=true}={}){
     if(!isMessageBankDocument(data))throw new Error('Unsupported message-bank JSON.');
     const title=fileLabel(fileName);
     const key=normalizeTitle(title);
@@ -2600,7 +2582,6 @@ const MessageBankManager={
     this.records.set(key,{title,type:'messageBank',source,fileName,enabled,data});
     if(!this.activeKey || (previous&&this.activeKey===key))this.activeKey=key;
     this.apply();
-    if(persist)saveImportedContent();
     refreshContentUI();
     return previous?'replaced':'added';
   },
@@ -2614,29 +2595,17 @@ const MessageBankManager={
     aliasBanks={mao:active.data.identities.mao?.banks||{},naoya:active.data.identities.naoya?.banks||{}};
     messageBankLoaded=true;
   },
-  toggle(title,enabled){const r=this.records.get(normalizeTitle(title));if(!r)return;r.enabled=Boolean(enabled);this.apply();saveImportedContent();refreshContentUI();},
-  remove(title){const key=normalizeTitle(title),r=this.records.get(key);if(!r||r.source==='builtin')return false;this.records.delete(key);if(this.activeKey===key)this.activeKey=null;this.apply();saveImportedContent();refreshContentUI();return true;},
+  toggle(title,enabled){const r=this.records.get(normalizeTitle(title));if(!r)return;r.enabled=Boolean(enabled);this.apply();refreshContentUI();},
+  remove(title){const key=normalizeTitle(title),r=this.records.get(key);if(!r||r.source==='builtin')return false;this.records.delete(key);if(this.activeKey===key)this.activeKey=null;this.apply();refreshContentUI();return true;},
   list(){return [...this.records.values()].sort((a,b)=>a.title.localeCompare(b.title));}
 };
-
-function importedSnapshot(){return {episodes:EpisodeManager.list().filter(r=>r.source==='imported').map(r=>({fileName:r.fileName,enabled:r.enabled,data:r.raw})),messageBanks:MessageBankManager.list().filter(r=>r.source==='imported').map(r=>({fileName:r.fileName,enabled:r.enabled,data:r.data}))};}
-function saveImportedContent(){try{localStorage.setItem(IMPORT_STORAGE_KEY,JSON.stringify(importedSnapshot()));}catch(error){console.warn('Could not save imported content.',error);}}
-function restoreImportedContent(){try{const saved=JSON.parse(localStorage.getItem(IMPORT_STORAGE_KEY)||'{}');(saved.episodes||[]).forEach(x=>EpisodeManager.add(x.data,{source:'imported',fileName:x.fileName,enabled:x.enabled,persist:false}));(saved.messageBanks||[]).forEach(x=>MessageBankManager.add(x.data,{source:'imported',fileName:x.fileName,enabled:x.enabled,persist:false}));}catch(error){console.warn('Could not restore imported content.',error);}}
-
-function updateDataStatus(){
-  const episodes=EpisodeManager.list(),banks=MessageBankManager.list();
-  const enabledEpisodes=episodes.filter(r=>r.enabled).length,enabledBanks=banks.filter(r=>r.enabled).length;
-  if(enabledBanks&&enabledEpisodes){dataStatus.className='data-status ready';dataStatus.textContent=`DATA // READY · ${enabledEpisodes} EPISODE${enabledEpisodes===1?'':'S'}`;}
-  else if(enabledBanks||enabledEpisodes){dataStatus.className='data-status partial';dataStatus.textContent='DATA // PARTIAL';}
-  else{dataStatus.className='data-status';dataStatus.textContent='DATA // NOT LOADED';}
-}
 
 function isMessageBankDocument(data){return Boolean(data&&data.schema===COMPANION_APP_CONFIG.messageSchema&&data.identities&&typeof data.identities==='object');}
 function isEpisodeDocument(data){return Boolean(data&&data.schema===COMPANION_APP_CONFIG.episodeSchema&&data.id&&data.nodes&&data.openingNode);}
 function isMemoryDocument(data){return MemorySystem.isDocument(data);}
 
-function installMessageBank(data,fileName,source='imported',enabled=true,persist=true){return MessageBankManager.add(data,{source,fileName,enabled,persist});}
-function installEpisode(data,fileName,source='imported',enabled=true,persist=true){return EpisodeManager.add(data,{source,fileName,enabled,persist});}
+function installMessageBank(data,fileName,source='imported',enabled=true){return MessageBankManager.add(data,{source,fileName,enabled});}
+function installEpisode(data,fileName,source='imported',enabled=true){return EpisodeManager.add(data,{source,fileName,enabled});}
 
 function createLibraryItem(record,manager){
   const item=document.createElement('div');item.className='library-item';
@@ -2656,7 +2625,7 @@ function renderLibrary(){
   if(!episodes.length){const x=document.createElement('div');x.className='library-empty';x.textContent='No episodes loaded.';ep.append(x);}else episodes.forEach(r=>ep.append(createLibraryItem(r,EpisodeManager)));
   if(!banks.length){const x=document.createElement('div');x.className='library-empty';x.textContent='No message banks loaded.';mb.append(x);}else banks.forEach(r=>mb.append(createLibraryItem(r,MessageBankManager)));
 }
-function refreshContentUI(){updateDataStatus();renderLibrary();}
+function refreshContentUI(){renderLibrary();}
 function setLibraryOpen(open){libraryPanel.classList.toggle('open',open);libraryPanel.setAttribute('aria-hidden',String(!open));if(open)dossier.classList.remove('open');}
 libraryBtn.addEventListener('click',()=>setLibraryOpen(!libraryPanel.classList.contains('open')));closeLibraryBtn.addEventListener('click',()=>setLibraryOpen(false));
 
@@ -2666,10 +2635,10 @@ async function loadBuiltinList(listUrl,type){
     const list=await fetchJSON(listUrl);const files=Array.isArray(list)?list:list.files;
     if(!Array.isArray(files))throw new Error('List must contain a files array.');
     const base=listUrl.slice(0,listUrl.lastIndexOf('/')+1);
-    for(const name of files){const data=await fetchJSON(base+name);if(type==='episode')installEpisode(data,name,'builtin',true,false);else installMessageBank(data,name,'builtin',true,false);}
+    for(const name of files){const data=await fetchJSON(base+name);if(type==='episode')installEpisode(data,name,'builtin',true);else installMessageBank(data,name,'builtin',true);}
   }catch(error){console.warn(`Could not load ${listUrl}.`,error);}
 }
-async function loadBuiltins(){await Promise.all([loadBuiltinList(BUILTIN_LISTS.episodes,'episode'),loadBuiltinList(BUILTIN_LISTS.messageBanks,'messageBank')]);restoreImportedContent();refreshContentUI();renderExternalAchievements();}
+async function loadBuiltins(){await Promise.all([loadBuiltinList(BUILTIN_LISTS.episodes,'episode'),loadBuiltinList(BUILTIN_LISTS.messageBanks,'messageBank')]);refreshContentUI();renderExternalAchievements();}
 
 /* ---------------------------------------------------------
    MEMORY SYSTEM
@@ -2871,8 +2840,6 @@ dossierBtn.onclick=function(event){
   }
   renderExternalAchievements();
 };
-
-updateDataStatus();
 </script>
 
 </body></html>

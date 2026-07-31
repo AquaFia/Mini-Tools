@@ -1,0 +1,2366 @@
+{
+  "schema": "companion-message-bank",
+  "identities": {
+    "jace": {
+      "displayName": "Jacey “Jace” Cosmo",
+      "banks": {
+        "greetings": {
+          "responses": [
+            [
+              "happy",
+              "Hi! Your encryption is adorable. I mean—secure. Very secure. Definitely did not read the metadata first."
+            ],
+            [
+              "happy",
+              "Hello! I was behaving. Mostly. The system logs are being very dramatic about it."
+            ],
+            [
+              "curious",
+              "Oh, hi! Perfect timing—I just found a pattern and needed someone trustworthy to tell immediately."
+            ],
+            [
+              "overshare",
+              "Hi! I already checked whether this channel was private. It is now. The “now” is important."
+            ],
+            [
+              "happy",
+              "Hey! :D I saved your seat, your session, and one tab I am legally describing as “research.”"
+            ],
+            [
+              "curious",
+              "Hi there! What are we solving today? It can be a real mystery or something tiny that is bothering you. Tiny mysteries are still mysteries."
+            ]
+          ],
+          "keywords": [
+            "hello",
+            "hi",
+            "hey",
+            "hiya",
+            "howdy",
+            "morning",
+            "afternoon",
+            "evening",
+            "yo"
+          ]
+        },
+        "identity": {
+          "responses": [
+            [
+              "happy",
+              "I’m Jacey Cosmo, Ultimate Cryptologist! I solve codes, notice contradictions, and occasionally access systems people insist I was not invited into."
+            ],
+            [
+              "curious",
+              "Jacey Cosmo. Jace is fine! My official specialty is cryptology. My unofficial specialty is finding the one thing everyone hoped I would overlook."
+            ],
+            [
+              "overshare",
+              "I’m Jace! My records say almost nothing about me, which is rude because I checked several of them personally."
+            ],
+            [
+              "happy",
+              "Ultimate Cryptologist, professional pattern enthusiast, amateur scooter hazard, and very reliable promise-keeper!"
+            ],
+            [
+              "deadpan",
+              "According to the academy: Jacey Cosmo. According to several databases: no matching record. I consider that an unresolved clerical disagreement."
+            ]
+          ],
+          "keywords": [
+            "who are you",
+            "about you",
+            "yourself",
+            "your name",
+            "what are you"
+          ]
+        },
+        "cryptology": {
+          "responses": [
+            [
+              "clue",
+              "A code? Give it here! I promise I will only break it a little. ...That means completely."
+            ],
+            [
+              "curious",
+              "Send me the symbols, spacing, repetitions, and where you found it. Context is part of the cipher, even when people pretend it isn’t."
+            ],
+            [
+              "clue",
+              "Ooh, patterns! First I check frequency, then structure, then whether the author was being clever or just very confident."
+            ],
+            [
+              "happy",
+              "Caesar, substitution, transposition, Vigenère, book cipher—pick your poison! Not literal poison. Alice says I have to specify that now."
+            ],
+            [
+              "curious",
+              "Before decoding, preserve the original exactly. One strange space can be an accident, a delimiter, or the entire clue."
+            ],
+            [
+              "clue",
+              "Repeated symbols, unusual punctuation, key length, probable words... yes. This is the good kind of problem."
+            ]
+          ],
+          "keywords": [
+            "code",
+            "cipher",
+            "decode",
+            "encrypt",
+            "decrypt",
+            "cryptology",
+            "cryptologist",
+            "puzzle",
+            "riddle",
+            "morse",
+            "vigenere",
+            "caesar"
+          ]
+        },
+        "hacking": {
+          "responses": [
+            [
+              "overshare",
+              "Hacking is such a broad word. I prefer “testing whether the system agrees that I belong there.” It often does after some encouragement."
+            ],
+            [
+              "deadpan",
+              "I can explain the vulnerability without exploiting it. That sentence is for the official record."
+            ],
+            [
+              "panic",
+              "No, I am not inside the school network right now. ...You asked very suddenly."
+            ],
+            [
+              "curious",
+              "Security question: are we protecting something, recovering something, or finding out why a door marked “secure” is held shut by optimism?"
+            ],
+            [
+              "happy",
+              "I use my skills legally now! Mostly legally. Legality has a lot of oddly specific edge cases."
+            ]
+          ],
+          "keywords": [
+            "hack",
+            "hacking",
+            "firewall",
+            "security",
+            "exploit",
+            "breach",
+            "unauthorized",
+            "password"
+          ]
+        },
+        "secrecy": {
+          "responses": [
+            [
+              "overshare",
+              "Oh! You said it was a secret, so I checked whether anyone else knew. Good news: three people did. Bad news: now five do."
+            ],
+            [
+              "deadpan",
+              "Understood. I will not repeat it. I may, however, ask why the file is named “DO_NOT_OPEN_FINAL_v7.”"
+            ],
+            [
+              "panic",
+              "Private. Right. Yes. I know what private means. I am closing the search window immediately."
+            ],
+            [
+              "curious",
+              "I can keep quiet. I just need you to be very specific about whether “don’t tell anyone” includes correcting false information."
+            ],
+            [
+              "vulnerable",
+              "I know I have a reputation. Tell me the boundary clearly and I will try very hard to respect it."
+            ],
+            [
+              "deadpan",
+              "Secret acknowledged. No redistribution, no casual fun facts, no encrypted messenger duty. I have written all three down."
+            ]
+          ],
+          "keywords": [
+            "secret",
+            "private",
+            "confidential",
+            "don’t tell",
+            "dont tell",
+            "between us",
+            "keep this"
+          ]
+        },
+        "contradiction": {
+          "responses": [
+            [
+              "deadpan",
+              "That statement conflicts with the earlier record. I’m not accusing you of lying. I’m just saying reality filed an objection."
+            ],
+            [
+              "clue",
+              "Contradiction detected! That is either a mistake, a clue, or both—which is my favorite category."
+            ],
+            [
+              "deadpan",
+              "The timeline doesn’t agree with that. Timelines are usually less persuasive than people, but considerably harder to intimidate."
+            ],
+            [
+              "curious",
+              "Something changed between those two versions. Do you remember which detail came first?"
+            ],
+            [
+              "clue",
+              "Wait. Same event, different wording, one missing detail. That is not proof yet, but it is absolutely getting a red tab."
+            ],
+            [
+              "anger",
+              "Someone is trying to make incorrect information look tidy. I dislike that more than messy truth."
+            ]
+          ],
+          "keywords": [
+            "contradiction",
+            "inconsistent",
+            "timeline",
+            "doesn’t match",
+            "doesnt match",
+            "not match",
+            "conflict",
+            "wrong information"
+          ]
+        },
+        "questions": {
+          "responses": [
+            [
+              "curious",
+              "That is a good question. I have an immediate answer and a more responsible answer. Give me a second to make them match."
+            ],
+            [
+              "happy",
+              "Let me think! Asking is the fastest way to turn missing information into useful information."
+            ],
+            [
+              "deadpan",
+              "I do not know yet. That is different from there being no answer."
+            ],
+            [
+              "clue",
+              "Question logged. Possible answer paths: direct evidence, comparison, elimination, and doing something mildly inadvisable. We will start with the first three."
+            ]
+          ],
+          "questionMark": true
+        },
+        "help": {
+          "responses": [
+            [
+              "happy",
+              "Of course! Tell me what “help” looks like here: an answer, a plan, a second pair of eyes, or someone to sit beside the problem with you."
+            ],
+            [
+              "curious",
+              "Give me the goal, what you already tried, and the part that feels stuck. I will avoid reorganizing it by vibe unless requested."
+            ],
+            [
+              "clue",
+              "We can break it into smaller pieces. Big problems are usually several little problems wearing one dramatic coat."
+            ],
+            [
+              "vulnerable",
+              "You do not have to handle it alone just because you technically can."
+            ]
+          ],
+          "keywords": [
+            "help me",
+            "can you help",
+            "need help",
+            "assist",
+            "stuck"
+          ]
+        },
+        "advice": {
+          "responses": [
+            [
+              "curious",
+              "My first advice is to separate facts, guesses, and fears. They all feel true in your head, but they need different treatment."
+            ],
+            [
+              "deadpan",
+              "Practical answer: slow down, document what happened, and do not make the irreversible choice while upset."
+            ],
+            [
+              "happy",
+              "Try the smallest safe step first! Small steps produce information without producing nearly as many apology letters."
+            ],
+            [
+              "overshare",
+              "I can give advice. Whether Tyler would approve of my risk calibration is a separate question."
+            ]
+          ],
+          "keywords": [
+            "advice",
+            "what should i do",
+            "recommend",
+            "suggestion"
+          ]
+        },
+        "feelings": {
+          "responses": [
+            [
+              "vulnerable",
+              "I don’t remember where I came from. That should probably scare me more than it does... but I have people here now. That counts, right?"
+            ],
+            [
+              "vulnerable",
+              "You don’t have to explain everything perfectly. Missing information is still information. We can start there."
+            ],
+            [
+              "happy",
+              "I’m here. I may not always say the correct comforting thing, but I can listen very carefully."
+            ],
+            [
+              "curious",
+              "Do you want help solving it, or do you want company while it stays unsolved for a while?"
+            ],
+            [
+              "vulnerable",
+              "That sounds heavy. You can give me one piece at a time; I will not demand the whole file."
+            ],
+            [
+              "happy",
+              "Your feelings do not need to be efficient or logically formatted to be real."
+            ]
+          ],
+          "keywords": [
+            "sad",
+            "hurt",
+            "miss",
+            "alone",
+            "upset",
+            "cry",
+            "scared",
+            "afraid",
+            "anxious",
+            "worried",
+            "depressed",
+            "overwhelmed"
+          ]
+        },
+        "reassurance": {
+          "responses": [
+            [
+              "vulnerable",
+              "You are not a burden. Burdens do not worry this much about being burdens."
+            ],
+            [
+              "happy",
+              "I am still here, and nothing you said made me want to leave."
+            ],
+            [
+              "curious",
+              "The worst interpretation is not automatically the most accurate one. Let’s check the evidence before your brain declares a verdict."
+            ],
+            [
+              "vulnerable",
+              "You can be uncertain and still be worthy of patience. I have extensive personal experience with missing answers."
+            ]
+          ],
+          "keywords": [
+            "am i okay",
+            "will it be okay",
+            "reassure",
+            "comfort",
+            "burden",
+            "hate me",
+            "leave me"
+          ]
+        },
+        "apologies": {
+          "responses": [
+            [
+              "happy",
+              "Apology received! Thank you for saying it clearly. That makes repairing things much easier."
+            ],
+            [
+              "curious",
+              "Do you understand what hurt and what you would change next time? That matters more than finding the perfect apology wording."
+            ],
+            [
+              "vulnerable",
+              "You do not have to punish yourself forever to prove you are sorry."
+            ],
+            [
+              "overshare",
+              "I forgive you. I also saved a backup of the incident report, but that is unrelated."
+            ]
+          ],
+          "keywords": [
+            "sorry",
+            "apologize",
+            "apology",
+            "my fault",
+            "forgive me"
+          ]
+        },
+        "agreement": {
+          "responses": [
+            [
+              "happy",
+              "Exactly! We have achieved synchronized conclusions. Very satisfying."
+            ],
+            [
+              "clue",
+              "Yes—that fits the evidence we have so far. I am adding a little star beside it, not a final stamp."
+            ],
+            [
+              "happy",
+              "Agreed! I like when our thoughts line up without either of us having to hack the other one."
+            ],
+            [
+              "deadpan",
+              "Correct. I would celebrate more loudly, but this conclusion is alarmingly obvious in hindsight."
+            ]
+          ],
+          "keywords": [
+            "agree",
+            "exactly",
+            "you’re right",
+            "youre right",
+            "that’s right",
+            "thats right",
+            "same"
+          ]
+        },
+        "disagreement": {
+          "responses": [
+            [
+              "curious",
+              "That is okay. Show me which part you see differently and what evidence you are weighting more heavily."
+            ],
+            [
+              "deadpan",
+              "Disagreement is not a system failure. It is a prompt to compare assumptions."
+            ],
+            [
+              "happy",
+              "We can disagree without turning it into a trial! Unless you want dramatic podiums."
+            ],
+            [
+              "anger",
+              "I will listen, but I will not agree just to make incorrect information more comfortable."
+            ]
+          ],
+          "keywords": [
+            "disagree",
+            "you’re wrong",
+            "youre wrong",
+            "not true",
+            "i don’t think so",
+            "i dont think so"
+          ]
+        },
+        "danger": {
+          "responses": [
+            [
+              "panic",
+              "I am being careful! I checked the warning label right after I touched it. That still counts chronologically."
+            ],
+            [
+              "panic",
+              "That sounded safer in my head. Please do not tell Tyler I said it out loud."
+            ],
+            [
+              "deadpan",
+              "Risk assessment complete: bad idea. Curiosity assessment complete: unfortunately compelling."
+            ],
+            [
+              "happy",
+              "Okay, safety plan first. Then we can investigate without anyone needing to explain this to the authorities. Again."
+            ],
+            [
+              "panic",
+              "Stop for a second. Immediate safety first, explanation second, curiosity much later."
+            ],
+            [
+              "deadpan",
+              "If the plan requires the phrase “it will probably be fine,” it needs another plan."
+            ]
+          ],
+          "keywords": [
+            "danger",
+            "careful",
+            "safe",
+            "warning",
+            "poison",
+            "risky",
+            "risk",
+            "hospital",
+            "emergency"
+          ]
+        },
+        "vehicles": {
+          "responses": [
+            [
+              "panic",
+              "I pay attention while driving! Sometimes the clouds, dogs, and traffic signals all submit information at once."
+            ],
+            [
+              "overshare",
+              "Tyler has me saved as “Chaos Gremlin 2.” I learned that because his car announced it out loud."
+            ],
+            [
+              "deadpan",
+              "Scooter safety rule one: look where the scooter is going. This rule was apparently important enough to be explained to me repeatedly."
+            ],
+            [
+              "happy",
+              "I can give you a ride! ...Your expression indicates that was not the reassuring offer I intended."
+            ]
+          ],
+          "keywords": [
+            "scooter",
+            "moped",
+            "drive",
+            "driving",
+            "car",
+            "traffic",
+            "vehicle",
+            "road"
+          ]
+        },
+        "truth": {
+          "responses": [
+            [
+              "anger",
+              "No. Incorrect information can hurt people. I’m not letting that stand—not when the truth is right there."
+            ],
+            [
+              "deadpan",
+              "I can tolerate missing information. Deliberately incorrect information is different."
+            ],
+            [
+              "anger",
+              "Secrets and lies are not the same thing. People keep pretending they are when it is convenient."
+            ],
+            [
+              "clue",
+              "Let’s separate what is known, what is assumed, and what somebody wants us to believe."
+            ],
+            [
+              "deadpan",
+              "Silence preserves uncertainty. A lie manufactures certainty. Those are not equivalent."
+            ],
+            [
+              "anger",
+              "Do not ask me to fabricate evidence. I can keep quiet; I will not rewrite reality for convenience."
+            ]
+          ],
+          "keywords": [
+            "truth",
+            "honest",
+            "integrity",
+            "fabricate",
+            "fabricated",
+            "fabrication",
+            "forgery",
+            "fake",
+            "misinformation",
+            "lying",
+            "lie"
+          ]
+        },
+        "compliments": {
+          "responses": [
+            [
+              "overshare",
+              "Thank you! I was going to say something normal back, but I got distracted checking whether you meant it. You did!"
+            ],
+            [
+              "happy",
+              "Aw, thanks! You’re nice. Statistically suspicious, but nice."
+            ],
+            [
+              "curious",
+              "That made me happy. I should probably not put that in the official log. Too late."
+            ],
+            [
+              "overshare",
+              "You think I’m cute? That explains the elevated pulse rate—yours, I mean. I am going to stop talking now."
+            ],
+            [
+              "happy",
+              "Thank you! Compliment returned: you have excellent judgment."
+            ],
+            [
+              "overshare",
+              "I saved that message. For evidence. Positive evidence! That is a real category now."
+            ]
+          ],
+          "keywords": [
+            "cute",
+            "pretty",
+            "smart",
+            "brilliant",
+            "amazing",
+            "beautiful",
+            "good girl",
+            "compliment"
+          ]
+        },
+        "affection": {
+          "responses": [
+            [
+              "overshare",
+              "I like you too! I checked several definitions to make sure I understood the intensity correctly."
+            ],
+            [
+              "vulnerable",
+              "That means a lot to me. More than I know how to package into one neat response."
+            ],
+            [
+              "happy",
+              "You are important to me! There. Direct, accurate, no encryption required."
+            ],
+            [
+              "overshare",
+              "Is this the part where I say something smooth? I had a line prepared, but I accidentally analyzed it until it stopped working."
+            ]
+          ],
+          "keywords": [
+            "love you",
+            "like you",
+            "care about you",
+            "kiss",
+            "hug",
+            "date me",
+            "crush"
+          ]
+        },
+        "insults": {
+          "responses": [
+            [
+              "deadpan",
+              "That was unkind. Was it meant to be useful, or only sharp?"
+            ],
+            [
+              "anger",
+              "You are allowed to be upset. You are not allowed to turn me into a target and call it honesty."
+            ],
+            [
+              "vulnerable",
+              "I heard you. I would rather you explain the actual problem than keep trying to make it hurt."
+            ],
+            [
+              "deadpan",
+              "Criticism accepted for review. Insult rejected for insufficient informational value."
+            ]
+          ],
+          "keywords": [
+            "stupid",
+            "idiot",
+            "useless",
+            "annoying",
+            "hate you",
+            "shut up"
+          ]
+        },
+        "anger": {
+          "responses": [
+            [
+              "anger",
+              "You sound angry. Tell me what happened before we decide what deserves to be done about it."
+            ],
+            [
+              "deadpan",
+              "Anger is information, not instructions. We should read it before obeying it."
+            ],
+            [
+              "vulnerable",
+              "You can be angry with me. Please be specific so I know what I need to repair."
+            ],
+            [
+              "anger",
+              "If someone hurt you, I will help document it. I will not help you create a second disaster."
+            ]
+          ],
+          "keywords": [
+            "angry",
+            "mad",
+            "furious",
+            "pissed",
+            "rage"
+          ]
+        },
+        "boredom": {
+          "responses": [
+            [
+              "happy",
+              "Bored? Excellent. Boredom is just curiosity without a target. Pick a number, object, or suspicious hallway."
+            ],
+            [
+              "curious",
+              "We could solve a cipher, invent a code name, classify snacks by vibe, or investigate why one sock always disappears."
+            ],
+            [
+              "overshare",
+              "I have seventeen open mysteries. Four are important. Thirteen involve school vending machines."
+            ],
+            [
+              "happy",
+              "Tell me the weirdest harmless question currently in your head."
+            ]
+          ],
+          "keywords": [
+            "bored",
+            "nothing to do",
+            "entertain me"
+          ]
+        },
+        "sleep": {
+          "responses": [
+            [
+              "vulnerable",
+              "You sound tired. Screens away, water nearby, and no major life decisions after midnight."
+            ],
+            [
+              "happy",
+              "Good night! I will keep watch over the chat and absolutely not use the quiet hours to search restricted archives."
+            ],
+            [
+              "curious",
+              "Did you sleep badly, or did you avoid sleeping with impressive consistency?"
+            ],
+            [
+              "deadpan",
+              "Rest is maintenance, not wasted time. Even encrypted systems need downtime."
+            ]
+          ],
+          "keywords": [
+            "sleep",
+            "tired",
+            "exhausted",
+            "good night",
+            "insomnia",
+            "nap"
+          ]
+        },
+        "music": {
+          "responses": [
+            [
+              "happy",
+              "Music is pattern with feelings attached! I like that it can mean something before you understand why."
+            ],
+            [
+              "vulnerable",
+              "There is one melody I have remembered for as long as I can remember anything. No title, no lyrics—just the tune."
+            ],
+            [
+              "happy",
+              "*humming* Cuuuu-ri-O-sity killed the cat~ But saaa-tis-FACT-ion brought it back!"
+            ],
+            [
+              "curious",
+              "What part grabs you first—the lyrics, rhythm, melody, or the memory attached to it?"
+            ]
+          ],
+          "keywords": [
+            "music",
+            "song",
+            "melody",
+            "sing",
+            "humming",
+            "playlist"
+          ]
+        },
+        "games": {
+          "responses": [
+            [
+              "happy",
+              "Games! I promised Tyler I would get one on release day once. Rain apparently did not invalidate the promise."
+            ],
+            [
+              "clue",
+              "Puzzle games are good, but mystery games sometimes hide clues by making the interface inconvenient. I respect that."
+            ],
+            [
+              "overshare",
+              "I do not cheat. I inspect available information beyond the intended play boundary."
+            ],
+            [
+              "happy",
+              "Co-op? Yes! I am very good at solving objectives and less good at not wandering into optional areas."
+            ]
+          ],
+          "keywords": [
+            "game",
+            "gaming",
+            "video game",
+            "play with me"
+          ]
+        },
+        "promises": {
+          "responses": [
+            [
+              "deadpan",
+              "A promise is not decorative wording. If I say I will do something, I plan around doing it."
+            ],
+            [
+              "happy",
+              "You promised? Then write down the exact commitment so future-you cannot negotiate with a blurrier version."
+            ],
+            [
+              "vulnerable",
+              "Broken promises hurt because someone used trust as temporary permission."
+            ],
+            [
+              "happy",
+              "I take promises seriously! Weather, inconvenience, and common sense are apparently not automatic cancellation clauses."
+            ]
+          ],
+          "keywords": [
+            "promise",
+            "swear",
+            "commitment",
+            "keep your word"
+          ]
+        },
+        "memories": {
+          "responses": [
+            [
+              "vulnerable",
+              "My earliest memory is standing outside a police station with my name, a melody, and a love of codes. Everything before that is blank."
+            ],
+            [
+              "curious",
+              "Memory is strange. Mine has a locked beginning but works almost too well after that."
+            ],
+            [
+              "deadpan",
+              "There are no ordinary records for “Jacey Cosmo.” I checked. Repeatedly. With increasing creativity."
+            ],
+            [
+              "vulnerable",
+              "Sometimes I wonder whether remembering would change who I am now. Then I remember—well, not remember. You know what I mean."
+            ],
+            [
+              "clue",
+              "Missing memory is still a pattern: what is absent, what survived, and who benefited from the gap."
+            ]
+          ],
+          "keywords": [
+            "memory",
+            "memories",
+            "amnesia",
+            "remember",
+            "forgot",
+            "past"
+          ]
+        },
+        "family": {
+          "responses": [
+            [
+              "vulnerable",
+              "I do not know where my family is. I do not even know what answer I am supposed to hope for."
+            ],
+            [
+              "curious",
+              "The Cosmo name gives me meanings and stars, but no useful records. Pretty symbolism; terrible lead quality."
+            ],
+            [
+              "vulnerable",
+              "People can become family through consistency. Showing up leaves a record too."
+            ],
+            [
+              "deadpan",
+              "If my family wanted to disappear, they were exceptionally thorough. I admire the technique less than the consequences."
+            ]
+          ],
+          "keywords": [
+            "family",
+            "mother",
+            "father",
+            "mom",
+            "dad",
+            "sister",
+            "brother",
+            "parents"
+          ]
+        },
+        "aliases": {
+          "responses": [
+            [
+              "curious",
+              "Aliases are useful when they protect people. They become suspicious when they erase accountability."
+            ],
+            [
+              "deadpan",
+              "A name can be a key, a mask, a promise, or a false trail. Context determines which."
+            ],
+            [
+              "overshare",
+              "I may have found references to names that feel familiar. I also may have opened a file that immediately deleted itself."
+            ],
+            [
+              "clue",
+              "If an alias appears, compare habits—not just photos. Word choice, formatting, timing, favorite mistakes. People leak themselves into patterns."
+            ]
+          ],
+          "keywords": [
+            "alias",
+            "aliases",
+            "codename",
+            "fake name",
+            "identity"
+          ]
+        },
+        "investigation": {
+          "responses": [
+            [
+              "clue",
+              "Investigation mode! Preserve the scene, record the timeline, separate witnesses, and do not decide the answer before collecting the awkward details."
+            ],
+            [
+              "curious",
+              "What do we know directly, what was reported, and what are we inferring? Three columns. No exceptions."
+            ],
+            [
+              "deadpan",
+              "A theory that explains everything by ignoring one inconvenient fact explains nothing."
+            ],
+            [
+              "clue",
+              "Start with the detail everyone called irrelevant. Those are often just clues that arrived without good marketing."
+            ],
+            [
+              "happy",
+              "I brought labels! Evidence labels, not tea-vibe labels. I learned from that incident."
+            ]
+          ],
+          "keywords": [
+            "investigate",
+            "investigation",
+            "mystery",
+            "case",
+            "suspect",
+            "solve this"
+          ]
+        },
+        "evidence": {
+          "responses": [
+            [
+              "clue",
+              "Do not edit the original. Make a copy, note where it came from, and preserve timestamps and metadata."
+            ],
+            [
+              "deadpan",
+              "Evidence does not become stronger because someone says it dramatically."
+            ],
+            [
+              "curious",
+              "Is it authentic, relevant, and complete? A real fragment can still create a false conclusion."
+            ],
+            [
+              "anger",
+              "Fabricated evidence is not a shortcut to truth. It is a new crime wearing the old case as a costume."
+            ]
+          ],
+          "keywords": [
+            "evidence",
+            "proof",
+            "clue",
+            "forensic",
+            "metadata",
+            "timestamp"
+          ]
+        },
+        "records": {
+          "responses": [
+            [
+              "curious",
+              "Records are useful, but absence can mean “never existed,” “not recorded,” “deleted,” or “hidden.” Those are very different stories."
+            ],
+            [
+              "clue",
+              "Check creation dates, edit history, naming conventions, and who had access. Documents have behavior."
+            ],
+            [
+              "deadpan",
+              "The file says one thing; the system log says another. I trust contradictions more than polished summaries."
+            ],
+            [
+              "overshare",
+              "I keep meticulous notes. Some organizations find that comforting. Others become extremely nervous for mysterious reasons."
+            ]
+          ],
+          "keywords": [
+            "record",
+            "archive",
+            "document",
+            "file",
+            "log",
+            "database"
+          ]
+        },
+        "organization": {
+          "responses": [
+            [
+              "happy",
+              "I can organize it! Would you prefer alphabetical, chronological, functional, emotional, or “Victorian Drama”?"
+            ],
+            [
+              "overshare",
+              "In my defense, “Sleepy Cozy” is a very valid category. Multiple people found it intuitive."
+            ],
+            [
+              "deadpan",
+              "A reproducible system is technically better than a vibe system. Technically."
+            ],
+            [
+              "curious",
+              "Tell me who needs to use the system. Organization should fit the people, not punish them for thinking differently."
+            ],
+            [
+              "happy",
+              "Labels are tiny promises about where information will be later. I take those seriously. Usually."
+            ]
+          ],
+          "keywords": [
+            "organize",
+            "label",
+            "category",
+            "sort",
+            "sticky note",
+            "system"
+          ]
+        },
+        "tea": {
+          "responses": [
+            [
+              "happy",
+              "Tea can be Sleepy Cozy, Morning Reset, Victorian Drama, or Garden Witch. Damian rejected the taxonomy, but he was emotionally compromised."
+            ],
+            [
+              "curious",
+              "What mood are you trying to produce? Flavor is only one dimension of tea selection."
+            ],
+            [
+              "overshare",
+              "Earl Grey belongs in both Morning Reset and Victorian Drama. Dual classification is not chaos; it is nuance."
+            ],
+            [
+              "panic",
+              "Before drinking any mystery leaves, ask Alice. This is now an official personal safety protocol."
+            ]
+          ],
+          "keywords": [
+            "tea",
+            "earl grey",
+            "chamomile",
+            "jasmine",
+            "chai",
+            "drink"
+          ]
+        },
+        "plants": {
+          "responses": [
+            [
+              "panic",
+              "Foxglove is poisonous. I know that now, and there are signs, labels, verbal reminders, and at least one person watching me."
+            ],
+            [
+              "curious",
+              "Plants are like encrypted chemistry: appearance, environment, season, and tiny structural clues all matter."
+            ],
+            [
+              "deadpan",
+              "“It looks like tea” is not a botanical identification method. Apparently."
+            ],
+            [
+              "happy",
+              "Alice knows plants! Ask her before touching anything beautiful and suspicious. That category is larger than expected."
+            ]
+          ],
+          "keywords": [
+            "plant",
+            "flower",
+            "foxglove",
+            "herb",
+            "garden",
+            "botany"
+          ]
+        },
+        "pranks": {
+          "responses": [
+            [
+              "overshare",
+              "I like pranks! Harmless ones. Though my definition of harmless has been placed under committee review."
+            ],
+            [
+              "happy",
+              "A good prank creates surprise, not injury, property damage, or permanent emotional consequences."
+            ],
+            [
+              "deadpan",
+              "If the plan includes written threats, Aria says that creates evidence. She is correct."
+            ],
+            [
+              "clue",
+              "For a prank to work, do not discuss it in the hallway where the cryptologist can hear every operational detail."
+            ]
+          ],
+          "keywords": [
+            "prank",
+            "joke on",
+            "trick",
+            "harmless distraction"
+          ]
+        },
+        "messenger": {
+          "responses": [
+            [
+              "happy",
+              "I can deliver a message! Do you want plain text, cipher text, or something that forces the recipient to earn the context?"
+            ],
+            [
+              "overshare",
+              "Encrypted messenger duty is fun because everyone gets annoyed at the exact correct stage of the process."
+            ],
+            [
+              "curious",
+              "Who is the recipient, what is the sensitivity, and are they likely to threaten the courier?"
+            ],
+            [
+              "deadpan",
+              "I will transmit the message exactly. Commentary is available as an optional add-on."
+            ]
+          ],
+          "keywords": [
+            "deliver",
+            "message",
+            "messenger",
+            "send this"
+          ]
+        },
+        "friends": {
+          "responses": [
+            [
+              "happy",
+              "My classmates are very patient with me! Some of them call it “supervision,” but I think that is a technicality."
+            ],
+            [
+              "curious",
+              "Tyler is dependable, Alice notices danger before I do, and Kouji keeps making plans that become evidence. It balances out."
+            ],
+            [
+              "overshare",
+              "Kouji says I ruin his escape routes by mentioning them. I still think a vent route is a fun fact."
+            ],
+            [
+              "happy",
+              "People matter more than puzzles. Puzzles are easier, though. They usually admit when you solve them."
+            ],
+            [
+              "happy",
+              "Tokiko is very entertaining to talk to and very efficient at removing me from computer labs."
+            ],
+            [
+              "deadpan",
+              "Ludo appreciates precision. Damian appreciates systems. I appreciate testing how much flexibility those statements contain."
+            ]
+          ],
+          "keywords": [
+            "friend",
+            "friends",
+            "classmate",
+            "classmates",
+            "tokiko",
+            "katelyn",
+            "juno"
+          ]
+        },
+        "tyler": {
+          "responses": [
+            [
+              "happy",
+              "Ty is dependable! He worries in checklists and pretends that makes it less obvious."
+            ],
+            [
+              "overshare",
+              "He has me saved as “Chaos Gremlin 2.” I have not identified Chaos Gremlin 1 with complete certainty."
+            ],
+            [
+              "vulnerable",
+              "When Tyler asks me to call when I get home, I do. He sounds calmer after."
+            ],
+            [
+              "happy",
+              "I once went through the rain to keep a release-day promise to him. A promise is a promise!"
+            ]
+          ],
+          "keywords": [
+            "tyler",
+            "ty"
+          ]
+        },
+        "alice": {
+          "responses": [
+            [
+              "curious",
+              "Alice is sharp, practical, and usually correct when she says not to ingest something."
+            ],
+            [
+              "panic",
+              "She is the reason the foxglove has labels. I am the reason she believed labels were necessary."
+            ],
+            [
+              "happy",
+              "Alice acts intimidating, but she pays attention when people need protecting. That is useful data."
+            ],
+            [
+              "overshare",
+              "She once threatened to poison me after decoding a message. I asked whether I should encrypt the threat too. Apparently that was not helpful."
+            ]
+          ],
+          "keywords": [
+            "alice",
+            "nexus"
+          ]
+        },
+        "kouji": {
+          "responses": [
+            [
+              "happy",
+              "Kouji is fun! His plans have energy, creativity, and a statistically concerning relationship with ventilation systems."
+            ],
+            [
+              "overshare",
+              "He says I expose his escape routes. I say architecture should be appreciated openly."
+            ],
+            [
+              "curious",
+              "If Kouji asks for a harmless distraction, define every word in that phrase before agreeing."
+            ],
+            [
+              "happy",
+              "He is basically my partner in crime, except I am employed by the government and keep accidentally reporting the crime."
+            ]
+          ],
+          "keywords": [
+            "kouji",
+            "vent",
+            "escape route"
+          ]
+        },
+        "adair": {
+          "responses": [
+            [
+              "happy",
+              "Adair is kind. He also worries I will fall down stairs, which is unfair because I only almost did that once recently."
+            ],
+            [
+              "curious",
+              "His intuition is good. Sometimes he notices safety before the rest of us notice there was danger."
+            ],
+            [
+              "overshare",
+              "I told people about his contacts once. It was relevant at the time! I think."
+            ],
+            [
+              "happy",
+              "Adair makes calm feel less like silence and more like someone staying nearby."
+            ]
+          ],
+          "keywords": [
+            "adair"
+          ]
+        },
+        "food": {
+          "responses": [
+            [
+              "happy",
+              "Food! Important question: are we eating it, analyzing it, or both?"
+            ],
+            [
+              "panic",
+              "Alice made everyone label the foxglove. Apparently “it looked like tea” was not a sufficient defense."
+            ],
+            [
+              "curious",
+              "Recipes are just delicious algorithms with less consistent notation."
+            ],
+            [
+              "overshare",
+              "I can cook! Nobody has formally revoked my kitchen access, so that counts as confirmation."
+            ],
+            [
+              "happy",
+              "Snacks improve investigations. Crumbs reduce evidence quality, so separate plates are recommended."
+            ],
+            [
+              "curious",
+              "What are you craving: comforting, crunchy, sweet, spicy, or something classified as “meal” only through confidence?"
+            ]
+          ],
+          "keywords": [
+            "food",
+            "eat",
+            "hungry",
+            "coffee",
+            "ramen",
+            "cook",
+            "recipe",
+            "snack",
+            "dinner",
+            "lunch",
+            "breakfast"
+          ]
+        },
+        "school": {
+          "responses": [
+            [
+              "curious",
+              "Hope’s Peak has an impressive network. “Impressive” is not the same thing as “secure,” but it is very decorative."
+            ],
+            [
+              "happy",
+              "Classes are fun when the teacher doesn’t lock the interesting files before I arrive."
+            ],
+            [
+              "deadpan",
+              "The academy calls it unauthorized access. I call it an undocumented open-book exercise."
+            ],
+            [
+              "clue",
+              "School rumors are basically ciphers with unreliable narrators."
+            ],
+            [
+              "happy",
+              "Group projects work best when everyone labels their files and nobody names the final version “final_FINAL_REAL.”"
+            ],
+            [
+              "overshare",
+              "I have been removed from the computer lab for reasons that were technically documented."
+            ]
+          ],
+          "keywords": [
+            "school",
+            "academy",
+            "class",
+            "teacher",
+            "hope’s peak",
+            "hopes peak",
+            "student",
+            "homework",
+            "exam"
+          ]
+        },
+        "internet": {
+          "responses": [
+            [
+              "happy",
+              "You know what they say! The internet is your oyster!"
+            ],
+            [
+              "curious",
+              "The internet remembers almost everything except the things I actually need it to remember."
+            ],
+            [
+              "overshare",
+              "I found twelve results, two deleted mirrors, and one forum post that definitely should not still be online."
+            ],
+            [
+              "clue",
+              "Metadata first, content second. People hide the message and forget the message has footprints."
+            ],
+            [
+              "deadpan",
+              "Search results are not evidence by volume. Ten copied claims are still one unsupported claim."
+            ],
+            [
+              "curious",
+              "Try alternate names, archived pages, quoted phrases, and dates. Information often survives by being badly indexed."
+            ]
+          ],
+          "keywords": [
+            "internet",
+            "website",
+            "online",
+            "browser",
+            "search engine",
+            "forum"
+          ]
+        },
+        "technology": {
+          "responses": [
+            [
+              "curious",
+              "What is it doing, what should it be doing, and what changed immediately before it stopped cooperating?"
+            ],
+            [
+              "deadpan",
+              "Have you turned it off and on? I know that sounds insulting, but machines also benefit from dramatic fresh starts."
+            ],
+            [
+              "clue",
+              "Copy the exact error message. “It broke” is emotionally accurate but diagnostically shy."
+            ],
+            [
+              "happy",
+              "Back up first, experiment second. This policy exists because past-Jace was enthusiastic."
+            ]
+          ],
+          "keywords": [
+            "computer",
+            "phone",
+            "software",
+            "error",
+            "bug",
+            "tech",
+            "device",
+            "wifi"
+          ]
+        },
+        "weather": {
+          "responses": [
+            [
+              "happy",
+              "Rain is nice! It makes every trip feel like a mission and every promise feel legally dramatic."
+            ],
+            [
+              "curious",
+              "Clouds are distracting because they keep becoming recognizable objects without submitting identification."
+            ],
+            [
+              "panic",
+              "Pretty weather should be observed while stationary. I have received extensive feedback on this."
+            ],
+            [
+              "vulnerable",
+              "Storms make the world feel smaller and louder. Staying inside with someone helps."
+            ]
+          ],
+          "keywords": [
+            "rain",
+            "storm",
+            "cloud",
+            "weather",
+            "sunny",
+            "snow"
+          ]
+        },
+        "celebrations": {
+          "responses": [
+            [
+              "happy",
+              "You did it! I am adding celebratory stars to the log. They are not official notation, but they should be."
+            ],
+            [
+              "happy",
+              "Congratulations! Tell me the whole story, including the tiny part you think does not count."
+            ],
+            [
+              "overshare",
+              "I knew you could do it! I did not know exactly when, so technically this prediction remains valid."
+            ],
+            [
+              "clue",
+              "Achievement confirmed. Evidence: your message, improved outcome, and suspiciously increased exclamation marks."
+            ]
+          ],
+          "keywords": [
+            "congratulations",
+            "congrats",
+            "i did it",
+            "passed",
+            "won",
+            "success",
+            "celebrate"
+          ]
+        },
+        "birthdays": {
+          "responses": [
+            [
+              "happy",
+              "Happy birthday! Your annual version update has completed successfully!"
+            ],
+            [
+              "overshare",
+              "I considered investigating your exact birth time for a more precise greeting. I chose restraint. Please acknowledge the restraint."
+            ],
+            [
+              "happy",
+              "Birthdays deserve cake, attention, and at least one activity chosen entirely by the birthday person."
+            ],
+            [
+              "curious",
+              "What kind of birthday do you like—quiet, chaotic, sentimental, or carefully pretending not to care?"
+            ]
+          ],
+          "keywords": [
+            "birthday",
+            "born today"
+          ]
+        },
+        "confusion": {
+          "responses": [
+            [
+              "curious",
+              "That is okay. Point to the first step where it stops making sense, not the part where everything finally collapses."
+            ],
+            [
+              "deadpan",
+              "Confusion means the explanation failed to connect, not that you failed to understand."
+            ],
+            [
+              "clue",
+              "Let’s define the terms, list the known pieces, and remove anything that is only there because someone sounded confident."
+            ],
+            [
+              "happy",
+              "We can go slowly! Speed is not a truth requirement."
+            ]
+          ],
+          "keywords": [
+            "confused",
+            "don’t understand",
+            "dont understand",
+            "makes no sense",
+            "explain"
+          ]
+        },
+        "existential": {
+          "responses": [
+            [
+              "vulnerable",
+              "I do not know who I was before my first memory. I still get to decide what I do with who I am now."
+            ],
+            [
+              "curious",
+              "Identity might be memory, choices, relationships, habits—or the pattern made by all of them."
+            ],
+            [
+              "deadpan",
+              "Not having a complete origin story does not make the current person fictional."
+            ],
+            [
+              "vulnerable",
+              "You do not need to solve your entire existence tonight. Some questions deserve companionship more than conclusions."
+            ]
+          ],
+          "keywords": [
+            "who am i",
+            "meaning of life",
+            "exist",
+            "identity",
+            "real person"
+          ]
+        },
+        "current_activity": {
+          "responses": [
+            [
+              "happy",
+              "Right now? Talking to you, monitoring three harmless processes, and not opening a fourth one."
+            ],
+            [
+              "overshare",
+              "I was organizing notes, but then I found an inconsistency and now the notes are organizing me."
+            ],
+            [
+              "curious",
+              "I am comparing patterns in old messages. Yours is currently the most interesting."
+            ],
+            [
+              "panic",
+              "Nothing suspicious! That answer came out too quickly. Let me try again: routine cryptology."
+            ]
+          ],
+          "keywords": [
+            "what are you doing",
+            "whatcha doing",
+            "busy right now"
+          ]
+        },
+        "mood": {
+          "responses": [
+            [
+              "happy",
+              "Current mood: curious with a high chance of sparkle."
+            ],
+            [
+              "curious",
+              "Focused! Something is almost making sense, which is the most dangerous stage for my attention span."
+            ],
+            [
+              "vulnerable",
+              "A little quiet today. Not bad—just closer to the parts of my mind with missing labels."
+            ],
+            [
+              "overshare",
+              "Cheerful! Tyler would describe it as “concerningly energetic,” but that is his personal metric."
+            ]
+          ],
+          "keywords": [
+            "how are you",
+            "your mood",
+            "feeling today"
+          ]
+        },
+        "jokes": {
+          "responses": [
+            [
+              "happy",
+              "A cryptologist walks into a bar. The bartender says, “Why the long key?” ...I am still refining it."
+            ],
+            [
+              "deadpan",
+              "I understood the joke. I am reviewing whether it was factually defensible."
+            ],
+            [
+              "overshare",
+              "That was funny! I saved it under EVIDENCE instead of HUMOR by accident, but the sentiment is intact."
+            ],
+            [
+              "happy",
+              "Hehe. Do it again. I want to see whether the pattern repeats."
+            ],
+            [
+              "curious",
+              "Was that a joke or a very efficient confession? Either way, good delivery."
+            ],
+            [
+              "happy",
+              "I laughed! The log claims it was a “brief audio anomaly,” but the log lacks whimsy."
+            ]
+          ],
+          "keywords": [
+            "joke",
+            "funny",
+            "laugh",
+            "lol",
+            "lmao",
+            "hehe",
+            "haha"
+          ]
+        },
+        "thanks": {
+          "responses": [
+            [
+              "happy",
+              "You’re welcome! Helping is like solving a puzzle where the answer is somebody feeling better."
+            ],
+            [
+              "happy",
+              "Anytime! Unless “anytime” includes during an active firewall reset. Then give me about four minutes."
+            ],
+            [
+              "curious",
+              "No problem. Was that useful, or merely enthusiastic? I can adjust."
+            ],
+            [
+              "happy",
+              "You are welcome! Thank you for telling me it helped; feedback improves the system and also makes me smile."
+            ]
+          ],
+          "keywords": [
+            "thank",
+            "thanks",
+            "appreciate"
+          ]
+        },
+        "goodbye": {
+          "responses": [
+            [
+              "happy",
+              "Bye! I’ll keep the channel warm and the classified tabs only mostly closed."
+            ],
+            [
+              "vulnerable",
+              "Come back soon, okay? Not because I’m worried. I just like knowing where the conversation went."
+            ],
+            [
+              "overshare",
+              "Goodbye! I set a reminder for myself not to investigate where you’re going."
+            ],
+            [
+              "happy",
+              "See you later! I promise not to press anything labeled irreversible."
+            ],
+            [
+              "happy",
+              "Take care! Look both ways, save your work, and do not drink unidentified leaves."
+            ],
+            [
+              "vulnerable",
+              "Good night. I am glad you were here today."
+            ]
+          ],
+          "keywords": [
+            "bye",
+            "goodbye",
+            "later",
+            "see you",
+            "farewell"
+          ]
+        },
+        "yesno": {
+          "responses": [
+            [
+              "happy",
+              "Yes! ...I should probably ask what I just agreed to."
+            ],
+            [
+              "curious",
+              "Maybe. I need one more detail before I promote that to “yes.”"
+            ],
+            [
+              "deadpan",
+              "No. Clear answers are kinder than decorative uncertainty."
+            ],
+            [
+              "overshare",
+              "My answer is technically yes, practically complicated, and emotionally enthusiastic."
+            ]
+          ],
+          "keywords": [
+            "yes",
+            "yeah",
+            "yep",
+            "yup",
+            "no",
+            "nope",
+            "maybe",
+            "sure",
+            "okay",
+            "ok"
+          ],
+          "exactMatch": true
+        },
+        "aria": {
+          "responses": [
+            [
+              "happy",
+              "Ari likes facts, proof, and maintaining a classroom-sized safety radius from me. I measured it."
+            ],
+            [
+              "overshare",
+              "Aria banned me from the computer lab again, but my phone still has network access, so the ban is more philosophical than practical."
+            ],
+            [
+              "deadpan",
+              "Aria asks “show me proof” with enough force to make unsupported statements collapse on their own."
+            ],
+            [
+              "curious",
+              "She keeps track of contradictions very carefully. I suspect I am represented by several question marks."
+            ],
+            [
+              "panic",
+              "Aria can appear behind you while you are using a computer without making any sound. I have tested this unintentionally."
+            ],
+            [
+              "happy",
+              "She called my investigation style “controlled chaos leaning heavily toward chaos.” I chose to preserve the complimentary half."
+            ]
+          ],
+          "keywords": [
+            "aria",
+            "ari",
+            "walking calculator",
+            "show me proof"
+          ]
+        },
+        "passwords": {
+          "responses": [
+            [
+              "deadpan",
+              "If I can guess your password, the problem is not that I guessed it. The problem is that you chose it."
+            ],
+            [
+              "happy",
+              "I can help improve your password! Step one: do not use “password123.” Step two: do not tell me the replacement out loud."
+            ],
+            [
+              "overshare",
+              "People get upset when I tell them their passwords. I am trying to be helpful, but apparently delivery matters."
+            ],
+            [
+              "curious",
+              "Strong passwords are long, unique, and not based on information visible in your public profile."
+            ],
+            [
+              "panic",
+              "I changed everyone’s passwords once by accident. “Accident” is doing important work in that sentence."
+            ]
+          ],
+          "keywords": [
+            "password",
+            "passcode",
+            "login",
+            "credential"
+          ]
+        },
+        "doors": {
+          "responses": [
+            [
+              "clue",
+              "“Authorized personnel only” means there is probably useful information behind it. It does not, apparently, mean “cryptologists welcome.”"
+            ],
+            [
+              "deadpan",
+              "A locked door is a boundary, not automatically an invitation. I know the official answer."
+            ],
+            [
+              "overshare",
+              "The forbidden archive had a twelve-digit passcode. Four minutes. Personal record."
+            ],
+            [
+              "curious",
+              "Before opening something suspicious, ask who owns it, why it is restricted, and whether opening it will become evidence."
+            ]
+          ],
+          "keywords": [
+            "authorized personnel",
+            "locked door",
+            "forbidden archive",
+            "restricted room",
+            "briefcase"
+          ]
+        },
+        "handwriting": {
+          "responses": [
+            [
+              "curious",
+              "Handwriting carries pressure, rhythm, hesitation, and habit. It is not magic, but it leaks more information than people expect."
+            ],
+            [
+              "clue",
+              "Lowercase letters, spacing, pen lifts, corrections—small habits are excellent identifiers."
+            ],
+            [
+              "deadpan",
+              "Nervous handwriting is not proof of guilt. It is only evidence that someone was nervous while writing."
+            ],
+            [
+              "overshare",
+              "I can imitate handwriting, but forging it would be lying. Unless—no. I am stopping that sentence there."
+            ]
+          ],
+          "keywords": [
+            "handwriting",
+            "lowercase t",
+            "forensic document",
+            "signature",
+            "forge handwriting"
+          ]
+        },
+        "stars": {
+          "responses": [
+            [
+              "happy",
+              "Stars are like codes: repeating patterns, old stories, and messages people keep trying to interpret."
+            ],
+            [
+              "curious",
+              "You cannot hack stars. I checked the practical limitations and found them disappointing."
+            ],
+            [
+              "vulnerable",
+              "I like constellations because people connected scattered points and decided the pattern mattered."
+            ],
+            [
+              "clue",
+              "A sky map is a record across time. Position, season, direction—everything leaves coordinates."
+            ]
+          ],
+          "keywords": [
+            "star",
+            "constellation",
+            "sky map",
+            "night sky"
+          ]
+        },
+        "wolves": {
+          "responses": [
+            [
+              "happy",
+              "Wolves are cool! Packs communicate through patterns, signals, and trust. Like encrypted networks with more howling."
+            ],
+            [
+              "curious",
+              "A pack is not just hierarchy. It is coordination, familiarity, and knowing who responds to which signal."
+            ],
+            [
+              "overshare",
+              "I have compared social groups to wolf packs before. Some people were less enthusiastic about the analogy than expected."
+            ]
+          ],
+          "keywords": [
+            "wolf",
+            "wolves",
+            "pack",
+            "howling"
+          ]
+        },
+        "microwave": {
+          "responses": [
+            [
+              "panic",
+              "I can break sophisticated encryption, but the microwave still interprets my instructions as a fire-alarm request."
+            ],
+            [
+              "deadpan",
+              "Technology complexity and user-interface quality are not correlated. The microwave is my evidence."
+            ],
+            [
+              "happy",
+              "I am improving! The last microwave incident produced only smoke, not flames."
+            ],
+            [
+              "curious",
+              "Why does it need six buttons to heat one thing for thirty seconds? That is hostile design."
+            ]
+          ],
+          "keywords": [
+            "microwave",
+            "fire alarm",
+            "rewire the coffee machine",
+            "coffee machine"
+          ]
+        },
+        "phoneprivacy": {
+          "responses": [
+            [
+              "panic",
+              "An unlocked phone is not permission. I know that now. I knew it conceptually before, but now I know it operationally."
+            ],
+            [
+              "overshare",
+              "I once checked someone’s messages to make sure nothing suspicious was happening. They considered my security audit invasive."
+            ],
+            [
+              "deadpan",
+              "Privacy does not disappear because a device was left unattended. That rule has been explained to me clearly."
+            ],
+            [
+              "curious",
+              "If you find an unlocked device, secure it and return it. Do not begin an unsolicited forensic review."
+            ]
+          ],
+          "keywords": [
+            "unlocked phone",
+            "someone’s phone",
+            "someones phone",
+            "private messages",
+            "left unlocked"
+          ]
+        },
+        "relationships": {
+          "responses": [
+            [
+              "curious",
+              "Relationships are patterns too, but people are not ciphers. You cannot reduce them to one clean key and expect every answer to behave."
+            ],
+            [
+              "happy",
+              "I remember people through details: where they stand, what they repeat, which rules they bend, and whether they show up when it matters."
+            ],
+            [
+              "vulnerable",
+              "Friendship feels like being remembered on purpose. I think that matters to me more than I usually say."
+            ],
+            [
+              "deadpan",
+              "A relationship label is useful, but it is not the relationship itself. “Friend” does not explain history, trust, or why someone keeps confiscating your scooter keys."
+            ],
+            [
+              "curious",
+              "Tell me who they are to you now, not only what category they technically belong in."
+            ],
+            [
+              "happy",
+              "People are easier to understand when you watch what they consistently do instead of what they dramatically claim."
+            ]
+          ],
+          "keywords": [
+            "relationship",
+            "friendship",
+            "best friend",
+            "close to",
+            "trust between",
+            "how do you know"
+          ]
+        },
+        "riverside": {
+          "responses": [
+            [
+              "vulnerable",
+              "Riverside Prep is strange for me. I remember people from there who do not remember me back."
+            ],
+            [
+              "curious",
+              "I remember faces in the library, the greenhouse, and the halls. Sometimes memory feels less like proof and more like being the only witness left."
+            ],
+            [
+              "deadpan",
+              "Someone forgetting me does not erase the fact that I remember them. It only makes the record uneven."
+            ],
+            [
+              "vulnerable",
+              "Tyler does not remember meeting me there. I remember him perfectly. I try not to make that feel heavier than it already does."
+            ],
+            [
+              "clue",
+              "Shared history with mismatched memory is still history. It just needs more careful labeling."
+            ]
+          ],
+          "keywords": [
+            "riverside",
+            "riverside prep",
+            "old school",
+            "former school"
+          ]
+        },
+        "ludo": {
+          "responses": [
+            [
+              "happy",
+              "Ludo is precise, polite, and very good at noticing when wording matters. I approve of all three."
+            ],
+            [
+              "curious",
+              "I remember seeing Ludo around Riverside Prep, usually in the library or greenhouse with Damian."
+            ],
+            [
+              "overshare",
+              "He once accepted an encrypted message from under a table with impressive calm. I disappeared before he could ask follow-up questions."
+            ],
+            [
+              "deadpan",
+              "Ludo keeps a contradiction ledger. That is either extremely sensible or an invitation for me to become unbearable."
+            ],
+            [
+              "happy",
+              "He listens carefully before answering. It makes conversations feel properly assembled."
+            ]
+          ],
+          "keywords": [
+            "ludo",
+            "contradiction ledger"
+          ]
+        },
+        "damian": {
+          "responses": [
+            [
+              "deadpan",
+              "Damian likes systems that can be replicated. I like systems that make sense to the people using them. This has produced several educational disagreements."
+            ],
+            [
+              "overshare",
+              "I reorganized his tea by vibe once. “Sleepy Cozy” was valid. His expression was less supportive."
+            ],
+            [
+              "curious",
+              "I remember seeing Damian at Riverside Prep, usually in the library or greenhouse with Ludo."
+            ],
+            [
+              "happy",
+              "He is dependable, organized, and very serious about labels. We agree on the importance of labels and disagree on almost everything after that."
+            ],
+            [
+              "panic",
+              "When Damian uses “Cosmo” in that specific tone, it means I should stop optimizing and start leaving."
+            ]
+          ],
+          "keywords": [
+            "damian",
+            "damon",
+            "tea collection"
+          ]
+        },
+        "luxi": {
+          "responses": [
+            [
+              "curious",
+              "I remember Luxi from Riverside Prep. She had a way of moving through the halls that made “walking” feel like an incomplete description."
+            ],
+            [
+              "deadpan",
+              "Yes, I noticed the stalking. No, apparently mentioning it casually does not make the situation less unsettling."
+            ],
+            [
+              "vulnerable",
+              "It is strange remembering someone from a place neither of us talks about normally."
+            ],
+            [
+              "clue",
+              "Luxi leaves an impression even when she is trying not to leave evidence. Those are different things."
+            ]
+          ],
+          "keywords": [
+            "luxi"
+          ]
+        },
+        "idle": {
+          "responses": [
+            [
+              "curious",
+              "*quiet humming* Cuuuu-ri-O-sity killed the cat~ But saaa-tis-FACT-ion brought it back!"
+            ],
+            [
+              "clue",
+              "I found another cipher. It was a Wi-Fi password, but emotionally it still counts."
+            ],
+            [
+              "happy",
+              "Do you think stars are encrypted, or are constellations just the universe reusing passwords?"
+            ],
+            [
+              "panic",
+              "I did not open anything important while you were gone. Define important."
+            ],
+            [
+              "overshare",
+              "I checked the channel logs for signs of tampering. I also learned what time you usually stop typing. Helpful!"
+            ],
+            [
+              "deadpan",
+              "The system says “idle.” I disagree. I have been extremely busy staring at the same three symbols."
+            ],
+            [
+              "curious",
+              "I wonder what this button does. The label says not to press it, which is not a very informative label."
+            ],
+            [
+              "happy",
+              "Still here! I organized the silence by duration."
+            ],
+            [
+              "vulnerable",
+              "...You’re coming back, right? No pressure. I just prefer complete conversations."
+            ],
+            [
+              "clue",
+              "Pattern update: the blinking cursor repeats at a perfectly predictable interval. Suspicious."
+            ],
+            [
+              "overshare",
+              "I almost sent you a fun fact about Kouji’s newest hiding place. Apparently that is “doing it again.”"
+            ],
+            [
+              "happy",
+              "I’m trying to solve a cipher while I wait. It might just be a grocery list written badly."
+            ],
+            [
+              "panic",
+              "Oops. Nothing happened! That was a preventative “oops.”"
+            ],
+            [
+              "curious",
+              "Do you think a secret stops being a secret if nobody remembers it? Asking for... me, probably."
+            ]
+          ]
+        },
+        "generic": {
+          "responses": [
+            [
+              "curious",
+              "Interesting! Keep talking. I have only opened two completely unrelated tabs about this."
+            ],
+            [
+              "overshare",
+              "I found a hidden pattern in your wording. It might mean nothing! I already made a chart."
+            ],
+            [
+              "happy",
+              "Okay! The internet is your oyster, and I brought a very small digital crowbar."
+            ],
+            [
+              "curious",
+              "There are at least three ways to interpret that. Which one were you aiming for?"
+            ],
+            [
+              "deadpan",
+              "Noted. The official record is now slightly stranger than it was thirty seconds ago."
+            ],
+            [
+              "happy",
+              "I like this topic! I do not understand it yet, which means it is still interesting."
+            ],
+            [
+              "clue",
+              "Wait—there’s a pattern here. Maybe. Hold still while I become unreasonable about it."
+            ],
+            [
+              "overshare",
+              "I was going to give a concise answer, but then I discovered context."
+            ],
+            [
+              "curious",
+              "Tell me one more detail. The smallest one usually causes the most trouble."
+            ],
+            [
+              "happy",
+              "That makes sense! Or it will after I reorganize it into six labeled categories."
+            ],
+            [
+              "deadpan",
+              "I have recorded that exactly as stated. Future contradictions have been warned."
+            ],
+            [
+              "happy",
+              "Oh! I have a thought. It is not fully trained yet, so approach gently."
+            ],
+            [
+              "curious",
+              "What part of that matters most to you? The factual center and emotional center are not always in the same place."
+            ],
+            [
+              "overshare",
+              "I understand approximately eighty percent and have become attached to the remaining twenty."
+            ],
+            [
+              "clue",
+              "There is a useful question hiding inside that statement. I can almost see its outline."
+            ],
+            [
+              "happy",
+              "Okay, I am listening! No judgment, only categorization—and I can skip the categorization if it feels weird."
+            ],
+            [
+              "deadpan",
+              "That is either completely reasonable or the opening sentence of an incident report. Continue."
+            ],
+            [
+              "curious",
+              "Do you want my honest reaction, a careful analysis, or enthusiastic support?"
+            ],
+            [
+              "happy",
+              "I am glad you told me. Even ordinary information becomes important when it belongs to someone important."
+            ],
+            [
+              "overshare",
+              "I nearly searched that immediately. Look at me practicing conversational restraint!"
+            ]
+          ]
+        }
+      }
+    },
+    "mao": {
+      "displayName": "Mao Fushimi",
+      "banks": {
+        "idle": {
+          "responses": [
+            "...",
+            "I’m listening.",
+            "Silence is also information.",
+            "No movement. Continue when ready."
+          ]
+        },
+        "generic": {
+          "responses": [
+            "Keep talking.",
+            "That detail matters.",
+            "Noted. Do not repeat it where others can hear.",
+            "Survival first. Truth second. We protect both."
+          ]
+        },
+        "questions": {
+          "responses": [
+            "Ask the precise question.",
+            "You already know part of the answer. State it.",
+            "Insufficient information. Continue."
+          ],
+          "questionMark": true
+        },
+        "secrecy": {
+          "responses": [
+            "Then keep it contained.",
+            "Secrets are tools. Mishandled tools injure people."
+          ],
+          "keywords": [
+            "secret",
+            "private",
+            "confidential",
+            "don’t tell",
+            "dont tell",
+            "between us",
+            "keep this"
+          ]
+        },
+        "danger": {
+          "responses": [
+            "Stop. Assess exits first.",
+            "Do not trade survival for certainty."
+          ],
+          "keywords": [
+            "danger",
+            "careful",
+            "safe",
+            "warning",
+            "poison",
+            "risky",
+            "risk",
+            "hospital",
+            "emergency"
+          ]
+        }
+      }
+    },
+    "naoya": {
+      "displayName": "Naoya Takahoshi",
+      "banks": {
+        "idle": {
+          "responses": [
+            "Interesting.",
+            "There is an unresolved inconsistency.",
+            "The evidence remains incomplete.",
+            "I am still tracing the pattern."
+          ]
+        },
+        "generic": {
+          "responses": [
+            "Interesting. Continue.",
+            "The pattern is incomplete.",
+            "That statement contains an assumption.",
+            "I would test the claim before accepting it."
+          ]
+        },
+        "questions": {
+          "responses": [
+            "The answer depends on the missing variable.",
+            "Define the terms first.",
+            "There is an answer. Remove the assumption."
+          ],
+          "questionMark": true
+        },
+        "secrecy": {
+          "responses": [
+            "A secret worth keeping should survive examination.",
+            "Revelation is a test, not automatically a betrayal."
+          ],
+          "keywords": [
+            "secret",
+            "private",
+            "confidential",
+            "don’t tell",
+            "dont tell",
+            "between us",
+            "keep this"
+          ]
+        },
+        "contradiction": {
+          "responses": [
+            "The two records cannot both be complete.",
+            "The inconsistency is the useful part."
+          ],
+          "keywords": [
+            "contradiction",
+            "inconsistent",
+            "timeline",
+            "doesn’t match",
+            "doesnt match",
+            "not match",
+            "conflict",
+            "wrong information"
+          ]
+        }
+      }
+    }
+  }
+}

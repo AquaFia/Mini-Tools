@@ -53,7 +53,7 @@
     },
     {
       "title": "Interactive Map",
-      "file": "tools/apps/map/index",
+      "file": "tools/apps/map/map",
       "icon": "▧",
       "accent": "#79efb4",
       "description": "Interactive Map",

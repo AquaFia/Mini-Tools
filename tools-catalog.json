@@ -50,6 +50,14 @@
       "accent": "#79efb4",
       "description": "The Jacey Companion Test.",
       "tags": ["companion", "jacey"]
+    },
+    {
+      "title": "Interactive Map",
+      "file": "tools/apps/map/index",
+      "icon": "▧",
+      "accent": "#79efb4",
+      "description": "Interactive Map",
+      "tags": ["map", "student handbook"]
     }
   ]
 }

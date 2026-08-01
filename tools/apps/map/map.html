@@ -125,8 +125,6 @@ body.room-mode .panel{height:calc(100vh - 36px)}
 
 
 /* Dorm-floor mailbox additions only. */
-.dorm-mail-badge{position:absolute;right:6px;bottom:6px;z-index:2;display:grid;place-items:center;width:28px;height:24px;border-radius:6px;background:#07111fe6;border:1px solid #36779e;color:#101827;font-size:15px;line-height:1;box-shadow:0 2px 8px #0004}
-.dorm-room:hover .dorm-mail-badge,.dorm-room.selected .dorm-mail-badge{border-color:#ff3c5b;background:#fff}
 .mail-btn{display:inline-block;margin:12px 8px 6px 0;padding:10px 12px;border-radius:8px;background:#7a2636;color:#fff;border:1px solid #ff8da0;font-weight:900;box-shadow:0 0 18px #e63b5345}
 .mail-btn:hover{filter:brightness(1.14);box-shadow:0 0 22px #e63b5388}
 .mail-overlay{display:none;position:fixed;inset:0;z-index:1000;background:#02050bcc;backdrop-filter:blur(5px);padding:24px}
@@ -135,7 +133,7 @@ body.room-mode .panel{height:calc(100vh - 36px)}
 .mail-sidebar{border-right:1px solid #ffffff22;background:#111a29;overflow:auto}.mail-head{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:15px;background:#111a29ee;border-bottom:1px solid #ffffff22}.mail-head h2{margin:0;font-size:22px}.mail-close{width:34px;height:34px;padding:0;border-radius:50%}
 .letter-list{display:grid;gap:8px;padding:12px}.letter-card{display:block;width:100%;text-align:left;padding:12px;border-radius:8px;background:#ffffff0a;border:1px solid #ffffff18}.letter-card strong{display:block;margin-bottom:6px}.letter-card small{display:block;color:var(--muted);line-height:1.4}.letter-card:hover{border-color:var(--line)}
 .mail-reader{padding:24px;overflow:auto;background:linear-gradient(180deg,#101827,#080d16)}.mail-reader h1{margin-top:0}.letter-meta{color:var(--muted);margin-bottom:22px}.mail-loading,.mail-empty,.mail-error{padding:18px;color:var(--muted);line-height:1.5}.mail-error{color:#ff9cad}.notion-content{line-height:1.65}.notion-content img,.notion-content video{max-width:100%;height:auto}.notion-content blockquote{margin:14px 0;padding:10px 14px;border-left:4px solid var(--line);background:#ffffff08}.notion-content pre{overflow:auto;padding:12px;background:#03060c;border:1px solid #ffffff18}.notion-content table{width:100%;border-collapse:collapse}.notion-content th,.notion-content td{border:1px solid #ffffff22;padding:8px}.reader-open-link{display:inline-block;margin-top:18px;color:var(--cyan)}
-@media(max-width:760px){.mail-overlay{padding:8px}.mail-window{grid-template-columns:1fr;grid-template-rows:42% 58%}.mail-sidebar{border-right:0;border-bottom:1px solid #ffffff22}}
+@media(max-width:760px){.mail-window{grid-template-columns:1fr;height:min(860px,94vh)}.mail-sidebar{max-height:42vh;border-right:0;border-bottom:1px solid #ffffff22}}
 
 </style>
 </head>
@@ -186,7 +184,6 @@ body.room-mode .panel{height:calc(100vh - 36px)}
 </main>
 <aside class="panel"><h2 id="roomTitle">1F</h2><span id="roomStatus" class="tag open">Open</span><p id="roomDesc" class="note">Select a room on the map, or search below.</p><div id="profileBox"></div><input id="search" class="search" placeholder="Search rooms or students…"><div id="roomList" class="list"></div></aside>
 </div>
-
 <div class="mail-overlay" id="mailOverlay" role="dialog" aria-modal="true" aria-labelledby="mailboxTitle">
   <div class="mail-window">
     <aside class="mail-sidebar">
@@ -206,9 +203,7 @@ const floors={
 let current='1F', selected=null;
 const spots=document.getElementById('spots'), roomList=document.getElementById('roomList'), search=document.getElementById('search'), dormGrid=document.getElementById('dormGrid');
 function cls(s){return s==='restricted'?'restricted':s==='locked'?'locked':s==='occupied'?'occupied':'open'}
-function selectRoom(r){selected=r.name; document.querySelectorAll('.hotspot,.dorm-room').forEach(e=>e.classList.toggle('selected',e.dataset.name===r.name)); document.getElementById('roomTitle').textContent=r.name; const tag=document.getElementById('roomStatus'); tag.textContent=r.status||'open'; tag.className='tag '+cls(r.status); document.getElementById('roomDesc').textContent=r.desc||'No description yet.'; const box=document.getElementById('profileBox'); box.innerHTML=r.url?`<a class="profile-link" href="${r.url}" target="_blank" rel="noopener noreferrer">Open Notion Profile</a>${current==='Dorms'?'<button type="button" class="mail-btn" id="openRoomMail">✉ Open Mailbox</button>':''}${r.name==='Jacey'?'<button type="button" class="visit-dorm-btn" id="visitJaceyDorm">Visit Dorm</button>':''}`:''; if(current==='Dorms'){
-  document.getElementById('openRoomMail').onclick=()=>openMailbox(r.name);
-} if(r.name==='Jacey'){
+function selectRoom(r){selected=r.name; document.querySelectorAll('.hotspot,.dorm-room').forEach(e=>e.classList.toggle('selected',e.dataset.name===r.name)); document.getElementById('roomTitle').textContent=r.name; const tag=document.getElementById('roomStatus'); tag.textContent=r.status||'open'; tag.className='tag '+cls(r.status); document.getElementById('roomDesc').textContent=r.desc||'No description yet.'; const box=document.getElementById('profileBox'); box.innerHTML=r.url?`<a class="profile-link" href="${r.url}" target="_blank" rel="noopener noreferrer">Open Notion Profile</a>${current==='Dorms'?'<button type="button" class="mail-btn" id="openRoomMail">✉ Open Mailbox</button>':''}${r.name==='Jacey'?'<button type="button" class="visit-dorm-btn" id="visitJaceyDorm">Visit Dorm</button>':''}`:''; if(current==='Dorms'){ document.getElementById('openRoomMail').onclick=()=>openMailbox(r.name); } if(r.name==='Jacey'){
   document.getElementById('visitJaceyDorm').onclick=()=>{
     if(new URLSearchParams(location.search).get('mode')==='handbook' && window.parent!==window){
       window.parent.postMessage({type:'shp:request-enter-jacey'},'*');
@@ -219,7 +214,7 @@ function selectRoom(r){selected=r.name; document.querySelectorAll('.hotspot,.dor
 }}
 function renderList(){const q=search.value.toLowerCase(); roomList.innerHTML=''; floors[current].filter(r=>r.name.toLowerCase().includes(q)).forEach(r=>{let b=document.createElement('button'); b.className='room-btn'; b.textContent=r.name; b.onclick=()=>selectRoom(r); roomList.appendChild(b)})}
 function resetPanel(f,msg){document.getElementById('roomTitle').textContent=f; const tag=document.getElementById('roomStatus'); tag.textContent=f==='Dorms'?'Directory':f==='1F'?'Open':'Pending'; tag.className='tag '+(f==='Dorms'?'occupied':f==='1F'?'open':'locked'); document.getElementById('roomDesc').textContent=msg; document.getElementById('profileBox').innerHTML='';}
-function renderDorms(){dormGrid.querySelectorAll('.dorm-room').forEach(e=>e.remove()); floors.Dorms.forEach(r=>{let d=document.createElement('button'); d.className='dorm-room'; d.dataset.name=r.name; Object.assign(d.style,{left:r.x+'%',top:r.y+'%',width:r.w+'%',height:r.h+'%'}); d.innerHTML=`<span>${r.name}</span><span class="dorm-mail-badge" title="Open ${r.name}'s mailbox">✉</span>`; d.onclick=e=>{if(e.target.closest('.dorm-mail-badge')){e.stopPropagation();openMailbox(r.name)}else selectRoom(r)}; dormGrid.appendChild(d);})}
+function renderDorms(){dormGrid.querySelectorAll('.dorm-room').forEach(e=>e.remove()); floors.Dorms.forEach(r=>{let d=document.createElement('button'); d.className='dorm-room'; d.dataset.name=r.name; Object.assign(d.style,{left:r.x+'%',top:r.y+'%',width:r.w+'%',height:r.h+'%'}); d.innerHTML=`<span>${r.name}</span>`; d.onclick=()=>selectRoom(r); dormGrid.appendChild(d);})}
 function renderFloor(f){current=f; selected=null; document.getElementById('jaceyDormView').classList.remove('active'); document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.floor===f)); document.getElementById('map1').classList.toggle('hidden',f!=='1F'); document.getElementById('dormStage').classList.toggle('hidden',f!=='Dorms'); document.getElementById('placeholder').classList.toggle('active',f!=='1F' && f!=='Dorms'); spots.innerHTML=''; if(f==='1F'){floors[f].forEach(r=>{let d=document.createElement('div'); d.className='hotspot'; d.dataset.name=r.name; Object.assign(d.style,{left:r.x+'%',top:r.y+'%',width:r.w+'%',height:r.h+'%'}); d.onclick=()=>selectRoom(r); spots.appendChild(d)}); resetPanel(f,'Select a room on the map, or search below.'); } else if(f==='Dorms'){renderDorms(); resetPanel(f,'Select a student dorm, or search below. Each room can open its Notion student profile.'); } else {document.getElementById('phTitle').textContent=f; document.getElementById('phText').textContent='This floor will be added after its individual hotspot pass.'; resetPanel(f,document.getElementById('phText').textContent); } search.value=''; renderList();}
 
 function openJaceyDorm(){
@@ -268,8 +263,7 @@ document.querySelectorAll('.jacey-hotspot').forEach(h=>h.onclick=()=>{
 });
 
 
-
-const MAIL_API='https://memory-scenes.aquafia1247.workers.dev/api/letters';
+const MAIL_API='https://dorm-mail.aquafia1247.workers.dev/api/letters';
 const mailOverlay=document.getElementById('mailOverlay');
 const letterList=document.getElementById('letterList');
 const mailReader=document.getElementById('mailReader');
@@ -313,6 +307,7 @@ document.getElementById('mailClose').onclick=closeMailbox;
 mailOverlay.onclick=event=>{if(event.target===mailOverlay)closeMailbox()};
 letterList.onclick=event=>{const button=event.target.closest('[data-letter-id]');if(button)readMailboxLetter(button.dataset.letterId)};
 document.addEventListener('keydown',event=>{if(event.key==='Escape'&&mailOverlay.classList.contains('open'))closeMailbox()});
+
 
 const mapHandbookBack=document.getElementById('mapHandbookBack');
 

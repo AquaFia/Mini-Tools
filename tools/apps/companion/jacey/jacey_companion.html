@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Jacey Cosmo — Companion Terminal v6.1 Self-Contained Banks</title>
+<title>Jacey Cosmo — Companion Terminal v6.3 Notion Message Banks</title>
 <style>
 /* =========================================================
    JACEY COMPANION FRAMEWORK v5.6 — EPISODE ENGINE CLEANUP
@@ -1113,7 +1113,7 @@ function pickAlias(bank){
 
 /* =========================================================
    SECTION 5.5 — COMPANION CHAT CONTENT BOUNDARY
-   Normal companion-chat dialogue is loaded exclusively through
+   Normal companion-chat dialogue is loaded exclusively from
    the companion Notion Worker. The HTML does not prepend,
    append, or author personality dialogue for chat responses.
    ========================================================= */
@@ -1122,22 +1122,22 @@ function pickAlias(bank){
    These lines are tied to initialization/error recovery, not normal chat content. */
 const MISSING_BANK_QUICK_REPLY_GUIDANCE={
   jace:[
-    ['clue','The cipher tools are ready, but my dialogue archive isn’t. Load the companion message-bank JSON with the Data button first, then send that again.'],
-    ['happy','I can tell you everything the message bank knows about me—once you wait for the Notion message banks to load!'],
-    ['overshare','Private channel confirmed! I still need the companion message-bank JSON loaded with the Data button before I can answer properly.'],
-    ['deadpan','Contradiction found: you asked me a question while my Notion dialogue data was unavailable. Refresh after checking the companion Worker connection.']
+    ['clue','The cipher tools are ready, but my Notion dialogue archive did not load. Refresh after checking the companions Worker.'],
+    ['happy','I can tell you everything the message bank knows about me once the Notion dialogue archive finishes loading.'],
+    ['overshare','Private channel confirmed! My Notion dialogue archive is unavailable right now. Refresh after checking the companions Worker.'],
+    ['deadpan','Contradiction found: you asked me a question before my Notion dialogue data loaded. Refresh after checking the companions Worker.']
   ],
   mao:[
-    ['deadpan','Listener records are unavailable. The Notion message banks are unavailable. Refresh after checking the companion Worker connection.'],
-    ['clue','Observation archive missing. Load the companion message-bank JSON with the Data button before requesting a report.'],
-    ['panic','Assessment cannot proceed without the dialogue archive. The Notion message banks are unavailable. Refresh after checking the companion Worker connection.'],
-    ['deadpan','Off-record protocol acknowledged. The message bank is still required; wait for its Notion message banks to load.']
+    ['deadpan','Listener records are unavailable because the Notion dialogue archive did not load. Refresh after checking the companions Worker.'],
+    ['clue','Observation archive missing. Refresh after checking the companions Worker.'],
+    ['panic','Assessment cannot proceed because the Notion dialogue archive is unavailable. Refresh after checking the companions Worker.'],
+    ['deadpan','Off-record protocol acknowledged. The Notion dialogue archive is unavailable. Refresh after checking the companions Worker.']
   ],
   naoya:[
-    ['clue','Pattern analysis requires the external dialogue archive. The Notion message banks are unavailable. Refresh after checking the companion Worker connection.'],
-    ['deadpan','The inconsistency is the missing message bank. Load its JSON with the Data button first.'],
-    ['curious','The signal trace ends at an unloaded dialogue archive. Refresh after checking the companion Worker connection.'],
-    ['deadpan','Precise answer: load the companion message-bank JSON with the Data button first.']
+    ['clue','Pattern analysis requires the Notion dialogue archive. Refresh after checking the companions Worker.'],
+    ['deadpan','The inconsistency is the unavailable Notion message bank. Refresh after checking the companions Worker.'],
+    ['curious','The signal trace ends at the unavailable Notion dialogue archive. Refresh after checking the companions Worker.'],
+    ['deadpan','Precise answer: the Notion dialogue archive is unavailable. Refresh after checking the companions Worker.']
   ]
 };
 
@@ -1150,7 +1150,7 @@ function missingBankGuidance(text,bank){
   const fallbackExpression=activeIdentity==='jace'
     ? ({cryptology:'clue',identity:'happy',secrecy:'overshare',contradiction:'deadpan'}[bank]||'curious')
     : activeIdentity==='mao'?'deadpan':'curious';
-  return [fallbackExpression,'The Notion message banks are unavailable. Refresh after checking the companion Worker connection.'];
+  return [fallbackExpression,'The Notion message banks are unavailable. Refresh after checking the companions Worker.'];
 }
 
 /* =========================================================
@@ -2519,7 +2519,7 @@ registerEpisode({
 <script id="companion-data-core-phase4-4">
 /* =========================================================
    COMPANION ENGINE v5 — PHASE 4.4 CLEAN CORE
-   Notion message-bank loading + episode JSON + portable memory
+   Notion message banks + episode loading + portable JSON memory
    ========================================================= */
 
 const COMPANION_APP_CONFIG=Object.freeze({
@@ -2538,10 +2538,8 @@ const BUILTIN_LISTS=Object.freeze({
   episodes:'episodes/episode_list.json'
 });
 
-const NOTION_MESSAGE_BANKS=Object.freeze({
-  endpoint:'https://companions.aquafia1247.workers.dev/message-banks',
-  identities:['Jace','Naoya','Mao']
-});
+const COMPANION_MESSAGE_BANK_ENDPOINT=
+  'https://companions.aquafia1247.workers.dev/message-banks?companions=Jace,Naoya,Mao';
 
 const dataLoadBtn=document.querySelector('#dataLoadBtn');
 const memorySaveBtn=document.querySelector('#memorySaveBtn');
@@ -2613,16 +2611,15 @@ function isMessageBankDocument(data){return Boolean(data&&data.schema===COMPANIO
 function isEpisodeDocument(data){return Boolean(data&&data.schema===COMPANION_APP_CONFIG.episodeSchema&&data.id&&data.nodes&&data.openingNode);}
 function isMemoryDocument(data){return MemorySystem.isDocument(data);}
 
-function installMessageBank(data,fileName,source='imported',enabled=true){return MessageBankManager.add(data,{source,fileName,enabled});}
+function installNotionMessageBanks(data){return MessageBankManager.add(data,{source:'notion',fileName:'Notion Message Banks',enabled:true});}
 function installEpisode(data,fileName,source='imported',enabled=true){return EpisodeManager.add(data,{source,fileName,enabled});}
 
 function createLibraryItem(record,manager){
   const item=document.createElement('div');item.className='library-item';
   const info=document.createElement('div');
   const title=document.createElement('div');title.className='library-item-title';title.textContent=record.title;
-  const meta=document.createElement('div');meta.className='library-item-meta';
   const sourceLabel=record.source==='builtin'?'BUILT-IN':record.source==='notion'?'NOTION':'IMPORTED';
-  meta.innerHTML=`<span class="library-source">${sourceLabel}</span> · ${record.enabled?'ENABLED':'DISABLED'}`;
+  const meta=document.createElement('div');meta.className='library-item-meta';meta.innerHTML=`<span class="library-source">${sourceLabel}</span> · ${record.enabled?'ENABLED':'DISABLED'}`;
   info.append(title,meta);
   const actions=document.createElement('div');actions.className='library-actions';
   const toggle=document.createElement('button');toggle.type='button';toggle.className='library-toggle'+(record.enabled?' on':'');toggle.title=record.enabled?'Disable':'Enable';toggle.setAttribute('aria-pressed',String(record.enabled));toggle.onclick=()=>manager.toggle(record.title,!record.enabled);actions.append(toggle);
@@ -2641,7 +2638,6 @@ function setLibraryOpen(open){libraryPanel.classList.toggle('open',open);library
 libraryBtn.addEventListener('click',()=>setLibraryOpen(!libraryPanel.classList.contains('open')));closeLibraryBtn.addEventListener('click',()=>setLibraryOpen(false));
 
 async function fetchJSON(url){const response=await fetch(url,{cache:'no-store'});if(!response.ok)throw new Error(`${response.status} ${url}`);return response.json();}
-
 async function loadBuiltinEpisodes(){
   const listUrl=BUILTIN_LISTS.episodes;
   try{
@@ -2650,63 +2646,28 @@ async function loadBuiltinEpisodes(){
     if(!Array.isArray(files))throw new Error('Episode list must contain a files array.');
     const base=listUrl.slice(0,listUrl.lastIndexOf('/')+1);
     for(const name of files){
-      installEpisode(await fetchJSON(base+name),name,'builtin',true);
+      const data=await fetchJSON(base+name);
+      installEpisode(data,name,'builtin',true);
     }
   }catch(error){
     console.warn(`Could not load ${listUrl}.`,error);
   }
-}
-
-async function fetchNotionIdentity(identity){
-  const identityKey=String(identity).trim().toLowerCase();
-  const banks={};
-  let offset=0;
-
-  do{
-    const page=await fetchJSON(
-      `${NOTION_MESSAGE_BANKS.endpoint}/${encodeURIComponent(identity)}?offset=${offset}`
-    );
-
-    if(!isMessageBankDocument(page)){
-      throw new Error('The companion Worker returned an unsupported message-bank document.');
-    }
-
-    const identityData=page.identities?.[identityKey];
-    if(!identityData||typeof identityData.banks!=='object'){
-      throw new Error(`The companion Worker returned no banks for ${identity}.`);
-    }
-
-    Object.assign(banks,identityData.banks);
-    offset=Number.isInteger(page.nextOffset)?page.nextOffset:null;
-  }while(offset!==null);
-
-  return [identityKey,{banks}];
+  refreshContentUI();
+  renderExternalAchievements();
 }
 
 async function loadNotionMessageBanks(){
   try{
-    const entries=await Promise.all(
-      NOTION_MESSAGE_BANKS.identities.map(fetchNotionIdentity)
-    );
-    const identities=Object.fromEntries(entries);
-
-    installMessageBank(
-      {schema:COMPANION_APP_CONFIG.messageSchema,identities},
-      'Notion Message Banks',
-      'notion',
-      true
-    );
+    const data=await fetchJSON(COMPANION_MESSAGE_BANK_ENDPOINT);
+    if(!isMessageBankDocument(data))throw new Error('Worker returned an unsupported message-bank document.');
+    installNotionMessageBanks(data);
+    showToast('MESSAGE BANKS READY // NOTION');
   }catch(error){
     messageBankLoaded=false;
-    console.error('Could not load message banks from Notion.',error);
-    showToast('MESSAGE BANK ERROR // NOTION CONNECTION UNAVAILABLE');
+    console.error('Could not load Notion message banks.',error);
+    showToast('MESSAGE BANK ERROR // CHECK COMPANIONS WORKER');
+    refreshContentUI();
   }
-}
-
-async function loadBuiltins(){
-  await Promise.all([loadBuiltinEpisodes(),loadNotionMessageBanks()]);
-  refreshContentUI();
-  renderExternalAchievements();
 }
 
 /* ---------------------------------------------------------
@@ -2776,10 +2737,14 @@ async function loadCompanionDataFiles(files){
       const data=await readJSONFile(file);
       if(isEpisodeDocument(data)){installEpisode(data,file.name,'imported',true);loaded++;}
       else if(isMemoryDocument(data)){MemorySystem.importDocument(data);loaded++;}
-      else throw new Error('Only episode and companion-memory JSON files can be imported here.');
-    }catch(error){console.error('Could not load companion file:',file.name,error);errors.push(file.name);}
+      else throw new Error('Only episode and companion-memory JSON files are supported here.');
+    }catch(error){
+      console.error('Could not load companion file:',file.name,error);
+      errors.push(file.name);
+    }
   }
-  refreshContentUI();renderExternalAchievements();
+  refreshContentUI();
+  renderExternalAchievements();
   if(errors.length)showToast(`DATA ERROR // ${errors.join(', ')}`);
   else if(loaded)showToast(`DATA LOADED // ${loaded} FILE${loaded===1?'':'S'}`);
 }
@@ -2853,7 +2818,8 @@ dataFileInput.addEventListener('change',async()=>{
   await loadCompanionDataFiles(files);
 });
 
-loadBuiltins();
+loadBuiltinEpisodes();
+loadNotionMessageBanks();
 
 memorySaveBtn.addEventListener('click',event=>{
   event.preventDefault();
@@ -2864,7 +2830,7 @@ memorySaveBtn.addEventListener('click',event=>{
 const corePick=pick;
 pick=function(bank){
   if(!messageBankLoaded){
-    return ['curious','The Notion message banks are unavailable. Refresh after checking the companion Worker connection.'];
+    return ['curious','The Notion message banks are unavailable. Refresh after checking the companions Worker.'];
   }
   return corePick(bank);
 };

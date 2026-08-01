@@ -45,7 +45,7 @@
     },
     {
       "title": "Jacey Cosmo Companion Chat Box",
-      "file": "tools/apps/companion/jacey_companion_v6_2_content_library/jacey_companion_framework_v6_2_content_library",
+      "file": "tools/apps/companion/jacey/jacey_companion",
       "icon": "▧",
       "accent": "#79efb4",
       "description": "The Jacey Companion Test.",

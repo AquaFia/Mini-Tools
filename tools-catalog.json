@@ -51,14 +51,6 @@
       "description": "The Jacey Companion Test.",
       "tags": ["companion", "jacey"]
     },
-     {
-      "title": "Jacey Cosmo Companion Chat Box (Music Version)",
-      "file": "tools/apps/companion/jacey/jacey_companion_chat_all_identity_music",
-      "icon": "▧",
-      "accent": "#79efb4",
-      "description": "An older version of Jace with music integrated into it.",
-      "tags": ["companion", "jacey", "music"]
-    },
     {
       "title": "Interactive Map",
       "file": "tools/apps/map/map",

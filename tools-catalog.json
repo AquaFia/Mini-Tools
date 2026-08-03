@@ -56,7 +56,7 @@
       "file": "tools/apps/map/map",
       "icon": "▧",
       "accent": "#79efb4",
-      "description": "Interactive Map Test",
+      "description": "Interactive Map Test.",
       "tags": ["map", "student handbook"]
     }
   ]

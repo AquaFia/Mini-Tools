@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Jacey Cosmo — Companion Terminal v6.3.18 iPad Landscape Compact Fit</title>
+<title>Jacey Cosmo — Companion Terminal v6.3.19 iPad Landscape Border Fix</title>
 <style>
 /* =========================================================
    JACEY COMPANION FRAMEWORK v5.6 — EPISODE ENGINE CLEANUP
@@ -718,9 +718,9 @@ body:before{
     min-height:0;
     margin:8px auto;
     grid-template-columns:clamp(250px,25vw,300px) minmax(0,1fr);
-    border-radius:0;
-    border-left:0;
-    border-right:0;
+    border-radius:18px;
+    border-left:1px solid color-mix(in srgb,var(--violet) 48%,var(--line));
+    border-right:1px solid color-mix(in srgb,var(--violet) 48%,var(--line));
   }
 
   .sidebar{

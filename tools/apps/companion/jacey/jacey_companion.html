@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Jacey Cosmo — Companion Terminal v6.3.10 Chat Episode Spacing</title>
+<title>Jacey Cosmo — Companion Terminal v6.3.11 Phone Tablet Scaling</title>
 <style>
 /* =========================================================
    JACEY COMPANION FRAMEWORK v5.6 — EPISODE ENGINE CLEANUP
@@ -674,6 +674,357 @@ body:before{
 @media(max-width:760px){.library-panel{width:100%;padding-left:16px;padding-right:16px}}
 @media(prefers-reduced-motion:reduce){.library-panel,.library-panel.open{transition:opacity .16s ease,visibility 0s linear 0s;transform:none}}
 </style>
+
+<style id="phone-tablet-scaling">
+/* =========================================================
+   PHONE + TABLET RESPONSIVE SCALING
+   CSS-only overrides. Runtime behavior is unchanged.
+   ========================================================= */
+
+/* Large tablets and compact laptops */
+@media (max-width:1100px){
+  body{
+    place-items:center;
+    overflow:hidden;
+  }
+  .terminal{
+    width:98vw;
+    height:96vh;
+    grid-template-columns:clamp(260px,31vw,340px) minmax(0,1fr);
+    border-radius:18px;
+  }
+  .sidebar{
+    padding:14px;
+  }
+  .portrait-frame{
+    min-height:230px;
+  }
+  .expressions{
+    grid-template-columns:repeat(auto-fit,minmax(48px,1fr));
+    max-height:104px;
+  }
+  .chat-head{
+    padding:0 14px;
+  }
+  .mode-tab{
+    padding:7px 9px;
+    letter-spacing:.08em;
+  }
+  .head-actions{
+    gap:6px;
+  }
+  .icon-btn{
+    width:32px;
+    height:32px;
+  }
+  .log{
+    padding:18px;
+  }
+  .bubble{
+    max-width:84%;
+  }
+  .composer{
+    padding:12px 14px 14px;
+  }
+  .cipher-mode{
+    padding:16px;
+  }
+}
+
+/* Standard tablets */
+@media (max-width:900px){
+  .terminal{
+    width:100vw;
+    height:100dvh;
+    grid-template-columns:220px minmax(0,1fr);
+    border-radius:0;
+    border-left:0;
+    border-right:0;
+  }
+  .brand h1{
+    font-size:13px;
+  }
+  .brand small{
+    font-size:8px;
+  }
+  .portrait-frame{
+    min-height:190px;
+  }
+  .profile strong{
+    font-size:15px;
+  }
+  .profile span{
+    font-size:10px;
+  }
+  .expressions{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    max-height:96px;
+  }
+  .chat-head{
+    min-height:60px;
+    height:auto;
+    padding:8px 12px;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .chat-head>div:first-child{
+    min-width:180px;
+    flex:1 1 auto;
+  }
+  .mode-tabs{
+    order:3;
+    width:100%;
+    justify-content:center;
+  }
+  .head-actions{
+    margin-left:auto;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+  }
+  .log{
+    padding:15px 12px;
+  }
+  .bubble{
+    max-width:90%;
+    font-size:14px;
+  }
+  .quick{
+    gap:6px;
+  }
+  .chip{
+    padding:8px 11px;
+    font-size:11px;
+  }
+  .cipher-grid{
+    grid-template-columns:1fr;
+  }
+  .cipher-field.full{
+    grid-column:auto;
+  }
+  .episode-choice{
+    font-size:11px;
+    padding:9px 12px;
+  }
+}
+
+/* Phones and narrow tablets */
+@media (max-width:700px){
+  body{
+    overflow:hidden;
+  }
+  .terminal{
+    grid-template-columns:96px minmax(0,1fr);
+    height:100dvh;
+  }
+  .sidebar{
+    padding:8px;
+  }
+  .brand{
+    justify-content:center;
+    margin-bottom:8px;
+  }
+  .brand h1,
+  .brand small,
+  .profile,
+  .expressions{
+    display:none;
+  }
+  .sigil{
+    width:36px;
+    height:36px;
+    border-radius:10px;
+  }
+  .portrait-frame{
+    min-height:0;
+    flex:1;
+    border-radius:12px;
+  }
+  .portrait{
+    object-position:50% top;
+  }
+  .status-tag{
+    left:5px;
+    right:5px;
+    bottom:7px;
+    padding:5px 4px;
+    text-align:center;
+    font-size:7px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .chat-head{
+    padding:7px 8px;
+    gap:6px;
+  }
+  .chat-head b{
+    font-size:10px;
+  }
+  .chat-head small{
+    display:none;
+  }
+  .mode-tabs{
+    gap:5px;
+  }
+  .mode-tab{
+    flex:1 1 0;
+    padding:7px 5px;
+    font-size:8px;
+  }
+  .head-actions{
+    gap:4px;
+  }
+  .icon-btn{
+    width:30px;
+    height:30px;
+    border-radius:8px;
+    font-size:12px;
+  }
+  .log{
+    padding:12px 9px;
+  }
+  .message{
+    margin-bottom:12px;
+  }
+  .bubble{
+    max-width:94%;
+    padding:10px 11px;
+    font-size:13px;
+    line-height:1.42;
+  }
+  .composer{
+    padding:9px;
+  }
+  .quick{
+    padding-bottom:8px;
+  }
+  .chip{
+    padding:7px 9px;
+    font-size:10px;
+  }
+  .input-row{
+    grid-template-columns:minmax(0,1fr) 42px;
+    gap:7px;
+  }
+  .input-row input{
+    padding:11px 12px;
+    font-size:13px;
+  }
+  .send{
+    border-radius:11px;
+  }
+  .episode-overlay{
+    padding:10px 9px;
+    gap:9px;
+  }
+  .episode-options{
+    min-height:40px;
+    padding:7px 1px;
+  }
+  .episode-choice{
+    padding:8px 10px;
+    font-size:10px;
+  }
+  .episode-message-row{
+    grid-template-columns:minmax(0,1fr) auto;
+    gap:7px;
+  }
+  .episode-title-field{
+    min-height:40px;
+    padding:8px 9px;
+  }
+  .episode-title-field strong{
+    font-size:10px;
+  }
+  .episode-message-row>button{
+    min-height:40px;
+    padding:0 9px;
+    font-size:8px;
+  }
+  .cipher-mode{
+    padding:10px;
+  }
+  .cipher-card,
+  .cipher-intro,
+  .cipher-result{
+    border-radius:12px;
+  }
+  .cipher-card{
+    padding:12px;
+  }
+  .cipher-intro{
+    padding:12px;
+  }
+  .cipher-field textarea{
+    min-height:96px;
+  }
+  .library-panel,
+  .dossier{
+    width:100%;
+    padding-left:14px;
+    padding-right:14px;
+  }
+}
+
+/* Small phones */
+@media (max-width:480px){
+  .terminal{
+    grid-template-columns:76px minmax(0,1fr);
+  }
+  .sidebar{
+    padding:6px;
+  }
+  .sigil{
+    width:32px;
+    height:32px;
+  }
+  .portrait-frame{
+    border-radius:9px;
+  }
+  .chat-head{
+    padding:6px;
+  }
+  .head-actions .icon-btn:nth-of-type(4),
+  .head-actions .icon-btn:nth-of-type(5){
+    display:none;
+  }
+  .log{
+    padding:10px 7px;
+  }
+  .bubble{
+    max-width:97%;
+    padding:9px 10px;
+    font-size:12.5px;
+  }
+  .composer{
+    padding:7px;
+  }
+  .quick{
+    gap:5px;
+  }
+  .chip{
+    padding:6px 8px;
+    font-size:9px;
+  }
+  .input-row{
+    grid-template-columns:minmax(0,1fr) 38px;
+    gap:6px;
+  }
+  .input-row input{
+    padding:10px;
+    font-size:12px;
+  }
+  .episode-choice{
+    padding:7px 9px;
+    font-size:9px;
+  }
+  .episode-message-row>button{
+    padding:0 7px;
+    letter-spacing:.05em;
+  }
+}
+</style>
+
 </head>
 <body>
 <main class="terminal" id="terminal">

@@ -1,5 +1,7 @@
 {
   "schema": "companion-expression-manifest",
+  "schemaVersion": 1,
+  "folder": "expressions",
   "identities": {
     "jace": {
       "prefix": "J",
@@ -7,53 +9,61 @@
       "expressions": [
         {
           "id": "curious",
-          "label": "OPEN_CURIOUS",
+          "displayName": "Curious",
+          "statusLabel": "OPEN_CURIOUS",
           "file": "J_Curious.webp"
         },
         {
           "id": "happy",
-          "label": "DEFAULT_HAPPY",
+          "displayName": "Happy",
+          "statusLabel": "DEFAULT_HAPPY",
           "file": "J_Happy.webp"
         },
         {
           "id": "clue",
-          "label": "CLUE_FOUND",
+          "displayName": "Clue",
+          "statusLabel": "CLUE_FOUND",
           "file": "J_Clue.webp"
         },
         {
           "id": "deadpan",
-          "label": "CONTRADICTION",
+          "displayName": "Deadpan",
+          "statusLabel": "CONTRADICTION",
           "file": "J_Deadpan.webp"
         },
         {
           "id": "overshare",
-          "label": "INNOCENT_OVERSHARE",
+          "displayName": "Overshare",
+          "statusLabel": "INNOCENT_OVERSHARE",
           "file": "J_Overshare.webp"
         },
         {
           "id": "panic",
-          "label": "DELAYED_PANIC",
+          "displayName": "Panic",
+          "statusLabel": "DELAYED_PANIC",
           "file": "J_Panic.webp"
         },
         {
           "id": "anger",
-          "label": "TRUTH_ANGER",
+          "displayName": "Anger",
+          "statusLabel": "TRUTH_ANGER",
           "file": "J_Anger.webp"
         },
         {
           "id": "vulnerable",
-          "label": "MISSING_SELF",
+          "displayName": "Vulnerable",
+          "statusLabel": "MISSING_SELF",
           "file": "J_Vulnerable.webp"
         }
       ]
     },
-    "naoya": {
-      "prefix": "N",
+    "mao": {
+      "prefix": "M",
       "defaultExpression": null,
       "expressions": []
     },
-    "mao": {
-      "prefix": "M",
+    "naoya": {
+      "prefix": "N",
       "defaultExpression": null,
       "expressions": []
     }

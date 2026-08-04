@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Jacey Cosmo — Companion Terminal v6.3.5 Expression Repository</title>
+<title>Jacey Cosmo — Companion Terminal v6.3.5 PortraitManager Runtime</title>
 <style>
 /* =========================================================
    JACEY COMPANION FRAMEWORK v5.6 — EPISODE ENGINE CLEANUP
@@ -37,7 +37,7 @@ repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 5px)
 .portrait{width:100%;height:100%;object-fit:cover;object-position:center top;display:block;transition:opacity .18s,transform .35s;transform:scale(1.02)}
 .portrait.switching{opacity:.18;transform:scale(1.06) translateX(3px);filter:hue-rotate(35deg)}
 .status-tag{position:absolute;left:12px;bottom:12px;z-index:3;padding:7px 10px;border:1px solid rgba(157,112,255,.55);border-radius:999px;background:rgba(8,7,14,.8);backdrop-filter:blur(8px);font:700 10px/1 ui-monospace,SFMono-Regular,monospace;letter-spacing:.09em;color:#d9c9ff}
-.expressions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:12px;max-height:94px;overflow-y:auto;overflow-x:hidden;padding-right:2px;scrollbar-gutter:stable}.expr{padding:8px 4px;border:1px solid #342044;background:#120f1d;color:#bdb3d4;border-radius:10px;cursor:pointer;font-size:9px;transition:.2s}.expr:hover,.expr.active{border-color:var(--violet);color:white;background:#251539;box-shadow:0 0 14px rgba(169,112,255,.2)}
+.expressions{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:12px}.expr{padding:8px 4px;border:1px solid #342044;background:#120f1d;color:#bdb3d4;border-radius:10px;cursor:pointer;font-size:9px;transition:.2s}.expr:hover,.expr.active{border-color:var(--violet);color:white;background:#251539;box-shadow:0 0 14px rgba(169,112,255,.2)}
 .profile{margin-top:12px;display:flex;justify-content:space-between;align-items:end}.profile strong{font-size:18px}.profile span{display:block;color:var(--muted);font-size:11px}.online{font:700 9px ui-monospace,monospace;color:#7ef7c1}.online:before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#7ef7c1;margin-right:6px;box-shadow:0 0 10px #7ef7c1}
 .chat{display:grid;grid-template-rows:auto minmax(0,1fr) auto;min-height:0;overflow:hidden;background:linear-gradient(180deg,rgba(16,14,28,.95),rgba(9,9,16,.98));min-width:0}.chat-head{height:64px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #2e203d}.chat-head b{letter-spacing:.08em;font-size:13px}.chat-head small{display:block;color:var(--muted);font-family:ui-monospace,monospace;font-size:9px;margin-top:3px}.head-actions{display:flex;gap:8px}.icon-btn{border:1px solid #3b2850;background:#151020;color:#cfc3e9;width:34px;height:34px;border-radius:10px;cursor:pointer}.icon-btn:hover{border-color:var(--violet);color:#fff}.icon-btn.toggle-on{border-color:var(--cyan);color:#fff;box-shadow:0 0 14px rgba(102,232,255,.22);background:#13212b}.icon-btn.toggle-on:after{content:"";position:absolute;width:6px;height:6px;border-radius:50%;background:#7ef7c1;box-shadow:0 0 8px #7ef7c1;transform:translate(4px,-10px)}.icon-btn{position:relative}
 .log{padding:22px;min-height:0;overflow-y:auto;overflow-x:hidden;scroll-behavior:smooth;overscroll-behavior:contain;scrollbar-gutter:stable}.message{display:flex;gap:10px;margin:0 0 17px;animation:rise .28s ease both}@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}.message.user{justify-content:flex-end}.bubble{max-width:min(76%,590px);padding:12px 14px;border-radius:16px;font-size:14px;line-height:1.5;white-space:pre-wrap}.jace .bubble{background:linear-gradient(135deg,#201431,#15152a);border:1px solid #4a2b68;border-top-left-radius:5px}.user .bubble{background:linear-gradient(135deg,#263b78,#34235f);border:1px solid #5267ad;border-top-right-radius:5px}.name{font:800 9px ui-monospace,monospace;letter-spacing:.12em;color:#bd9cff;margin:0 0 5px}.stamp{font:8px ui-monospace,monospace;color:#716b82;margin-top:6px}.typing{display:inline-flex;gap:4px;align-items:center}.typing i{width:5px;height:5px;border-radius:50%;background:#b990ff;animation:dot 1s infinite}.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}@keyframes dot{50%{transform:translateY(-4px);opacity:.45}}
@@ -714,7 +714,55 @@ body:before{
 
 </main>
 <script>
-const EXPRESSION_MANIFEST_URL='expressions/expression_manifest.json';
+/* ================================================================
+   CHARACTER THEME CONFIG
+   Reuse this file for another character by changing this object,
+   replacing the portrait images, and editing rules/fallback below.
+   The shared layout, scrolling, expression engine and chat logic stay.
+   ================================================================ */
+/* =========================================================
+   SECTION 2 — CHARACTER CONFIGURATION
+   ========================================================= */
+const FRAMEWORK_TIMING={
+  replyBase:650,
+  replyPerCharacter:11,
+  replyMaximumExtra:900,
+  cipherProcessing:900,
+  unknownCipherReset:1100,
+  dossierSlide:420
+};
+
+const CHARACTER={
+  key:'jace',
+  name:'Jacey “Jace” Cosmo',
+  shortName:'Jace',
+  talent:'Ultimate Cryptologist',
+  initials:'JC',
+  brand:'COSMO//LINK',
+  brandSubtitle:'COMPANION TERMINAL',
+  channelTitle:'ENCRYPTED COMPANION CHANNEL',
+  channelLine:'channel: jace.private // integrity verified',
+  speakerLabel:'JACE // VERIFIED',
+  typingLabel:'JACE // DECRYPTING',
+  botStamp:'AES-256-ish',
+  placeholder:'Message Jace…',
+  dossierTitle:'CLASSIFIED // JACE',
+  welcome:'Connection established! I checked the handshake, the checksum, and one thing I was apparently not supposed to check. Everything looks great! :D',
+  quickReplies:['Can you decode this?','Tell me about yourself','This is private.','Did you find a contradiction?'],
+  companionModeLabel:'COMPANION MODE',
+  idleMinMs:45000,
+  idleMaxMs:90000,
+  coreBelief:'Every mystery deserves to be solved, even the one wearing my name.',
+  colors:{
+    bg:'#08070d', panel:'#10101a', panel2:'#151426', ink:'#f4efff', muted:'#9b95b5',
+    accent:'#a970ff', secondary:'#477cff', danger:'#d62952', cyan:'#66e8ff', line:'#38244f'
+  }
+};
+
+CHARACTER.portrait=true;
+/* =========================================================
+   SECTION 3 — IDENTITY ENGINE
+   ========================================================= */
 const IDENTITIES={
   jace:{
     keyphrase:'the present is safe.',
@@ -828,7 +876,7 @@ const IdentityManager={
     refreshQuickReplies();
     if(typeof renderExternalAchievements==='function')renderExternalAchievements();
 
-    PortraitRepository.renderIdentity(this._activeId);
+    PortraitManager.renderIdentity(this._activeId);
 
     if(Framework.modules.CipherLab){
       Framework.modules.CipherLab.refreshIdentity();
@@ -910,107 +958,190 @@ function applyCharacter(c){
   if(c.dossier)document.querySelector('#dossierBody').innerHTML=c.dossier;
 }
 applyCharacter(CHARACTER);
-const portrait=document.querySelector('#portrait'), statusTag=document.querySelector('#statusTag'), exprWrap=document.querySelector('#expressions');
-let current=null, busy=false;
 
-const PortraitRepository={
+const portrait=document.querySelector('#portrait');
+const statusTag=document.querySelector('#statusTag');
+const exprWrap=document.querySelector('#expressions');
+const portraitFrame=document.querySelector('.portrait-frame');
+const EXPRESSION_MANIFEST_URL='expressions/expression_manifest.json';
+
+let current='happy', busy=false;
+
+const PortraitManager={
   manifest:null,
+  manifestBaseUrl:new URL('.',new URL(EXPRESSION_MANIFEST_URL,document.baseURI)),
+  ready:false,
+  loadPromise:null,
+  pendingExpression:null,
+
   async load(){
-    const response=await fetch(EXPRESSION_MANIFEST_URL,{cache:'no-cache'});
-    if(!response.ok)throw new Error(`Expression manifest request failed: ${response.status}`);
-    const manifest=await response.json();
-    if(!manifest||manifest.schema!=='companion-expression-manifest'||!manifest.identities){
-      throw new Error('Unsupported expression manifest.');
+    if(this.loadPromise)return this.loadPromise;
+
+    this.loadPromise=(async()=>{
+      const response=await fetch(EXPRESSION_MANIFEST_URL,{cache:'no-cache'});
+      if(!response.ok)throw new Error(`Expression manifest request failed: ${response.status}`);
+
+      const manifest=await response.json();
+      if(
+        manifest?.schema!=='companion-expression-manifest' ||
+        !manifest.identities ||
+        typeof manifest.identities!=='object'
+      ){
+        throw new Error('Unsupported expression manifest.');
+      }
+
+      this.manifest=manifest;
+      this.ready=true;
+      this.preload();
+      this.renderIdentity(activeIdentity);
+
+      if(this.pendingExpression){
+        const pending=this.pendingExpression;
+        this.pendingExpression=null;
+        this.setExpression(pending);
+      }
+
+      return manifest;
+    })().catch(error=>{
+      this.loadPromise=null;
+      this.ready=false;
+      this.showUnavailable(activeIdentity);
+      console.error('Could not load expression manifest.',error);
+      return null;
+    });
+
+    return this.loadPromise;
+  },
+
+  getIdentity(identityId=activeIdentity){
+    return this.manifest?.identities?.[identityId]||null;
+  },
+
+  getExpressions(identityId=activeIdentity){
+    const expressions=this.getIdentity(identityId)?.expressions;
+    return Array.isArray(expressions)?expressions:[];
+  },
+
+  getExpression(expressionId,identityId=activeIdentity){
+    return this.getExpressions(identityId).find(
+      expression=>expression?.id===expressionId
+    )||null;
+  },
+
+  getDefaultExpression(identityId=activeIdentity){
+    const identity=this.getIdentity(identityId);
+    const expressions=this.getExpressions(identityId);
+    return identity?.defaultExpression || expressions[0]?.id || null;
+  },
+
+  hasPortraits(identityId=activeIdentity){
+    return this.getExpressions(identityId).length>0;
+  },
+
+  imageUrl(expression){
+    return new URL(expression.file,this.manifestBaseUrl).href;
+  },
+
+  preload(){
+    for(const identity of Object.values(this.manifest?.identities||{})){
+      for(const expression of identity?.expressions||[]){
+        if(!expression?.file)continue;
+        const image=new Image();
+        image.src=this.imageUrl(expression);
+      }
     }
-    this.manifest=manifest;
-    this.renderIdentity(activeIdentity);
   },
-  identity(id=activeIdentity){
-    return this.manifest?.identities?.[id]||null;
-  },
-  expressions(id=activeIdentity){
-    const list=this.identity(id)?.expressions;
-    return Array.isArray(list)?list:[];
-  },
-  entry(expressionId,id=activeIdentity){
-    return this.expressions(id).find(entry=>entry.id===expressionId)||null;
-  },
-  hasPortrait(id=activeIdentity){
-    return this.expressions(id).length>0;
-  },
-  imageUrl(entry){
-    return new URL(entry.file,new URL(EXPRESSION_MANIFEST_URL,document.baseURI)).href;
-  },
-  renderButtons(id=activeIdentity){
+
+  renderButtons(identityId=activeIdentity){
     exprWrap.innerHTML='';
-    this.expressions(id).forEach((entry,index)=>{
+
+    this.getExpressions(identityId).forEach((expression,index)=>{
       const button=document.createElement('button');
+      button.type='button';
       button.className='expr';
-      button.dataset.e=entry.id;
+      button.dataset.e=expression.id;
       button.textContent=String(index+1).padStart(2,'0');
-      button.title=String(entry.label||entry.id).replaceAll('_',' ');
-      button.onclick=()=>setExpression(entry.id);
+      button.title=expression.displayName||expression.statusLabel||expression.id;
+      button.onclick=()=>this.setExpression(expression.id,identityId);
       exprWrap.append(button);
     });
   },
-  renderIdentity(id=activeIdentity){
-    const hasPortrait=this.hasPortrait(id);
+
+  renderIdentity(identityId=activeIdentity){
+    const profile=IDENTITIES[identityId];
+    const hasPortrait=this.ready && this.hasPortraits(identityId);
+
+    if(profile)profile.portrait=hasPortrait;
+    CHARACTER.portrait=hasPortrait;
+
+    portraitFrame.dataset.alias=profile?.initials||identityId.toUpperCase();
     portraitFrame.classList.toggle('alias-blank',!hasPortrait);
-    portraitFrame.dataset.alias=CHARACTER.initials;
     exprWrap.classList.toggle('alias-hidden',!hasPortrait);
-    this.renderButtons(id);
 
     if(!hasPortrait){
-      current=null;
-      portrait.removeAttribute('src');
-      portrait.alt=CHARACTER.shortName+' portrait unavailable';
-      statusTag.textContent=CHARACTER.status;
-      return;
+      this.showUnavailable(identityId);
+      return false;
     }
 
-    const identity=this.identity(id);
-    this.set(identity.defaultExpression||this.expressions(id)[0].id,id);
+    this.renderButtons(identityId);
+    return this.setExpression(this.getDefaultExpression(identityId),identityId);
   },
-  set(expressionId,id=activeIdentity){
-    const identity=this.identity(id);
-    if(!identity)return false;
 
-    const entry=this.entry(expressionId,id)||
-      this.entry(identity.defaultExpression,id)||
-      this.expressions(id)[0];
-    if(!entry)return false;
+  showUnavailable(identityId=activeIdentity){
+    const profile=IDENTITIES[identityId]||CHARACTER;
+    portrait.removeAttribute('src');
+    portrait.alt=(profile?.shortName||identityId)+' portrait unavailable';
+    statusTag.textContent=profile?.status||'PORTRAIT_UNAVAILABLE';
+    exprWrap.innerHTML='';
+    portraitFrame.classList.add('alias-blank');
+    portraitFrame.dataset.alias=profile?.initials||identityId.toUpperCase();
+    exprWrap.classList.add('alias-hidden');
+  },
 
-    current=entry.id;
+  setExpression(expressionId,identityId=activeIdentity){
+    if(!this.ready){
+      this.pendingExpression=expressionId;
+      this.load();
+      return false;
+    }
+
+    if(identityId!==activeIdentity)return false;
+
+    const fallbackId=this.getDefaultExpression(identityId);
+    const expression=
+      this.getExpression(expressionId,identityId) ||
+      this.getExpression(fallbackId,identityId);
+
+    if(!expression)return false;
+
+    current=expression.id;
     portrait.classList.add('switching');
+
     setTimeout(()=>{
-      portrait.src=this.imageUrl(entry);
-      portrait.alt=`${CHARACTER.shortName} — ${String(entry.label||entry.id).replaceAll('_',' ').toLowerCase()}`;
-      statusTag.textContent=entry.label||entry.id.toUpperCase();
+      if(identityId!==activeIdentity)return;
+      portrait.src=this.imageUrl(expression);
+      portrait.alt=`${IDENTITIES[identityId]?.shortName||identityId} — ${
+        expression.displayName||expression.id
+      }`;
+      statusTag.textContent=expression.statusLabel||expression.id.toUpperCase();
       portrait.classList.remove('switching');
     },120);
 
-    document.querySelectorAll('.expr').forEach(button=>{
-      button.classList.toggle('active',button.dataset.e===entry.id);
+    exprWrap.querySelectorAll('.expr').forEach(button=>{
+      button.classList.toggle('active',button.dataset.e===expression.id);
     });
+
     return true;
   }
 };
 
+Framework.modules.PortraitManager=PortraitManager;
+
 function setExpression(name){
-  return PortraitRepository.set(name,activeIdentity);
+  return PortraitManager.setExpression(name,activeIdentity);
 }
 
-async function loadExpressionRepository(){
-  try{
-    await PortraitRepository.load();
-  }catch(error){
-    console.error('Could not load expression repository.',error);
-    PortraitRepository.renderIdentity(activeIdentity);
-    showToast('EXPRESSION ERROR // CHECK MANIFEST');
-  }
-}
-
-const portraitFrame=document.querySelector('.portrait-frame');
+PortraitManager.load();
 function refreshQuickReplies(){
   const wrap=document.querySelector('#quick');
   wrap.innerHTML='';
@@ -2843,7 +2974,6 @@ dataFileInput.addEventListener('change',async()=>{
   await loadCompanionDataFiles(files);
 });
 
-loadExpressionRepository();
 loadBuiltinEpisodes();
 loadNotionMessageBanks();
 

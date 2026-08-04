@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Jacey Cosmo — Companion Terminal v6.3.5 PortraitManager Runtime</title>
+<title>Jacey Cosmo — Companion Terminal v6.3.6 Dynamic Portrait UI</title>
 <style>
 /* =========================================================
    JACEY COMPANION FRAMEWORK v5.6 — EPISODE ENGINE CLEANUP
@@ -37,7 +37,47 @@ repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 5px)
 .portrait{width:100%;height:100%;object-fit:cover;object-position:center top;display:block;transition:opacity .18s,transform .35s;transform:scale(1.02)}
 .portrait.switching{opacity:.18;transform:scale(1.06) translateX(3px);filter:hue-rotate(35deg)}
 .status-tag{position:absolute;left:12px;bottom:12px;z-index:3;padding:7px 10px;border:1px solid rgba(157,112,255,.55);border-radius:999px;background:rgba(8,7,14,.8);backdrop-filter:blur(8px);font:700 10px/1 ui-monospace,SFMono-Regular,monospace;letter-spacing:.09em;color:#d9c9ff}
-.expressions{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:12px}.expr{padding:8px 4px;border:1px solid #342044;background:#120f1d;color:#bdb3d4;border-radius:10px;cursor:pointer;font-size:9px;transition:.2s}.expr:hover,.expr.active{border-color:var(--violet);color:white;background:#251539;box-shadow:0 0 14px rgba(169,112,255,.2)}
+.expressions{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(54px,1fr));
+  gap:7px;
+  margin-top:12px;
+  max-height:118px;
+  min-height:0;
+  overflow-y:auto;
+  overflow-x:hidden;
+  padding-right:3px;
+  align-content:start;
+  scrollbar-gutter:stable;
+  overscroll-behavior:contain;
+}
+.expressions:empty{display:none}
+.expressions::-webkit-scrollbar{width:7px}
+.expressions::-webkit-scrollbar-track{
+  background:color-mix(in srgb,var(--panel) 82%,transparent);
+  border-radius:999px;
+}
+.expressions::-webkit-scrollbar-thumb{
+  background:color-mix(in srgb,var(--violet) 48%,var(--line));
+  border-radius:999px;
+}
+.expr{
+  min-width:0;
+  padding:8px 4px;
+  border:1px solid #342044;
+  background:#120f1d;
+  color:#bdb3d4;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:9px;
+  transition:.2s;
+}
+.expr:hover,.expr.active{
+  border-color:var(--violet);
+  color:white;
+  background:#251539;
+  box-shadow:0 0 14px rgba(169,112,255,.2);
+}
 .profile{margin-top:12px;display:flex;justify-content:space-between;align-items:end}.profile strong{font-size:18px}.profile span{display:block;color:var(--muted);font-size:11px}.online{font:700 9px ui-monospace,monospace;color:#7ef7c1}.online:before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#7ef7c1;margin-right:6px;box-shadow:0 0 10px #7ef7c1}
 .chat{display:grid;grid-template-rows:auto minmax(0,1fr) auto;min-height:0;overflow:hidden;background:linear-gradient(180deg,rgba(16,14,28,.95),rgba(9,9,16,.98));min-width:0}.chat-head{height:64px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #2e203d}.chat-head b{letter-spacing:.08em;font-size:13px}.chat-head small{display:block;color:var(--muted);font-family:ui-monospace,monospace;font-size:9px;margin-top:3px}.head-actions{display:flex;gap:8px}.icon-btn{border:1px solid #3b2850;background:#151020;color:#cfc3e9;width:34px;height:34px;border-radius:10px;cursor:pointer}.icon-btn:hover{border-color:var(--violet);color:#fff}.icon-btn.toggle-on{border-color:var(--cyan);color:#fff;box-shadow:0 0 14px rgba(102,232,255,.22);background:#13212b}.icon-btn.toggle-on:after{content:"";position:absolute;width:6px;height:6px;border-radius:50%;background:#7ef7c1;box-shadow:0 0 8px #7ef7c1;transform:translate(4px,-10px)}.icon-btn{position:relative}
 .log{padding:22px;min-height:0;overflow-y:auto;overflow-x:hidden;scroll-behavior:smooth;overscroll-behavior:contain;scrollbar-gutter:stable}.message{display:flex;gap:10px;margin:0 0 17px;animation:rise .28s ease both}@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}.message.user{justify-content:flex-end}.bubble{max-width:min(76%,590px);padding:12px 14px;border-radius:16px;font-size:14px;line-height:1.5;white-space:pre-wrap}.jace .bubble{background:linear-gradient(135deg,#201431,#15152a);border:1px solid #4a2b68;border-top-left-radius:5px}.user .bubble{background:linear-gradient(135deg,#263b78,#34235f);border:1px solid #5267ad;border-top-right-radius:5px}.name{font:800 9px ui-monospace,monospace;letter-spacing:.12em;color:#bd9cff;margin:0 0 5px}.stamp{font:8px ui-monospace,monospace;color:#716b82;margin-top:6px}.typing{display:inline-flex;gap:4px;align-items:center}.typing i{width:5px;height:5px;border-radius:50%;background:#b990ff;animation:dot 1s infinite}.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}@keyframes dot{50%{transform:translateY(-4px);opacity:.45}}
@@ -1061,7 +1101,10 @@ const PortraitManager={
       button.className='expr';
       button.dataset.e=expression.id;
       button.textContent=String(index+1).padStart(2,'0');
-      button.title=expression.displayName||expression.statusLabel||expression.id;
+      const expressionName=
+        expression.displayName||expression.statusLabel||expression.id;
+      button.title=expressionName;
+      button.setAttribute('aria-label',expressionName);
       button.onclick=()=>this.setExpression(expression.id,identityId);
       exprWrap.append(button);
     });

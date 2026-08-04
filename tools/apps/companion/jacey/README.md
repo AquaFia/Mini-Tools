@@ -1,43 +1,36 @@
-# Jacey Expression Repository — Phase 2: PortraitManager Runtime
+# Jacey Expression Repository — Phase 3: Dynamic Portrait UI
 
-This phase changes only the portrait/expression system.
+This phase changes only the portrait-expression interface.
 
-## Included
+## Dynamic layout
 
-```text
-jacey_expression_repository_phase2/
-├── jacey_companion_framework_v6_3_5_portrait_manager.html
-└── expressions/
-    ├── expression_manifest.json
-    ├── J_Anger.webp
-    ├── J_Clue.webp
-    ├── J_Curious.webp
-    ├── J_Deadpan.webp
-    ├── J_Happy.webp
-    ├── J_Overshare.webp
-    ├── J_Panic.webp
-    └── J_Vulnerable.webp
-```
+The expression button area now:
 
-## PortraitManager behavior
+- builds from every expression listed in `expressions/expression_manifest.json`;
+- uses a responsive grid instead of a fixed four-column assumption;
+- keeps the existing numbered buttons;
+- grows naturally until it reaches its maximum height;
+- becomes vertically scrollable when more expressions are added;
+- keeps the portrait and the rest of the sidebar from being pushed out of place;
+- hides itself when the active identity has no portraits;
+- adds accessible labels from each manifest entry's `displayName`,
+  `statusLabel`, or expression ID.
 
-- Loads `expressions/expression_manifest.json`.
-- Resolves every portrait path relative to that manifest.
-- Preloads all portraits listed in the manifest.
-- Uses the active identity's manifest section.
-- Keeps Jace, Mao, and Naoya in one shared manifest and folder.
-- Shows the existing unavailable-portrait state when an identity has no images.
-- Automatically begins using Mao or Naoya portraits after entries are added to
-  their existing manifest sections.
-- Keeps the existing global `setExpression()` entry point so message-bank,
-  episode, Cipher Lab, and identity code continue calling the same portrait API.
-- Falls back to the identity's manifest default when an unknown expression is
-  requested.
+Eight expressions retain the familiar compact grid. Adding a ninth, twelfth,
+twentieth, or later expression requires no HTML change.
+
+## Adding expressions
+
+1. Put the image in `expressions/`.
+2. Use the correct prefix:
+   - `J_` for Jace
+   - `M_` for Mao
+   - `N_` for Naoya
+3. Add its entry to the correct identity in
+   `expressions/expression_manifest.json`.
+4. Refresh the page.
 
 ## Intentionally unchanged
 
-No message-bank, Notion, episode, memory, Cipher Lab, chat-routing, identity
-phrase, storage, or content-library behavior was changed.
-
-The expression panel still uses its existing layout in this phase. Layout growth
-and scrolling belong to Phase 3.
+No message-bank, Notion, episode, memory, Cipher Lab, chat-routing, identity,
+storage, or content-library code was changed.

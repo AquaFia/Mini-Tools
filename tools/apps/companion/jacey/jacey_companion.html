@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Jacey Cosmo — Companion Terminal v6.3.15 iPad Visual Viewport Fit</title>
+<title>Jacey Cosmo — Companion Terminal v6.3.16 iPad Orientation Layouts</title>
 <style>
 /* =========================================================
    JACEY COMPANION FRAMEWORK v5.6 — EPISODE ENGINE CLEANUP
@@ -684,7 +684,12 @@ body:before{
 .mobile-avatar-slot{display:none}
 
 /* TABLET ONLY */
-@media (min-width:701px) and (max-width:1100px){
+@media
+  (min-width:701px)
+  and (max-width:1400px)
+  and (orientation:landscape)
+  and (pointer:coarse)
+  and (hover:none){
   html{
     width:100%;
     height:100%;
@@ -789,6 +794,244 @@ body:before{
 
   .cipher-field.full{
     grid-column:auto;
+  }
+}
+
+
+
+/* TABLET PORTRAIT — enlarged phone-style presentation */
+@media
+  (min-width:701px)
+  and (max-width:1100px)
+  and (orientation:portrait)
+  and (pointer:coarse)
+  and (hover:none){
+
+  html,
+  body{
+    width:100%;
+    height:100%;
+    min-height:0;
+    overflow:hidden;
+  }
+
+  body{
+    height:var(--tablet-visible-height,100svh);
+    min-height:0;
+    padding:
+      env(safe-area-inset-top)
+      env(safe-area-inset-right)
+      env(safe-area-inset-bottom)
+      env(safe-area-inset-left);
+    place-items:stretch;
+  }
+
+  .terminal{
+    width:100%;
+    height:100%;
+    max-width:none;
+    max-height:100%;
+    min-height:0;
+    display:block;
+    border:0;
+    border-radius:0;
+  }
+
+  .sidebar{
+    display:none;
+  }
+
+  .chat{
+    width:100%;
+    height:100%;
+    min-height:0;
+  }
+
+  .chat-head{
+    min-height:0;
+    height:auto;
+    padding:12px 14px;
+    gap:10px 14px;
+    display:grid;
+    grid-template-columns:minmax(82px,auto) minmax(0,1fr);
+    grid-template-areas:
+      "identity modes"
+      "identity tools";
+    align-items:center;
+  }
+
+  .channel-info{
+    grid-area:identity;
+    display:flex;
+    align-items:center;
+    min-width:0;
+  }
+
+  .channel-copy{
+    display:none;
+  }
+
+  .mobile-avatar-slot{
+    display:block;
+    width:82px;
+    height:82px;
+  }
+
+  .mobile-avatar-slot .portrait-frame{
+    width:82px;
+    height:82px;
+    min-height:82px;
+    border-radius:50%;
+    overflow:hidden;
+    border-width:1px;
+    box-shadow:0 0 18px color-mix(in srgb,var(--violet) 28%,transparent);
+  }
+
+  .mobile-avatar-slot .portrait-frame:before{
+    border-radius:50%;
+  }
+
+  .mobile-avatar-slot .portrait{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position:center top;
+    transform:scale(1.04);
+  }
+
+  .mobile-avatar-slot .status-tag{
+    display:none;
+  }
+
+  .mobile-avatar-slot .portrait-frame.alias-blank{
+    display:grid;
+    min-height:82px;
+    place-items:center;
+  }
+
+  .mobile-avatar-slot .portrait-frame.alias-blank:before{
+    content:attr(data-alias);
+    position:static;
+    font:700 15px/1 ui-monospace,SFMono-Regular,Consolas,monospace;
+    letter-spacing:.08em;
+  }
+
+  .mobile-avatar-slot .portrait-frame.alias-blank:after{
+    display:none;
+  }
+
+  .mode-tabs{
+    grid-area:modes;
+    display:flex;
+    justify-content:flex-end;
+    gap:8px;
+    min-width:0;
+  }
+
+  .mode-tab{
+    padding:9px 13px;
+    font-size:10px;
+    letter-spacing:.08em;
+  }
+
+  .head-actions{
+    grid-area:tools;
+    width:100%;
+    display:flex;
+    justify-content:flex-end;
+    gap:8px;
+    overflow-x:auto;
+    overflow-y:hidden;
+    padding:2px 0 5px;
+    scrollbar-gutter:auto;
+    overscroll-behavior-x:contain;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  .head-actions .icon-btn{
+    display:inline-grid !important;
+    flex:0 0 38px;
+    width:38px;
+    height:38px;
+    place-items:center;
+    border-radius:10px;
+  }
+
+  .toast{
+    top:144px;
+    left:14px;
+    right:14px;
+    max-width:none;
+    z-index:110;
+  }
+
+  .log{
+    padding:18px 14px;
+  }
+
+  .bubble{
+    max-width:94%;
+    padding:12px 14px;
+    font-size:14px;
+    line-height:1.48;
+  }
+
+  .composer{
+    padding:12px 14px 14px;
+  }
+
+  .quick{
+    gap:7px;
+    padding-bottom:10px;
+  }
+
+  .chip{
+    padding:9px 12px;
+    font-size:11px;
+  }
+
+  .input-row{
+    grid-template-columns:minmax(0,1fr) 46px;
+    gap:9px;
+  }
+
+  .input-row input{
+    padding:13px 14px;
+    font-size:14px;
+  }
+
+  .episode-overlay{
+    padding:12px 14px;
+    gap:11px;
+  }
+
+  .episode-options{
+    min-height:44px;
+    padding:8px 2px;
+  }
+
+  .episode-choice{
+    padding:10px 13px;
+    font-size:11px;
+  }
+
+  .cipher-mode{
+    padding:14px;
+  }
+
+  .cipher-grid{
+    grid-template-columns:1fr;
+  }
+
+  .cipher-field.full{
+    grid-column:auto;
+  }
+
+  .library-panel,
+  .dossier{
+    width:100%;
+    padding-left:18px;
+    padding-right:18px;
   }
 }
 
@@ -3542,7 +3785,12 @@ dossierBtn.onclick=function(event){
 /* Presentation-only portrait placement for phone layouts. */
 (()=>{
   const phoneQuery=window.matchMedia('(max-width:700px)');
-  const tabletQuery=window.matchMedia('(min-width:701px) and (max-width:1100px)');
+  const tabletLandscapeQuery=window.matchMedia(
+    '(min-width:701px) and (max-width:1400px) and (orientation:landscape) and (pointer:coarse) and (hover:none)'
+  );
+  const tabletPortraitQuery=window.matchMedia(
+    '(min-width:701px) and (max-width:1100px) and (orientation:portrait) and (pointer:coarse) and (hover:none)'
+  );
   const portraitFrame=document.querySelector('.portrait-frame');
   const portraitHome=document.querySelector('#portraitHome');
   const mobileAvatarSlot=document.querySelector('#mobileAvatarSlot');
@@ -3550,7 +3798,10 @@ dossierBtn.onclick=function(event){
   if(!portraitFrame||!portraitHome||!mobileAvatarSlot)return;
 
   function applyDeviceLayout(){
-    if(phoneQuery.matches){
+    const useHeaderPortrait=
+      phoneQuery.matches || tabletPortraitQuery.matches;
+
+    if(useHeaderPortrait){
       if(portraitFrame.parentElement!==mobileAvatarSlot){
         mobileAvatarSlot.appendChild(portraitFrame);
       }
@@ -3560,13 +3811,18 @@ dossierBtn.onclick=function(event){
   }
 
   function updateTabletVisibleHeight(){
-    if(!tabletQuery.matches){
+    const isTablet=
+      tabletLandscapeQuery.matches || tabletPortraitQuery.matches;
+
+    if(!isTablet){
       document.documentElement.style.removeProperty('--tablet-visible-height');
       return;
     }
+
     const visibleHeight=Math.floor(
       window.visualViewport?.height || window.innerHeight
     );
+
     document.documentElement.style.setProperty(
       '--tablet-visible-height',
       `${visibleHeight}px`
@@ -3574,7 +3830,14 @@ dossierBtn.onclick=function(event){
   }
 
   phoneQuery.addEventListener?.('change',applyDeviceLayout);
-  tabletQuery.addEventListener?.('change',updateTabletVisibleHeight);
+  tabletLandscapeQuery.addEventListener?.('change',()=>{
+    applyDeviceLayout();
+    updateTabletVisibleHeight();
+  });
+  tabletPortraitQuery.addEventListener?.('change',()=>{
+    applyDeviceLayout();
+    updateTabletVisibleHeight();
+  });
   window.visualViewport?.addEventListener('resize',updateTabletVisibleHeight,{passive:true});
   window.visualViewport?.addEventListener('scroll',updateTabletVisibleHeight,{passive:true});
   window.addEventListener('resize',updateTabletVisibleHeight,{passive:true});

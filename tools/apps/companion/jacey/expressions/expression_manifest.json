@@ -1,0 +1,61 @@
+{
+  "schema": "companion-expression-manifest",
+  "identities": {
+    "jace": {
+      "prefix": "J",
+      "defaultExpression": "happy",
+      "expressions": [
+        {
+          "id": "curious",
+          "label": "OPEN_CURIOUS",
+          "file": "J_Curious.webp"
+        },
+        {
+          "id": "happy",
+          "label": "DEFAULT_HAPPY",
+          "file": "J_Happy.webp"
+        },
+        {
+          "id": "clue",
+          "label": "CLUE_FOUND",
+          "file": "J_Clue.webp"
+        },
+        {
+          "id": "deadpan",
+          "label": "CONTRADICTION",
+          "file": "J_Deadpan.webp"
+        },
+        {
+          "id": "overshare",
+          "label": "INNOCENT_OVERSHARE",
+          "file": "J_Overshare.webp"
+        },
+        {
+          "id": "panic",
+          "label": "DELAYED_PANIC",
+          "file": "J_Panic.webp"
+        },
+        {
+          "id": "anger",
+          "label": "TRUTH_ANGER",
+          "file": "J_Anger.webp"
+        },
+        {
+          "id": "vulnerable",
+          "label": "MISSING_SELF",
+          "file": "J_Vulnerable.webp"
+        }
+      ]
+    },
+    "naoya": {
+      "prefix": "N",
+      "defaultExpression": null,
+      "expressions": []
+    },
+    "mao": {
+      "prefix": "M",
+      "defaultExpression": null,
+      "expressions": []
+    }
+  }
+}

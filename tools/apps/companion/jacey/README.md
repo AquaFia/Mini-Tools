@@ -1,36 +1,44 @@
-# Jacey Expression Repository — Phase 3: Dynamic Portrait UI
+# Jacey Expression Repository — Phase 4: Runtime Cleanup & Validation
 
-This phase changes only the portrait-expression interface.
+Result: **PASS**
 
-## Dynamic layout
+This phase changed only portrait/expression code.
 
-The expression button area now:
+## Cleanup completed
 
-- builds from every expression listed in `expressions/expression_manifest.json`;
-- uses a responsive grid instead of a fixed four-column assumption;
-- keeps the existing numbered buttons;
-- grows naturally until it reaches its maximum height;
-- becomes vertically scrollable when more expressions are added;
-- keeps the portrait and the rest of the sidebar from being pushed out of place;
-- hides itself when the active identity has no portraits;
-- adds accessible labels from each manifest entry's `displayName`,
-  `statusLabel`, or expression ID.
+- Removed the obsolete embedded-portrait instructions.
+- Removed static `portrait: true/false` identity flags.
+- Removed the old `CHARACTER.portrait = true` initialization.
+- Removed the unused legacy current-expression variable.
+- Kept portrait availability owned by `PortraitManager`.
+- Prevented the portrait from remaining in its switching state if an identity
+  changes during the transition delay.
+- Confirmed the old embedded image object, base64 portrait data, hardcoded
+  expression labels, and fixed image lookup code remain absent.
 
-Eight expressions retain the familiar compact grid. Adding a ninth, twelfth,
-twentieth, or later expression requires no HTML change.
+## Validation completed
 
-## Adding expressions
+- JavaScript syntax check: **passed**
+- Manifest schema checked
+- Identity sections checked
+- Expression IDs checked for duplicates
+- Default expressions checked
+- J/M/N filename prefixes checked
+- Every referenced portrait file checked
+- Duplicate file references checked
+- Unreferenced files checked
+- Dynamic expression grid checked
+- PortraitManager registration checked
 
-1. Put the image in `expressions/`.
-2. Use the correct prefix:
-   - `J_` for Jace
-   - `M_` for Mao
-   - `N_` for Naoya
-3. Add its entry to the correct identity in
-   `expressions/expression_manifest.json`.
-4. Refresh the page.
+## Identity results
+
+- Jace: 8 expressions
+- Mao: 0 expressions
+- Naoya: 0 expressions
+
+See `portrait_validation_report.json` for the machine-readable report.
 
 ## Intentionally unchanged
 
-No message-bank, Notion, episode, memory, Cipher Lab, chat-routing, identity,
-storage, or content-library code was changed.
+No message-bank, Notion, episode, memory, Cipher Lab, chat-routing, identity
+phrase, storage, achievement, or content-library behavior was changed.

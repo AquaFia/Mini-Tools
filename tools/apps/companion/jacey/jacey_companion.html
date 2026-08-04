@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Jacey Cosmo — Companion Terminal v6.3.11 Phone Tablet Scaling</title>
+<title>Jacey Cosmo — Companion Terminal v6.3.12 Split Device Layouts</title>
 <style>
 /* =========================================================
    JACEY COMPANION FRAMEWORK v5.6 — EPISODE ENGINE CLEANUP
@@ -94,8 +94,6 @@ repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 5px)
 }.chip:hover{border-color:#8e61cc;color:#fff}.input-row{display:grid;grid-template-columns:1fr 46px;gap:10px}.input-row input{min-width:0;padding:13px 15px;border-radius:14px;border:1px solid #3b2850;outline:none;background:#0e0c17;color:white;font:14px inherit}.input-row input:focus{border-color:var(--violet);box-shadow:0 0 0 3px rgba(169,112,255,.12)}.send{border:0;border-radius:14px;color:white;font-size:18px;cursor:pointer;background:linear-gradient(135deg,var(--violet),var(--blue));box-shadow:0 8px 24px rgba(88,82,255,.25)}
 .toast{position:absolute;right:18px;top:76px;z-index:12;max-width:min(320px,calc(100% - 36px));padding:10px 13px;border:1px solid #4f3970;border-radius:12px;background:rgba(15,12,25,.94);box-shadow:0 12px 35px rgba(0,0,0,.35),0 0 18px rgba(169,112,255,.18);font:700 10px/1.35 ui-monospace,monospace;letter-spacing:.08em;color:#e9ddff;opacity:0;transform:translateY(-8px);pointer-events:none;transition:.25s}.toast.show{opacity:1;transform:none}.dossier{position:absolute;inset:0 0 0 auto;width:min(430px,100%);z-index:9;background:rgba(10,8,17,.97);border-left:1px solid #59306e;backdrop-filter:blur(16px);padding:24px;transform:translateX(101%);transition:.35s;overflow:auto}.dossier.open{transform:none}.dossier h2{font-size:16px;letter-spacing:.12em}.codebox{padding:14px;border:1px solid #3c2850;border-radius:13px;background:#0c0b13;font:11px/1.7 ui-monospace,monospace;color:#a99bc3}.redacted{background:#e7dff4;color:#e7dff4;border-radius:2px;padding:0 3px}.warning{color:#ff6b8c}.close{float:right}
 .glitch{animation:glitch .22s linear 2}@keyframes glitch{25%{transform:translateX(2px);text-shadow:-2px 0 #5eeaff,2px 0 #ff3a69}50%{transform:translateX(-2px)}75%{transform:none;text-shadow:2px 0 #5eeaff,-2px 0 #ff3a69}}
-@media(max-width:760px){body{overflow:auto;place-items:start center}.terminal{width:100%;height:100dvh;border-radius:0;grid-template-columns:118px 1fr}.sidebar{padding:10px}.brand h1,.brand small,.profile,.expressions{display:none}.portrait-frame{min-height:0;flex:1;border-radius:14px}.portrait{object-position:48% top}.status-tag{font-size:7px;left:6px;bottom:7px;padding:5px}.chat-head{padding:0 12px}.log{padding:14px 11px}.bubble{max-width:88%;font-size:13px}.composer{padding:10px}.quick{display:none}}
-@media(max-width:480px){.terminal{grid-template-columns:86px 1fr}.sidebar{padding:7px}.sigil{width:34px;height:34px}.brand{justify-content:center}.portrait-frame{border-radius:11px}.chat-head b{font-size:11px}.head-actions .icon-btn:first-child{display:none}}
 
 .identity-overlay{position:absolute;inset:0;z-index:30;display:grid;place-items:center;background:rgba(4,5,9,.94);backdrop-filter:blur(12px);opacity:0;pointer-events:none;transition:opacity .35s}.identity-overlay.active{opacity:1;pointer-events:auto}.identity-card{width:min(520px,82%);padding:28px;border:1px solid var(--violet);border-radius:18px;background:linear-gradient(180deg,var(--panel2),var(--panel));box-shadow:0 0 45px color-mix(in srgb,var(--violet) 28%,transparent);font-family:ui-monospace,SFMono-Regular,Consolas,monospace}.identity-kicker{font-size:10px;letter-spacing:.2em;color:var(--muted)}.identity-name{margin:14px 0 8px;font-size:26px;letter-spacing:.12em;color:var(--ink)}.identity-step{min-height:22px;color:var(--cyan);font-size:12px}.identity-bar{height:7px;margin:18px 0;border:1px solid var(--line);border-radius:999px;overflow:hidden}.identity-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--violet),var(--cyan));transition:width .3s}.identity-belief{font:italic 12px/1.55 system-ui;color:var(--muted);opacity:0;transition:opacity .3s}.identity-belief.show{opacity:1}.terminal{transition:background .8s,border-color .8s,box-shadow .8s}.sidebar,.chat,.chat-head,.composer,.portrait-frame,.bubble,.chip,.icon-btn,.input-row input,.dossier,.toast{transition:background .8s,border-color .8s,color .5s,box-shadow .8s}.terminal.switching-identity{filter:saturate(.75) brightness(.8)}
 
@@ -675,289 +673,394 @@ body:before{
 @media(prefers-reduced-motion:reduce){.library-panel,.library-panel.open{transition:opacity .16s ease,visibility 0s linear 0s;transform:none}}
 </style>
 
-<style id="phone-tablet-scaling">
+
+<style id="device-layouts">
 /* =========================================================
-   PHONE + TABLET RESPONSIVE SCALING
-   CSS-only overrides. Runtime behavior is unchanged.
+   DEVICE LAYOUTS
+   Desktop remains the base stylesheet above.
+   Tablet and phone override presentation only.
    ========================================================= */
 
-/* Large tablets and compact laptops */
-@media (max-width:1100px){
+.mobile-avatar-slot{display:none}
+
+/* TABLET ONLY */
+@media (min-width:701px) and (max-width:1100px){
+  html,
   body{
-    place-items:center;
+    width:100%;
+    height:100%;
+    min-height:100%;
     overflow:hidden;
   }
-  .terminal{
-    width:98vw;
-    height:96vh;
-    grid-template-columns:clamp(260px,31vw,340px) minmax(0,1fr);
-    border-radius:18px;
-  }
-  .sidebar{
-    padding:14px;
-  }
-  .portrait-frame{
-    min-height:230px;
-  }
-  .expressions{
-    grid-template-columns:repeat(auto-fit,minmax(48px,1fr));
-    max-height:104px;
-  }
-  .chat-head{
-    padding:0 14px;
-  }
-  .mode-tab{
-    padding:7px 9px;
-    letter-spacing:.08em;
-  }
-  .head-actions{
-    gap:6px;
-  }
-  .icon-btn{
-    width:32px;
-    height:32px;
-  }
-  .log{
-    padding:18px;
-  }
-  .bubble{
-    max-width:84%;
-  }
-  .composer{
-    padding:12px 14px 14px;
-  }
-  .cipher-mode{
-    padding:16px;
-  }
-}
 
-/* Standard tablets */
-@media (max-width:900px){
-  .terminal{
-    width:100vw;
+  body{
     height:100dvh;
-    grid-template-columns:220px minmax(0,1fr);
+    min-height:100svh;
+    padding:
+      env(safe-area-inset-top)
+      env(safe-area-inset-right)
+      env(safe-area-inset-bottom)
+      env(safe-area-inset-left);
+    place-items:stretch;
+  }
+
+  .terminal{
+    width:100%;
+    height:100%;
+    max-width:none;
+    max-height:100dvh;
+    min-height:0;
+    grid-template-columns:clamp(240px,30vw,340px) minmax(0,1fr);
     border-radius:0;
     border-left:0;
     border-right:0;
   }
-  .brand h1{
-    font-size:13px;
+
+  .sidebar{
+    padding:14px;
   }
-  .brand small{
-    font-size:8px;
-  }
+
   .portrait-frame{
-    min-height:190px;
+    min-height:210px;
   }
-  .profile strong{
-    font-size:15px;
-  }
-  .profile span{
-    font-size:10px;
-  }
+
   .expressions{
-    grid-template-columns:repeat(3,minmax(0,1fr));
-    max-height:96px;
+    grid-template-columns:repeat(auto-fit,minmax(48px,1fr));
+    max-height:104px;
   }
+
   .chat-head{
-    min-height:60px;
+    min-height:64px;
     height:auto;
-    padding:8px 12px;
+    padding:8px 14px;
     gap:8px;
     flex-wrap:wrap;
   }
-  .chat-head>div:first-child{
+
+  .channel-info{
     min-width:180px;
     flex:1 1 auto;
   }
+
   .mode-tabs{
     order:3;
     width:100%;
     justify-content:center;
   }
+
+  .mode-tab{
+    padding:7px 10px;
+    letter-spacing:.08em;
+  }
+
   .head-actions{
     margin-left:auto;
-    flex-wrap:wrap;
-    justify-content:flex-end;
+    gap:6px;
+    flex-wrap:nowrap;
   }
+
+  .icon-btn{
+    width:32px;
+    height:32px;
+  }
+
   .log{
-    padding:15px 12px;
+    padding:16px 14px;
   }
+
   .bubble{
-    max-width:90%;
+    max-width:88%;
     font-size:14px;
   }
-  .quick{
-    gap:6px;
+
+  .composer{
+    padding:12px 14px 14px;
   }
-  .chip{
-    padding:8px 11px;
-    font-size:11px;
+
+  .cipher-mode{
+    padding:16px;
   }
+
   .cipher-grid{
     grid-template-columns:1fr;
   }
+
   .cipher-field.full{
     grid-column:auto;
   }
-  .episode-choice{
-    font-size:11px;
-    padding:9px 12px;
-  }
 }
 
-/* Phones and narrow tablets */
+/* PHONE ONLY */
 @media (max-width:700px){
+  html,
   body{
+    width:100%;
+    height:100%;
+    min-height:100%;
     overflow:hidden;
   }
-  .terminal{
-    grid-template-columns:96px minmax(0,1fr);
+
+  body{
     height:100dvh;
+    min-height:100svh;
+    padding:
+      env(safe-area-inset-top)
+      env(safe-area-inset-right)
+      env(safe-area-inset-bottom)
+      env(safe-area-inset-left);
+    place-items:stretch;
   }
+
+  .terminal{
+    width:100%;
+    height:100%;
+    max-width:none;
+    max-height:100dvh;
+    min-height:0;
+    display:block;
+    border:0;
+    border-radius:0;
+  }
+
   .sidebar{
-    padding:8px;
-  }
-  .brand{
-    justify-content:center;
-    margin-bottom:8px;
-  }
-  .brand h1,
-  .brand small,
-  .profile,
-  .expressions{
     display:none;
   }
-  .sigil{
-    width:36px;
-    height:36px;
-    border-radius:10px;
-  }
-  .portrait-frame{
+
+  .chat{
+    width:100%;
+    height:100%;
     min-height:0;
-    flex:1;
-    border-radius:12px;
   }
-  .portrait{
-    object-position:50% top;
+
+  .chat-head{
+    min-height:0;
+    height:auto;
+    padding:8px 9px;
+    gap:7px;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:flex-start;
   }
-  .status-tag{
-    left:5px;
-    right:5px;
-    bottom:7px;
-    padding:5px 4px;
-    text-align:center;
-    font-size:7px;
+
+  .channel-info{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    min-width:0;
+    flex:1 1 calc(100% - 90px);
+  }
+
+  .channel-copy{
+    min-width:0;
+  }
+
+  .channel-copy b{
+    display:block;
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
-  }
-  .chat-head{
-    padding:7px 8px;
-    gap:6px;
-  }
-  .chat-head b{
     font-size:10px;
   }
-  .chat-head small{
-    display:none;
-  }
-  .mode-tabs{
-    gap:5px;
-  }
-  .mode-tab{
-    flex:1 1 0;
-    padding:7px 5px;
+
+  .channel-copy small{
+    display:block;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
     font-size:8px;
   }
+
+  .mobile-avatar-slot{
+    display:block;
+    flex:0 0 48px;
+    width:48px;
+    height:48px;
+  }
+
+  .mobile-avatar-slot .portrait-frame{
+    width:48px;
+    height:48px;
+    min-height:48px;
+    border-radius:50%;
+    overflow:hidden;
+    border-width:1px;
+    box-shadow:0 0 15px color-mix(in srgb,var(--violet) 24%,transparent);
+  }
+
+  .mobile-avatar-slot .portrait-frame:before{
+    border-radius:50%;
+  }
+
+  .mobile-avatar-slot .portrait{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position:center top;
+    transform:scale(1.05);
+  }
+
+  .mobile-avatar-slot .status-tag{
+    display:none;
+  }
+
+  .mobile-avatar-slot .portrait-frame.alias-blank{
+    display:grid;
+    min-height:48px;
+    place-items:center;
+  }
+
+  .mobile-avatar-slot .portrait-frame.alias-blank:before{
+    content:attr(data-alias);
+    position:static;
+    font:700 12px/1 ui-monospace,SFMono-Regular,Consolas,monospace;
+    letter-spacing:.08em;
+  }
+
+  .mobile-avatar-slot .portrait-frame.alias-blank:after{
+    display:none;
+  }
+
+  .mode-tabs{
+    order:2;
+    display:flex;
+    flex:0 0 auto;
+    gap:5px;
+  }
+
+  .mode-tab{
+    padding:7px 8px;
+    font-size:8px;
+    letter-spacing:.06em;
+  }
+
   .head-actions{
-    gap:4px;
+    order:3;
+    width:100%;
+    display:flex;
+    gap:6px;
+    overflow-x:auto;
+    overflow-y:hidden;
+    padding:1px 0 4px;
+    scrollbar-gutter:auto;
+    overscroll-behavior-x:contain;
+    -webkit-overflow-scrolling:touch;
   }
-  .icon-btn{
-    width:30px;
-    height:30px;
-    border-radius:8px;
-    font-size:12px;
+
+  .head-actions .icon-btn{
+    display:inline-grid !important;
+    flex:0 0 34px;
+    width:34px;
+    height:34px;
+    place-items:center;
+    border-radius:9px;
   }
+
   .log{
-    padding:12px 9px;
+    padding:11px 8px;
   }
+
   .message{
     margin-bottom:12px;
   }
+
   .bubble{
-    max-width:94%;
+    max-width:96%;
     padding:10px 11px;
     font-size:13px;
     line-height:1.42;
   }
+
   .composer{
-    padding:9px;
+    padding:8px;
   }
+
   .quick{
-    padding-bottom:8px;
+    gap:5px;
+    padding-bottom:7px;
   }
+
   .chip{
     padding:7px 9px;
     font-size:10px;
   }
+
   .input-row{
     grid-template-columns:minmax(0,1fr) 42px;
     gap:7px;
   }
+
   .input-row input{
     padding:11px 12px;
     font-size:13px;
   }
+
   .send{
     border-radius:11px;
   }
+
   .episode-overlay{
     padding:10px 9px;
     gap:9px;
   }
+
   .episode-options{
     min-height:40px;
     padding:7px 1px;
   }
+
   .episode-choice{
     padding:8px 10px;
     font-size:10px;
   }
+
   .episode-message-row{
     grid-template-columns:minmax(0,1fr) auto;
     gap:7px;
   }
+
   .episode-title-field{
     min-height:40px;
     padding:8px 9px;
   }
+
   .episode-title-field strong{
     font-size:10px;
   }
+
   .episode-message-row>button{
     min-height:40px;
     padding:0 9px;
     font-size:8px;
   }
+
   .cipher-mode{
     padding:10px;
   }
+
   .cipher-card,
   .cipher-intro,
   .cipher-result{
     border-radius:12px;
   }
-  .cipher-card{
-    padding:12px;
-  }
+
+  .cipher-card,
   .cipher-intro{
     padding:12px;
   }
+
+  .cipher-grid{
+    grid-template-columns:1fr;
+  }
+
+  .cipher-field.full{
+    grid-column:auto;
+  }
+
   .cipher-field textarea{
     min-height:96px;
   }
+
   .library-panel,
   .dossier{
     width:100%;
@@ -966,61 +1069,41 @@ body:before{
   }
 }
 
-/* Small phones */
-@media (max-width:480px){
-  .terminal{
-    grid-template-columns:76px minmax(0,1fr);
+@media (max-width:420px){
+  .mobile-avatar-slot{
+    flex-basis:44px;
+    width:44px;
+    height:44px;
   }
-  .sidebar{
-    padding:6px;
+
+  .mobile-avatar-slot .portrait-frame{
+    width:44px;
+    height:44px;
+    min-height:44px;
   }
-  .sigil{
+
+  .channel-copy small{
+    display:none;
+  }
+
+  .mode-tab{
+    padding:6px 7px;
+    font-size:7.5px;
+  }
+
+  .head-actions .icon-btn{
+    flex-basis:32px;
     width:32px;
     height:32px;
   }
-  .portrait-frame{
-    border-radius:9px;
-  }
-  .chat-head{
-    padding:6px;
-  }
-  .head-actions .icon-btn:nth-of-type(4),
-  .head-actions .icon-btn:nth-of-type(5){
-    display:none;
-  }
-  .log{
-    padding:10px 7px;
-  }
+
   .bubble{
-    max-width:97%;
-    padding:9px 10px;
+    max-width:98%;
     font-size:12.5px;
   }
-  .composer{
-    padding:7px;
-  }
-  .quick{
-    gap:5px;
-  }
+
   .chip{
-    padding:6px 8px;
     font-size:9px;
-  }
-  .input-row{
-    grid-template-columns:minmax(0,1fr) 38px;
-    gap:6px;
-  }
-  .input-row input{
-    padding:10px;
-    font-size:12px;
-  }
-  .episode-choice{
-    padding:7px 9px;
-    font-size:9px;
-  }
-  .episode-message-row>button{
-    padding:0 7px;
-    letter-spacing:.05em;
   }
 }
 </style>
@@ -1030,12 +1113,13 @@ body:before{
 <main class="terminal" id="terminal">
   <aside class="sidebar">
     <div class="brand"><div class="sigil" id="sigil">JC</div><div><h1 id="brandTitle">COSMO//LINK</h1><small id="brandSubtitle">COMPANION TERMINAL</small></div></div>
+    <span id="portraitHome" hidden aria-hidden="true"></span>
     <div class="portrait-frame"><img id="portrait" class="portrait" alt="Jacey Cosmo expression"><div id="statusTag" class="status-tag">DEFAULT_HAPPY</div></div>
     <div class="expressions" id="expressions"></div>
     <div class="profile"><div><strong id="characterName">Jacey “Jace” Cosmo</strong><span id="characterTalent">Ultimate Cryptologist</span></div><div class="online">ONLINE</div></div>
   </aside>
   <section class="chat">
-    <header class="chat-head"><div><b id="channelTitle">ENCRYPTED COMPANION CHANNEL</b><small id="channel">channel: jace.private // integrity verified</small></div><div class="mode-tabs" aria-label="Interface mode">
+    <header class="chat-head"><div class="channel-info"><div class="mobile-avatar-slot" id="mobileAvatarSlot" aria-label="Active companion portrait"></div><div class="channel-copy"><b id="channelTitle">ENCRYPTED COMPANION CHANNEL</b><small id="channel">channel: jace.private // integrity verified</small></div></div><div class="mode-tabs" aria-label="Interface mode">
   <button class="mode-tab active" id="chatModeBtn" type="button">CHAT</button>
   <button class="mode-tab" id="cipherModeBtn" type="button">CIPHER LAB</button>
 </div>
@@ -3449,6 +3533,33 @@ dossierBtn.onclick=function(event){
   }
   renderExternalAchievements();
 };
+</script>
+
+
+<script id="mobile-layout-manager">
+/* Presentation-only portrait placement for phone layouts. */
+(()=>{
+  const phoneQuery=window.matchMedia('(max-width:700px)');
+  const portraitFrame=document.querySelector('.portrait-frame');
+  const portraitHome=document.querySelector('#portraitHome');
+  const mobileAvatarSlot=document.querySelector('#mobileAvatarSlot');
+
+  if(!portraitFrame||!portraitHome||!mobileAvatarSlot)return;
+
+  function applyDeviceLayout(){
+    if(phoneQuery.matches){
+      if(portraitFrame.parentElement!==mobileAvatarSlot){
+        mobileAvatarSlot.appendChild(portraitFrame);
+      }
+    }else if(portraitFrame.previousElementSibling!==portraitHome){
+      portraitHome.after(portraitFrame);
+    }
+  }
+
+  phoneQuery.addEventListener?.('change',applyDeviceLayout);
+  window.addEventListener('orientationchange',applyDeviceLayout,{passive:true});
+  applyDeviceLayout();
+})();
 </script>
 
 </body></html>

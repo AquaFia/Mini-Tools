@@ -23,7 +23,7 @@ This phase changed only portrait/expression code.
 - Identity sections checked
 - Expression IDs checked for duplicates
 - Default expressions checked
-- J/M/N filename prefixes checked
+- Identity filename prefixes checked
 - Every referenced portrait file checked
 - Duplicate file references checked
 - Unreferenced files checked

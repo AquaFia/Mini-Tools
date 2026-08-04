@@ -5,7 +5,6 @@
   "javascriptSyntax": "passed",
   "identities": {
     "jace": {
-      "prefix": "J",
       "defaultExpression": "happy",
       "expressionCount": 8,
       "duplicateExpressionIds": [],
@@ -13,7 +12,6 @@
       "incorrectPrefixes": []
     },
     "mao": {
-      "prefix": "M",
       "defaultExpression": null,
       "expressionCount": 0,
       "duplicateExpressionIds": [],
@@ -21,7 +19,6 @@
       "incorrectPrefixes": []
     },
     "naoya": {
-      "prefix": "N",
       "defaultExpression": null,
       "expressionCount": 0,
       "duplicateExpressionIds": [],

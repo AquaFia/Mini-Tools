@@ -4,7 +4,6 @@
   "folder": "expressions",
   "identities": {
     "jace": {
-      "prefix": "J",
       "defaultExpression": "happy",
       "expressions": [
         {
@@ -58,12 +57,10 @@
       ]
     },
     "mao": {
-      "prefix": "M",
       "defaultExpression": null,
       "expressions": []
     },
     "naoya": {
-      "prefix": "N",
       "defaultExpression": null,
       "expressions": []
     }

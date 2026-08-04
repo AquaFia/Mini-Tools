@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Jacey Cosmo — Companion Terminal v6.3.12 Split Device Layouts</title>
+<title>Jacey Cosmo — Companion Terminal v6.3.13 Mobile Tablet Polish</title>
 <style>
 /* =========================================================
    JACEY COMPANION FRAMEWORK v5.6 — EPISODE ENGINE CLEANUP
@@ -685,21 +685,22 @@ body:before{
 
 /* TABLET ONLY */
 @media (min-width:701px) and (max-width:1100px){
-  html,
-  body{
+  html{
     width:100%;
     height:100%;
-    min-height:100%;
+    min-height:-webkit-fill-available;
     overflow:hidden;
   }
 
   body{
+    width:100%;
     height:100dvh;
-    min-height:100svh;
+    min-height:-webkit-fill-available;
+    overflow:hidden;
     padding:
-      env(safe-area-inset-top)
+      calc(env(safe-area-inset-top) + 2px)
       env(safe-area-inset-right)
-      env(safe-area-inset-bottom)
+      calc(env(safe-area-inset-bottom) + 2px)
       env(safe-area-inset-left);
     place-items:stretch;
   }
@@ -708,7 +709,7 @@ body:before{
     width:100%;
     height:100%;
     max-width:none;
-    max-height:100dvh;
+    max-height:100%;
     min-height:0;
     grid-template-columns:clamp(240px,30vw,340px) minmax(0,1fr);
     border-radius:0;
@@ -792,21 +793,22 @@ body:before{
 
 /* PHONE ONLY */
 @media (max-width:700px){
-  html,
-  body{
+  html{
     width:100%;
     height:100%;
-    min-height:100%;
+    min-height:-webkit-fill-available;
     overflow:hidden;
   }
 
   body{
+    width:100%;
     height:100dvh;
-    min-height:100svh;
+    min-height:-webkit-fill-available;
+    overflow:hidden;
     padding:
-      env(safe-area-inset-top)
+      calc(env(safe-area-inset-top) + 2px)
       env(safe-area-inset-right)
-      env(safe-area-inset-bottom)
+      calc(env(safe-area-inset-bottom) + 2px)
       env(safe-area-inset-left);
     place-items:stretch;
   }
@@ -815,7 +817,7 @@ body:before{
     width:100%;
     height:100%;
     max-width:none;
-    max-height:100dvh;
+    max-height:100%;
     min-height:0;
     display:block;
     border:0;
@@ -835,53 +837,38 @@ body:before{
   .chat-head{
     min-height:0;
     height:auto;
-    padding:8px 9px;
-    gap:7px;
-    display:flex;
-    flex-wrap:wrap;
+    padding:9px;
+    gap:7px 9px;
+    display:grid;
+    grid-template-columns:minmax(62px,auto) minmax(0,1fr);
+    grid-template-areas:
+      "identity modes"
+      "identity tools";
     align-items:center;
-    justify-content:flex-start;
   }
 
   .channel-info{
+    grid-area:identity;
     display:flex;
     align-items:center;
-    gap:9px;
+    gap:0;
     min-width:0;
-    flex:1 1 calc(100% - 90px);
   }
 
   .channel-copy{
-    min-width:0;
-  }
-
-  .channel-copy b{
-    display:block;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-    font-size:10px;
-  }
-
-  .channel-copy small{
-    display:block;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-    font-size:8px;
+    display:none;
   }
 
   .mobile-avatar-slot{
     display:block;
-    flex:0 0 48px;
-    width:48px;
-    height:48px;
+    width:62px;
+    height:62px;
   }
 
   .mobile-avatar-slot .portrait-frame{
-    width:48px;
-    height:48px;
-    min-height:48px;
+    width:62px;
+    height:62px;
+    min-height:62px;
     border-radius:50%;
     overflow:hidden;
     border-width:1px;
@@ -906,7 +893,7 @@ body:before{
 
   .mobile-avatar-slot .portrait-frame.alias-blank{
     display:grid;
-    min-height:48px;
+    min-height:62px;
     place-items:center;
   }
 
@@ -922,22 +909,25 @@ body:before{
   }
 
   .mode-tabs{
-    order:2;
+    grid-area:modes;
     display:flex;
-    flex:0 0 auto;
+    justify-content:flex-end;
     gap:5px;
+    min-width:0;
   }
 
   .mode-tab{
-    padding:7px 8px;
+    flex:0 1 auto;
+    padding:7px 9px;
     font-size:8px;
     letter-spacing:.06em;
   }
 
   .head-actions{
-    order:3;
+    grid-area:tools;
     width:100%;
     display:flex;
+    justify-content:flex-end;
     gap:6px;
     overflow-x:auto;
     overflow-y:hidden;
@@ -954,6 +944,14 @@ body:before{
     height:34px;
     place-items:center;
     border-radius:9px;
+  }
+
+  .toast{
+    top:116px;
+    left:9px;
+    right:9px;
+    max-width:none;
+    z-index:110;
   }
 
   .log{
@@ -1071,19 +1069,22 @@ body:before{
 
 @media (max-width:420px){
   .mobile-avatar-slot{
-    flex-basis:44px;
-    width:44px;
-    height:44px;
+    width:54px;
+    height:54px;
   }
 
   .mobile-avatar-slot .portrait-frame{
-    width:44px;
-    height:44px;
-    min-height:44px;
+    width:54px;
+    height:54px;
+    min-height:54px;
   }
 
-  .channel-copy small{
-    display:none;
+  .mobile-avatar-slot .portrait-frame.alias-blank{
+    min-height:54px;
+  }
+
+  .toast{
+    top:108px;
   }
 
   .mode-tab{

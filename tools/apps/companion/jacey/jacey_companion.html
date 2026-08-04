@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Jacey Cosmo — Companion Terminal v6.3.16 iPad Orientation Layouts</title>
+<title>Jacey Cosmo — Companion Terminal v6.3.17 iPad Landscape Width Fit</title>
 <style>
 /* =========================================================
    JACEY COMPANION FRAMEWORK v5.6 — EPISODE ENGINE CLEANUP
@@ -704,20 +704,20 @@ body:before{
     overflow:hidden;
     padding:
       env(safe-area-inset-top)
-      env(safe-area-inset-right)
+      max(12px,env(safe-area-inset-right))
       env(safe-area-inset-bottom)
-      env(safe-area-inset-left);
-    place-items:center stretch;
+      max(12px,env(safe-area-inset-left));
+    place-items:center;
   }
 
   .terminal{
-    width:100%;
+    width:min(1320px,100%);
     height:calc(var(--tablet-visible-height,100svh) - 16px);
-    max-width:none;
+    max-width:1320px;
     max-height:calc(var(--tablet-visible-height,100svh) - 16px);
     min-height:0;
     margin-block:8px;
-    grid-template-columns:clamp(240px,30vw,340px) minmax(0,1fr);
+    grid-template-columns:clamp(230px,27vw,320px) minmax(0,1fr);
     border-radius:0;
     border-left:0;
     border-right:0;

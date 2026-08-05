@@ -97,13 +97,30 @@ controls.addEventListener('unlock',()=>{if(!roomOpen)menu.classList.remove('hidd
 document.getElementById('start').onclick=()=>controls.lock();
 document.getElementById('reset').onclick=()=>{resetPosition();if(!controls.isLocked&&!roomOpen)controls.lock()};
 
-document.getElementById('leave').onclick=()=>{
-  roomOpen=false;sceneOverlay.classList.remove('open');sceneBody.innerHTML='';controls.lock();
-};
+function leaveRoom(){
+  roomOpen=false;
+  sceneOverlay.classList.remove('open');
+  sceneBody.innerHTML='';
+  controls.lock();
+}
+document.getElementById('leave').onclick=leaveRoom;
+window.addEventListener('message',event=>{
+  if(event.data?.type==='shp:explorer-leave-room') leaveRoom();
+});
 function openRoom(room){
   roomOpen=true;controls.unlock();menu.classList.add('hidden');sceneOverlay.classList.add('open');
-  if(room.sceneImage){sceneBody.innerHTML=`<img src="${room.sceneImage}" alt="${room.name}'s dorm room">`;}
-  else sceneBody.innerHTML=`<div class="placeholder-room"><div><h2>${room.name}'s Dorm</h2><p>This is the prototype 2D room-scene handoff. A finished version can load this student's existing image, HTML room scene, companion interface, or another destination from the shared room data.</p></div></div>`;
+  if(room.sceneHtml){
+    const frame=document.createElement('iframe');
+    frame.className='room-frame';
+    frame.src=room.sceneHtml;
+    frame.title=`${room.name}'s dorm room`;
+    frame.setAttribute('allow','fullscreen');
+    sceneBody.replaceChildren(frame);
+  }else if(room.sceneImage){
+    sceneBody.innerHTML=`<img src="${room.sceneImage}" alt="${room.name}'s dorm room">`;
+  }else{
+    sceneBody.innerHTML=`<div class="placeholder-room"><div><h2>${room.name}'s Dorm</h2><p>No interactive room layout exists for this student in the source map yet. Add a <code>sceneHtml</code> destination to the shared dorm data when one is available.</p></div></div>`;
+  }
 }
 
 const clock=new THREE.Clock();

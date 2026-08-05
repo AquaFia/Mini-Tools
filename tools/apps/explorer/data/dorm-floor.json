@@ -1,502 +1,120 @@
 {
-  "schemaVersion": 2,
   "id": "Dorms",
-  "name": "Dorm Wing Blueprint",
-  "source": {
-    "type": "existing-html-map",
-    "coordinateSystem": "percent",
-    "width": 100,
-    "height": 68,
-    "notes": "Room rectangles are copied from the current Dorms floor. Hallways are inferred from the visible gaps between those rectangles."
-  },
-  "units": {
-    "world": "meters",
-    "metersPerMapPercent": 0.5
-  },
-  "environment": {
-    "hallHeight": 3.4,
-    "floorThickness": 0.16,
-    "wallThickness": 0.18,
-    "playerHeight": 1.7,
-    "playerRadius": 0.32
+  "name": "Dorm Wing",
+  "hallway": {
+    "length": 74,
+    "width": 7,
+    "height": 3.4
   },
   "spawn": {
-    "x": 0.0,
+    "x": 0,
     "y": 1.7,
-    "z": 5.0,
-    "yaw": -1.5708,
-    "zone": "lower-hall"
+    "z": 32,
+    "yaw": 3.14159
   },
-  "hallways": [
-    {
-      "id": "upper-hall",
-      "name": "Upper Dorm Hall",
-      "x": 0,
-      "y": 18,
-      "w": 45,
-      "h": 13,
-      "world": {
-        "x": -13.75,
-        "z": -4.75,
-        "width": 22.5,
-        "depth": 6.5
-      }
-    },
-    {
-      "id": "lower-hall",
-      "name": "Lower Dorm Hall",
-      "x": 0,
-      "y": 38,
-      "w": 100,
-      "h": 12,
-      "world": {
-        "x": 0.0,
-        "z": 5.0,
-        "width": 50.0,
-        "depth": 6.0
-      }
-    },
-    {
-      "id": "connector",
-      "name": "Central Connector",
-      "x": 45,
-      "y": 18,
-      "w": 10,
-      "h": 32,
-      "world": {
-        "x": 0.0,
-        "z": 0.0,
-        "width": 5.0,
-        "depth": 16.0
-      }
-    }
-  ],
   "rooms": [
     {
       "id": "ruby",
       "name": "Ruby",
-      "source2D": {
-        "xPercent": 0,
-        "yPercent": 0,
-        "widthPercent": 10.5,
-        "heightPercent": 18
-      },
-      "world": {
-        "x": -22.375,
-        "z": -12.5,
-        "width": 5.25,
-        "depth": 9.0,
-        "height": 3.2
-      },
-      "door": {
-        "edge": "south",
-        "x": -22.375,
-        "z": -8.0,
-        "yaw": 3.14159,
-        "interactionDistance": 2.1
-      }
+      "side": "left",
+      "z": 29
     },
     {
       "id": "fate",
       "name": "Fate",
-      "source2D": {
-        "xPercent": 11.5,
-        "yPercent": 0,
-        "widthPercent": 10.5,
-        "heightPercent": 18
-      },
-      "world": {
-        "x": -16.625,
-        "z": -12.5,
-        "width": 5.25,
-        "depth": 9.0,
-        "height": 3.2
-      },
-      "door": {
-        "edge": "south",
-        "x": -16.625,
-        "z": -8.0,
-        "yaw": 3.14159,
-        "interactionDistance": 2.1
-      }
+      "side": "right",
+      "z": 29
     },
     {
       "id": "adair",
       "name": "Adair",
-      "source2D": {
-        "xPercent": 23,
-        "yPercent": 0,
-        "widthPercent": 10.5,
-        "heightPercent": 18
-      },
-      "world": {
-        "x": -10.875,
-        "z": -12.5,
-        "width": 5.25,
-        "depth": 9.0,
-        "height": 3.2
-      },
-      "door": {
-        "edge": "south",
-        "x": -10.875,
-        "z": -8.0,
-        "yaw": 3.14159,
-        "interactionDistance": 2.1
-      }
+      "side": "left",
+      "z": 22
     },
     {
       "id": "alice",
       "name": "Alice",
-      "source2D": {
-        "xPercent": 34.5,
-        "yPercent": 0,
-        "widthPercent": 10.5,
-        "heightPercent": 18
-      },
-      "world": {
-        "x": -5.125,
-        "z": -12.5,
-        "width": 5.25,
-        "depth": 9.0,
-        "height": 3.2
-      },
-      "door": {
-        "edge": "south",
-        "x": -5.125,
-        "z": -8.0,
-        "yaw": 3.14159,
-        "interactionDistance": 2.1
-      }
+      "side": "right",
+      "z": 22
     },
     {
       "id": "milo",
       "name": "Milo",
-      "source2D": {
-        "xPercent": 0,
-        "yPercent": 31,
-        "widthPercent": 10.5,
-        "heightPercent": 18
-      },
-      "world": {
-        "x": -22.375,
-        "z": 3.0,
-        "width": 5.25,
-        "depth": 9.0,
-        "height": 3.2
-      },
-      "door": {
-        "edge": "north",
-        "x": -22.375,
-        "z": -1.5,
-        "yaw": 0,
-        "interactionDistance": 2.1
-      }
+      "side": "left",
+      "z": 15
     },
     {
       "id": "meggie",
       "name": "Meggie",
-      "source2D": {
-        "xPercent": 11.5,
-        "yPercent": 31,
-        "widthPercent": 10.5,
-        "heightPercent": 18
-      },
-      "world": {
-        "x": -16.625,
-        "z": 3.0,
-        "width": 5.25,
-        "depth": 9.0,
-        "height": 3.2
-      },
-      "door": {
-        "edge": "north",
-        "x": -16.625,
-        "z": -1.5,
-        "yaw": 0,
-        "interactionDistance": 2.1
-      }
+      "side": "right",
+      "z": 15
     },
     {
       "id": "ludo",
       "name": "Ludo",
-      "source2D": {
-        "xPercent": 23,
-        "yPercent": 31,
-        "widthPercent": 10.5,
-        "heightPercent": 18
-      },
-      "world": {
-        "x": -10.875,
-        "z": 3.0,
-        "width": 5.25,
-        "depth": 9.0,
-        "height": 3.2
-      },
-      "door": {
-        "edge": "north",
-        "x": -10.875,
-        "z": -1.5,
-        "yaw": 0,
-        "interactionDistance": 2.1
-      }
+      "side": "left",
+      "z": 8
     },
     {
       "id": "juno",
       "name": "Juno",
-      "source2D": {
-        "xPercent": 34.5,
-        "yPercent": 31,
-        "widthPercent": 10.5,
-        "heightPercent": 18
-      },
-      "world": {
-        "x": -5.125,
-        "z": 3.0,
-        "width": 5.25,
-        "depth": 9.0,
-        "height": 3.2
-      },
-      "door": {
-        "edge": "north",
-        "x": -5.125,
-        "z": -1.5,
-        "yaw": 0,
-        "interactionDistance": 2.1
-      }
+      "side": "right",
+      "z": 8
     },
     {
       "id": "hikari",
       "name": "Hikari",
-      "source2D": {
-        "xPercent": 55,
-        "yPercent": 20,
-        "widthPercent": 10.5,
-        "heightPercent": 18
-      },
-      "world": {
-        "x": 5.125,
-        "z": -2.5,
-        "width": 5.25,
-        "depth": 9.0,
-        "height": 3.2
-      },
-      "door": {
-        "edge": "south",
-        "x": 5.125,
-        "z": 2.0,
-        "yaw": 3.14159,
-        "interactionDistance": 2.1
-      }
+      "side": "left",
+      "z": 1
     },
     {
       "id": "damian",
       "name": "Damian",
-      "source2D": {
-        "xPercent": 0,
-        "yPercent": 50,
-        "widthPercent": 10.5,
-        "heightPercent": 18
-      },
-      "world": {
-        "x": -22.375,
-        "z": 12.5,
-        "width": 5.25,
-        "depth": 9.0,
-        "height": 3.2
-      },
-      "door": {
-        "edge": "north",
-        "x": -22.375,
-        "z": 8.0,
-        "yaw": 0,
-        "interactionDistance": 2.1
-      }
+      "side": "right",
+      "z": 1
     },
     {
       "id": "aria",
       "name": "Aria",
-      "source2D": {
-        "xPercent": 11.5,
-        "yPercent": 50,
-        "widthPercent": 10.5,
-        "heightPercent": 18
-      },
-      "world": {
-        "x": -16.625,
-        "z": 12.5,
-        "width": 5.25,
-        "depth": 9.0,
-        "height": 3.2
-      },
-      "door": {
-        "edge": "north",
-        "x": -16.625,
-        "z": 8.0,
-        "yaw": 0,
-        "interactionDistance": 2.1
-      }
+      "side": "left",
+      "z": -6
     },
     {
       "id": "luxi",
       "name": "Luxi",
-      "source2D": {
-        "xPercent": 23,
-        "yPercent": 50,
-        "widthPercent": 10.5,
-        "heightPercent": 18
-      },
-      "world": {
-        "x": -10.875,
-        "z": 12.5,
-        "width": 5.25,
-        "depth": 9.0,
-        "height": 3.2
-      },
-      "door": {
-        "edge": "north",
-        "x": -10.875,
-        "z": 8.0,
-        "yaw": 0,
-        "interactionDistance": 2.1
-      }
+      "side": "right",
+      "z": -6
     },
     {
       "id": "daika",
       "name": "Daika",
-      "source2D": {
-        "xPercent": 34.5,
-        "yPercent": 50,
-        "widthPercent": 10.5,
-        "heightPercent": 18
-      },
-      "world": {
-        "x": -5.125,
-        "z": 12.5,
-        "width": 5.25,
-        "depth": 9.0,
-        "height": 3.2
-      },
-      "door": {
-        "edge": "north",
-        "x": -5.125,
-        "z": 8.0,
-        "yaw": 0,
-        "interactionDistance": 2.1
-      }
+      "side": "left",
+      "z": -13
     },
     {
       "id": "tokiko",
       "name": "Tokiko",
-      "source2D": {
-        "xPercent": 56,
-        "yPercent": 50,
-        "widthPercent": 10.5,
-        "heightPercent": 18
-      },
-      "world": {
-        "x": 5.625,
-        "z": 12.5,
-        "width": 5.25,
-        "depth": 9.0,
-        "height": 3.2
-      },
-      "door": {
-        "edge": "north",
-        "x": 5.625,
-        "z": 8.0,
-        "yaw": 0,
-        "interactionDistance": 2.1
-      }
+      "side": "right",
+      "z": -13
     },
     {
       "id": "kouji",
       "name": "Kouji",
-      "source2D": {
-        "xPercent": 67.5,
-        "yPercent": 50,
-        "widthPercent": 10.5,
-        "heightPercent": 18
-      },
-      "world": {
-        "x": 11.375,
-        "z": 12.5,
-        "width": 5.25,
-        "depth": 9.0,
-        "height": 3.2
-      },
-      "door": {
-        "edge": "north",
-        "x": 11.375,
-        "z": 8.0,
-        "yaw": 0,
-        "interactionDistance": 2.1
-      }
+      "side": "left",
+      "z": -20
     },
     {
       "id": "jacey",
       "name": "Jacey",
-      "source2D": {
-        "xPercent": 79,
-        "yPercent": 50,
-        "widthPercent": 10.5,
-        "heightPercent": 18
-      },
-      "world": {
-        "x": 17.125,
-        "z": 12.5,
-        "width": 5.25,
-        "depth": 9.0,
-        "height": 3.2
-      },
-      "door": {
-        "edge": "north",
-        "x": 17.125,
-        "z": 8.0,
-        "yaw": 0,
-        "interactionDistance": 2.1
-      },
+      "side": "right",
+      "z": -20,
       "sceneHtml": "rooms/original-map.html?mode=explorer"
     },
     {
       "id": "tyler",
       "name": "Tyler",
-      "source2D": {
-        "xPercent": 90.5,
-        "yPercent": 50,
-        "widthPercent": 9.5,
-        "heightPercent": 18
-      },
-      "world": {
-        "x": 22.625,
-        "z": 12.5,
-        "width": 4.75,
-        "depth": 9.0,
-        "height": 3.2
-      },
-      "door": {
-        "edge": "north",
-        "x": 22.625,
-        "z": 8.0,
-        "yaw": 0,
-        "interactionDistance": 2.1
-      }
+      "side": "left",
+      "z": -27
     }
-  ],
-  "transitions": [
-    {
-      "id": "stairs",
-      "type": "stairs",
-      "label": "Stairs / Floor Exit",
-      "x": 24.0,
-      "z": 5.0,
-      "targetFloor": "1F",
-      "enabled": false
-    }
-  ],
-  "conversionNotes": [
-    "The 2D room positions remain authoritative and are stored under source2D.",
-    "The first 3D pass treats visible blank bands as walkable corridor rectangles.",
-    "Doors are placed on the room edge facing the nearest corridor.",
-    "This blueprint can be edited without changing the explorer code."
   ]
 }

@@ -23,7 +23,7 @@
       "title": "Jacey Companion Debugging Panel",
       "file": "tools/apps/companion/jacey_companion_debugging_panel.html",
       "icon": "⌁",
-      "accent": "#79efb4",
+      "accent": "#4cc9f0",
       "description": "Load a Jacey companion HTML file into a standalone inspection and testing harness.",
       "tags": ["debug", "testing", "companion"]
     },
@@ -47,7 +47,7 @@
       "title": "Jacey Cosmo Companion Chat Box",
       "file": "tools/apps/companion/jacey/jacey_companion",
       "icon": "▧",
-      "accent": "#79efb4",
+      "accent": "#4cc9f0",
       "description": "The Jacey Companion Test.",
       "tags": ["companion", "jacey"]
     },

@@ -112,13 +112,20 @@ function nearestDoor(room){
   for(const hall of data.corridors){
     const hx1=hall.x, hx2=hall.x+hall.w, hy1=hall.y, hy2=hall.y+hall.h;
     if(cx>=hx1&&cx<=hx2){
-      candidates.push({d:Math.abs(room.y+room.h-hy1),x:cx,y:hy1,normal:[0,-1],axis:'x'});
-      candidates.push({d:Math.abs(room.y-hy2),x:cx,y:hy2,normal:[0,1],axis:'x'});
+      candidates.push({side:'bottom',d:Math.abs(room.y+room.h-hy1),x:cx,y:hy1,normal:[0,-1],axis:'x'});
+      candidates.push({side:'top',d:Math.abs(room.y-hy2),x:cx,y:hy2,normal:[0,1],axis:'x'});
     }
     if(cy>=hy1&&cy<=hy2){
-      candidates.push({d:Math.abs(room.x+room.w-hx1),x:hx1,y:cy,normal:[-1,0],axis:'y'});
-      candidates.push({d:Math.abs(room.x-hx2),x:hx2,y:cy,normal:[1,0],axis:'y'});
+      candidates.push({side:'right',d:Math.abs(room.x+room.w-hx1),x:hx1,y:cy,normal:[-1,0],axis:'y'});
+      candidates.push({side:'left',d:Math.abs(room.x-hx2),x:hx2,y:cy,normal:[1,0],axis:'y'});
     }
+  }
+  // Some corner rooms touch two corridors. Their source-map doorway is on the
+  // room's short end, so an explicit side prevents the nearest corridor edge
+  // from rotating the door onto the long wall.
+  if(room.doorSide){
+    const forced=candidates.filter(c=>c.side===room.doorSide).sort((a,b)=>a.d-b.d)[0];
+    if(forced)return forced;
   }
   return candidates.sort((a,b)=>a.d-b.d)[0];
 }
@@ -185,9 +192,19 @@ const stairSign=new THREE.Mesh(new THREE.PlaneGeometry(2.2,.55),new THREE.MeshBa
 stairSign.position.set(stairCenter.x,2.25,stairCenter.z-2.15);scene.add(stairSign);
 
 const move={speed:5.4,radius:.42};
+function mapPointInCorridor(x,y){
+  return data.corridors.some(h=>x>=h.x&&x<=h.x+h.w&&y>=h.y&&y<=h.y+h.h);
+}
 function insideCorridor(pos){
   const m=worldToMap(pos.x,pos.z), r=move.radius/S;
-  return data.corridors.some(h=>m.x>=h.x+r&&m.x<=h.x+h.w-r&&m.y>=h.y+r&&m.y<=h.y+h.h-r);
+  // Test the player's collision circle against the UNION of all corridor
+  // rectangles. Shrinking each rectangle independently created invisible
+  // barriers exactly where the middle connector joins the other hallways.
+  const samples=[
+    [0,0],[r,0],[-r,0],[0,r],[0,-r],
+    [r*.707,r*.707],[r*.707,-r*.707],[-r*.707,r*.707],[-r*.707,-r*.707]
+  ];
+  return samples.every(([dx,dy])=>mapPointInCorridor(m.x+dx,m.y+dy));
 }
 window.addEventListener('keydown',e=>{keys.add(e.code);if(e.code==='KeyE'&&activeDoor&&!roomOpen)openRoom(activeDoor.room)});
 window.addEventListener('keyup',e=>keys.delete(e.code));

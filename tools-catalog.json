@@ -58,6 +58,14 @@
       "accent": "#79efb4",
       "description": "Interactive Map Test.",
       "tags": ["map", "student handbook"]
+    },
+    {
+      "title": "Interactive Map 3D",
+      "file": "tools/apps/explorer/index",
+      "icon": "▧",
+      "accent": "#79efb4",
+      "description": "Interactive Map 3D Test.",
+      "tags": ["map", "student handbook"]
     }
   ]
 }

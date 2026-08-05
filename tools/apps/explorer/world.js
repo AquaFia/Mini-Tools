@@ -125,13 +125,53 @@ function nearestDoor(room){
 
 const doors=[];
 for(const room of data.rooms){
-  const d=nearestDoor(room); const p=mapToWorld(d.x,d.y);
+  const d=nearestDoor(room);
   const horizontalWall=d.axis==='x';
-  const door=box(horizontalWall?1.35:.12,2.35,horizontalWall?.12:1.35,doorMat,p.x,1.175,p.z);
-  const sign=new THREE.Mesh(new THREE.PlaneGeometry(1.25,.32),new THREE.MeshBasicMaterial({map:labelTexture(room.name)}));
-  if(horizontalWall){sign.position.set(p.x,2.78,p.z+d.normal[1]*.11);sign.rotation.y=d.normal[1]<0?0:Math.PI;}
-  else{sign.position.set(p.x+d.normal[0]*.11,2.78,p.z);sign.rotation.y=d.normal[0]<0?Math.PI/2:-Math.PI/2;}
+
+  // Place the visible panel just inside the corridor. The perimeter wall remains
+  // continuous for collision, but no longer covers the door and its name sign.
+  const panelInsetMap=.34;
+  const panelPoint=mapToWorld(
+    d.x-d.normal[0]*panelInsetMap,
+    d.y-d.normal[1]*panelInsetMap
+  );
+  const door=box(
+    horizontalWall?1.35:.12,
+    2.35,
+    horizontalWall?.12:1.35,
+    doorMat,
+    panelPoint.x,
+    1.175,
+    panelPoint.z
+  );
+
+  // A slightly larger frame makes each doorway easy to identify at a distance.
+  const frame=box(
+    horizontalWall?1.55:.16,
+    2.55,
+    horizontalWall?.16:1.55,
+    trimMat,
+    panelPoint.x,
+    1.275,
+    panelPoint.z
+  );
+  frame.renderOrder=1;
+  door.renderOrder=2;
+
+  const sign=new THREE.Mesh(
+    new THREE.PlaneGeometry(1.25,.32),
+    new THREE.MeshBasicMaterial({map:labelTexture(room.name),depthTest:true})
+  );
+  const signOffset=.075;
+  if(horizontalWall){
+    sign.position.set(panelPoint.x,2.78,panelPoint.z-d.normal[1]*signOffset);
+    sign.rotation.y=d.normal[1]<0?0:Math.PI;
+  } else {
+    sign.position.set(panelPoint.x-d.normal[0]*signOffset,2.78,panelPoint.z);
+    sign.rotation.y=d.normal[0]<0?Math.PI/2:-Math.PI/2;
+  }
   scene.add(sign);
+
   const inside=mapToWorld(d.x-d.normal[0]*1.7,d.y-d.normal[1]*1.7);
   doors.push({room,position:new THREE.Vector3(inside.x,1.5,inside.z)});
 }

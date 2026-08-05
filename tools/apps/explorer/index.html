@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Safe Havens Peak — Dorm Explorer Prototype</title>
+<style>
+:root{color-scheme:dark;--bg:#07111f;--panel:#101827ee;--line:#e63b53;--text:#f7f7fb;--muted:#aeb6c8;--cyan:#9be7ff}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:var(--text)}
+canvas{display:block;width:100%;height:100%}.hud{position:fixed;inset:0;pointer-events:none}.topbar{position:absolute;top:14px;left:14px;right:14px;display:flex;justify-content:space-between;gap:10px}.chip,.button{background:#07111fdd;border:1px solid #ffffff3d;border-radius:8px;padding:9px 12px;box-shadow:0 5px 20px #0009;font-weight:800}.button{pointer-events:auto;color:#fff;cursor:pointer}.button:hover{border-color:var(--line)}
+.crosshair{position:absolute;left:50%;top:50%;width:16px;height:16px;transform:translate(-50%,-50%)}.crosshair:before,.crosshair:after{content:"";position:absolute;background:#fff;box-shadow:0 0 6px #000}.crosshair:before{left:7px;top:1px;width:2px;height:14px}.crosshair:after{left:1px;top:7px;width:14px;height:2px}
+.prompt{position:absolute;left:50%;bottom:12%;transform:translateX(-50%);background:#07111fee;border:2px solid #fff;border-left:8px solid var(--line);padding:13px 18px;min-width:260px;text-align:center;font-weight:900;opacity:0;transition:.15s}.prompt.show{opacity:1}
+.menu{position:fixed;inset:0;display:grid;place-items:center;background:radial-gradient(circle at 50% 30%,#173759dd,#03060cee);z-index:10}.menu.hidden{display:none}.card{width:min(560px,92vw);background:linear-gradient(180deg,#131c2ef5,#090f1bf5);border:1px solid #ffffff35;padding:28px;border-radius:14px;box-shadow:0 25px 90px #000}.card h1{margin:0 0 10px}.card p{color:var(--muted);line-height:1.55}.controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:18px 0}.controls div{background:#ffffff0b;border:1px solid #ffffff18;padding:10px;border-radius:8px}.primary{width:100%;padding:13px;background:var(--line);border:0;color:#fff;border-radius:8px;font-weight:900;cursor:pointer}
+.scene{position:fixed;inset:0;display:none;z-index:20;background:#03060cf2;padding:18px}.scene.open{display:grid;place-items:center}.scene-card{position:relative;width:min(1100px,96vw);height:min(760px,92vh);background:#0b1421;border:1px solid #ffffff38;box-shadow:0 25px 90px #000;overflow:hidden;border-radius:12px}.scene img{width:100%;height:100%;object-fit:contain;background:#070b15}.placeholder-room{height:100%;display:grid;place-items:center;text-align:center;padding:40px;background:radial-gradient(circle at 50% 40%,#23486b,#0a1422 65%)}.placeholder-room h2{font-size:42px;margin:0 0 10px}.placeholder-room p{color:var(--muted);max-width:550px;line-height:1.55}.leave{position:absolute;right:14px;top:14px;z-index:2}
+.notice{position:absolute;right:14px;bottom:14px;color:var(--muted);font-size:12px}.mobile{display:none}@media(max-width:800px){.mobile{display:block}.controls{grid-template-columns:1fr}.card{padding:20px}}
+</style>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}
+</script>
+</head>
+<body>
+<div id="menu" class="menu"><div class="card"><h1>Dorm Wing Explorer</h1><p>A small first-person prototype generated from dorm data. Walk to a door and press <strong>E</strong> to enter its 2D room scene.</p><div class="controls"><div><strong>W A S D</strong><br>Move</div><div><strong>Mouse</strong><br>Look around</div><div><strong>E</strong><br>Enter room</div><div><strong>Esc</strong><br>Release mouse</div></div><p class="mobile">This prototype is designed for a keyboard and mouse.</p><button id="start" class="primary">Enter Dorm Hallway</button></div></div>
+<div class="hud"><div class="topbar"><div class="chip">Safe Havens Peak · Dorm Wing</div><button id="reset" class="button">Reset Position</button></div><div class="crosshair"></div><div id="prompt" class="prompt"></div><div class="notice">Prototype · one generated hallway · room interiors remain 2D</div></div>
+<div id="scene" class="scene"><div class="scene-card"><button id="leave" class="button leave">← Leave Room</button><div id="sceneBody" style="height:100%"></div></div></div>
+<script type="module" src="world.js"></script>
+</body></html>

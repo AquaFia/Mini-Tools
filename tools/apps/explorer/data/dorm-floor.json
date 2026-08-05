@@ -1,0 +1,25 @@
+{
+  "id": "Dorms",
+  "name": "Dorm Wing",
+  "hallway": { "length": 74, "width": 7, "height": 3.4 },
+  "spawn": { "x": 0, "y": 1.7, "z": 32, "yaw": 3.14159 },
+  "rooms": [
+    {"id":"ruby","name":"Ruby","side":"left","z":29},
+    {"id":"fate","name":"Fate","side":"right","z":29},
+    {"id":"adair","name":"Adair","side":"left","z":22},
+    {"id":"alice","name":"Alice","side":"right","z":22},
+    {"id":"milo","name":"Milo","side":"left","z":15},
+    {"id":"meggie","name":"Meggie","side":"right","z":15},
+    {"id":"ludo","name":"Ludo","side":"left","z":8},
+    {"id":"juno","name":"Juno","side":"right","z":8},
+    {"id":"hikari","name":"Hikari","side":"left","z":1},
+    {"id":"damian","name":"Damian","side":"right","z":1},
+    {"id":"aria","name":"Aria","side":"left","z":-6},
+    {"id":"luxi","name":"Luxi","side":"right","z":-6},
+    {"id":"daika","name":"Daika","side":"left","z":-13},
+    {"id":"tokiko","name":"Tokiko","side":"right","z":-13},
+    {"id":"kouji","name":"Kouji","side":"left","z":-20},
+    {"id":"jacey","name":"Jacey","side":"right","z":-20,"sceneImage":"assets/jacey-dorm.png"},
+    {"id":"tyler","name":"Tyler","side":"left","z":-27}
+  ]
+}

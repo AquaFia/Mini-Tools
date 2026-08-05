@@ -31,19 +31,18 @@ const miniCtx = minimap.getContext('2d');
 const keys = new Set();
 let activeDoor = null;
 let roomOpen = false;
+const STATE_KEY='shpDormExplorerStateV3';
 
 function resetPosition() {
-  const p = mapToWorld(data.spawn.mapX, data.spawn.mapY);
-  camera.position.set(p.x, 1.7, p.z);
-  camera.rotation.set(0, data.spawn.yaw, 0);
-  localStorage.removeItem('shpDormExplorerStateV2');
+  setSpawnFromData();
+  localStorage.removeItem(STATE_KEY);
 }
 function savePosition() {
-  localStorage.setItem('shpDormExplorerStateV2', JSON.stringify({x:camera.position.x,y:camera.position.y,z:camera.position.z,ry:camera.rotation.y}));
+  localStorage.setItem(STATE_KEY, JSON.stringify({x:camera.position.x,y:camera.position.y,z:camera.position.z,ry:camera.rotation.y}));
 }
 function restorePosition() {
   try {
-    const s=JSON.parse(localStorage.getItem('shpDormExplorerStateV2'));
+    const s=JSON.parse(localStorage.getItem(STATE_KEY));
     if(s && Number.isFinite(s.x)){camera.position.set(s.x,s.y,s.z);camera.rotation.set(0,s.ry||0,0);return;}
   } catch {}
   resetPosition();
@@ -175,6 +174,108 @@ function drawMinimap(){
   const dx=Math.sin(camera.rotation.y)*9,dy=-Math.cos(camera.rotation.y)*9;miniCtx.strokeStyle='#fff';miniCtx.lineWidth=2;miniCtx.beginPath();miniCtx.moveTo(p.x*sx,p.y*sy);miniCtx.lineTo((p.x+dx)*sx,(p.y+dy)*sy);miniCtx.stroke();
   miniCtx.strokeStyle='#ffffff55';miniCtx.strokeRect(.5,.5,w-1,h-1);
 }
+
+
+// --- Lightweight layout editor -------------------------------------------------
+const editor = document.getElementById('editor');
+const editorCanvas = document.getElementById('editorCanvas');
+const ectx = editorCanvas.getContext('2d');
+const editorStatus = document.getElementById('editorStatus');
+let editorOpen = false;
+let selectedPoint = null;
+let draggingPoint = null;
+const originalEditorData = JSON.parse(JSON.stringify({spawns:data.spawns,navNodes:data.navNodes}));
+
+function activeSpawn(){
+  const key=data.defaultSpawn || Object.keys(data.spawns||{})[0];
+  return {key, value:data.spawns[key]};
+}
+function validMapPoint(x,y,pad=1){
+  return data.corridors.some(h=>x>=h.x+pad&&x<=h.x+h.w-pad&&y>=h.y+pad&&y<=h.y+h.h-pad);
+}
+function nearestValidMapPoint(x,y){
+  let best=null;
+  for(const h of data.corridors){
+    const px=Math.max(h.x+1,Math.min(h.x+h.w-1,x));
+    const py=Math.max(h.y+1,Math.min(h.y+h.h-1,y));
+    const d=(px-x)**2+(py-y)**2;
+    if(!best||d<best.d)best={x:px,y:py,d};
+  }
+  return best;
+}
+function setSpawnFromData(){
+  const sp=activeSpawn().value;
+  const p=mapToWorld(sp.mapX,sp.mapY);
+  camera.position.set(p.x,1.7,p.z);
+  camera.rotation.set(0,sp.yaw||0,0);
+}
+function editorCoords(evt){
+  const r=editorCanvas.getBoundingClientRect();
+  return {x:(evt.clientX-r.left)/r.width*data.mapWidth,y:(evt.clientY-r.top)/r.height*data.mapHeight};
+}
+function pointScreen(x,y){return {x:x/data.mapWidth*editorCanvas.width,y:y/data.mapHeight*editorCanvas.height};}
+function hitPoint(m){
+  const candidates=[];
+  const sp=activeSpawn(); candidates.push({type:'spawn',key:sp.key,obj:sp.value});
+  for(const n of data.navNodes||[])candidates.push({type:'node',key:n.id,obj:n});
+  let best=null;
+  for(const c of candidates){
+    const dx=c.obj.mapX-m.x,dy=c.obj.mapY-m.y,d=Math.hypot(dx,dy);
+    if(d<2.4&&(!best||d<best.d))best={...c,d};
+  }
+  return best;
+}
+function drawEditor(){
+  const sx=editorCanvas.width/data.mapWidth, sy=editorCanvas.height/data.mapHeight;
+  ectx.clearRect(0,0,editorCanvas.width,editorCanvas.height);
+  ectx.fillStyle='#07111f';ectx.fillRect(0,0,editorCanvas.width,editorCanvas.height);
+  ectx.fillStyle='#8fc6df';for(const c of data.corridors)ectx.fillRect(c.x*sx,c.y*sy,c.w*sx,c.h*sy);
+  ectx.fillStyle='#dce9f0';for(const r of data.rooms){ectx.fillRect(r.x*sx,r.y*sy,r.w*sx,r.h*sy);ectx.fillStyle='#22384a';ectx.font='18px Arial';ectx.textAlign='center';ectx.fillText(r.name,(r.x+r.w/2)*sx,(r.y+r.h/2)*sy);ectx.fillStyle='#dce9f0';}
+  ectx.fillStyle='#263746';ectx.fillRect(data.stairs.x*sx,data.stairs.y*sy,data.stairs.w*sx,data.stairs.h*sy);
+  ectx.strokeStyle='#20465d';ectx.lineWidth=8;ectx.lineCap='round';
+  const nodes=data.navNodes||[];
+  for(let i=1;i<nodes.length;i++){
+    const a=nodes[i-1],b=nodes[i];
+    if(Math.hypot(a.mapX-b.mapX,a.mapY-b.mapY)<30){ectx.beginPath();ectx.moveTo(a.mapX*sx,a.mapY*sy);ectx.lineTo(b.mapX*sx,b.mapY*sy);ectx.stroke();}
+  }
+  for(const n of nodes){const p=pointScreen(n.mapX,n.mapY);ectx.fillStyle=selectedPoint?.obj===n?'#fff':'#59bfff';ectx.beginPath();ectx.arc(p.x,p.y,10,0,Math.PI*2);ectx.fill();ectx.strokeStyle='#07111f';ectx.lineWidth=3;ectx.stroke();}
+  const sp=activeSpawn();const p=pointScreen(sp.value.mapX,sp.value.mapY);ectx.fillStyle=selectedPoint?.type==='spawn'?'#fff':'#59e391';ectx.beginPath();ectx.arc(p.x,p.y,13,0,Math.PI*2);ectx.fill();ectx.strokeStyle='#07111f';ectx.lineWidth=4;ectx.stroke();
+  ectx.strokeStyle='#ffffff55';ectx.lineWidth=2;ectx.strokeRect(1,1,editorCanvas.width-2,editorCanvas.height-2);
+  requestAnimationFrame(()=>{if(editorOpen)drawEditor();});
+}
+function updateEditorStatus(){
+  if(!selectedPoint){editorStatus.textContent='No point selected.';return;}
+  const o=selectedPoint.obj;
+  editorStatus.textContent=`${selectedPoint.type.toUpperCase()}: ${selectedPoint.key}\nmapX: ${o.mapX.toFixed(2)}\nmapY: ${o.mapY.toFixed(2)}`;
+}
+function toggleEditor(force){
+  editorOpen=force??!editorOpen;
+  editor.classList.toggle('open',editorOpen);editor.setAttribute('aria-hidden',String(!editorOpen));
+  if(editorOpen){controls.unlock();menu.classList.add('hidden');selectedPoint=null;updateEditorStatus();drawEditor();}
+  else if(!roomOpen)controls.lock();
+}
+editorCanvas.addEventListener('pointerdown',e=>{
+  const m=editorCoords(e),hit=hitPoint(m);
+  if(hit){selectedPoint=hit;draggingPoint=hit;editorCanvas.setPointerCapture(e.pointerId);}
+  else if(validMapPoint(m.x,m.y)){
+    const id=`node-${Date.now().toString(36)}`;const n={id,mapX:m.x,mapY:m.y};(data.navNodes||(data.navNodes=[])).push(n);selectedPoint={type:'node',key:id,obj:n};draggingPoint=selectedPoint;
+  }
+  updateEditorStatus();
+});
+editorCanvas.addEventListener('pointermove',e=>{
+  if(!draggingPoint)return;const m=editorCoords(e);const v=validMapPoint(m.x,m.y)?m:nearestValidMapPoint(m.x,m.y);draggingPoint.obj.mapX=v.x;draggingPoint.obj.mapY=v.y;updateEditorStatus();
+});
+editorCanvas.addEventListener('pointerup',()=>draggingPoint=null);
+document.getElementById('editorClose').onclick=()=>toggleEditor(false);
+document.getElementById('editorDelete').onclick=()=>{if(selectedPoint?.type==='node'){data.navNodes=data.navNodes.filter(n=>n!==selectedPoint.obj);selectedPoint=null;updateEditorStatus();}};
+document.getElementById('editorReset').onclick=()=>{data.spawns=JSON.parse(JSON.stringify(originalEditorData.spawns));data.navNodes=JSON.parse(JSON.stringify(originalEditorData.navNodes));selectedPoint=null;updateEditorStatus();};
+document.getElementById('editorExport').onclick=()=>{
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='dorm-floor.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+};
+window.addEventListener('keydown',e=>{if(e.code==='F2'){e.preventDefault();toggleEditor();}});
+
+// Revalidate any saved position against the generated hallway.
+if(!insideCorridor(camera.position)) resetPosition();
 
 const clock=new THREE.Clock();
 function animate(){

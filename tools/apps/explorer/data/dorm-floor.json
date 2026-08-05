@@ -25,7 +25,7 @@
       "x": 0,
       "y": 69,
       "w": 100,
-      "h": 21
+      "h": 11
     }
   ],
   "outline": [
@@ -47,11 +47,11 @@
     ],
     [
       100,
-      90
+      80
     ],
     [
       0,
-      90
+      80
     ],
     [
       0,
@@ -72,9 +72,9 @@
   ],
   "stairs": {
     "x": 94.5,
-    "y": 79,
+    "y": 80,
     "w": 5.5,
-    "h": 11
+    "h": 10
   },
   "rooms": [
     {
@@ -221,7 +221,7 @@
   "spawns": {
     "mainEntrance": {
       "mapX": 86,
-      "mapY": 82,
+      "mapY": 75,
       "yaw": 1.5708
     },
     "stairs": {
@@ -234,17 +234,17 @@
     {
       "id": "main-west",
       "mapX": 8,
-      "mapY": 80
+      "mapY": 75
     },
     {
       "id": "main-center",
       "mapX": 49.5,
-      "mapY": 80
+      "mapY": 75
     },
     {
       "id": "main-east",
       "mapX": 86,
-      "mapY": 80
+      "mapY": 75
     },
     {
       "id": "connector-bottom",

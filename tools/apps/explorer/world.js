@@ -31,7 +31,7 @@ const miniCtx = minimap.getContext('2d');
 const keys = new Set();
 let activeDoor = null;
 let roomOpen = false;
-const STATE_KEY='shpDormExplorerStateV3';
+const STATE_KEY='shpDormExplorerStateV4';
 
 function resetPosition() {
   setSpawnFromData();
@@ -183,13 +183,21 @@ for(const room of data.rooms){
   doors.push({room,position:new THREE.Vector3(inside.x,1.5,inside.z)});
 }
 
-// A simple blocked stair marker in the original lower-right position.
-const stairCenter=mapToWorld(data.stairs.x+data.stairs.w/2,data.stairs.y+data.stairs.h/2);
-for(let i=0;i<7;i++){
-  box(data.stairs.w*S,.10+i*.07,(data.stairs.h*S)/7,stairMat,stairCenter.x,.05+i*.035,stairCenter.z+(i-3)*(data.stairs.h*S/7));
+// Stairs begin flush with the lower wall and descend away from the hallway.
+// Each successive tread is lower, so the visible run goes downward rather than up.
+const stairCount=7;
+const stairDepth=(data.stairs.h*S)/stairCount;
+const stairStart=mapToWorld(data.stairs.x+data.stairs.w/2,data.stairs.y);
+for(let i=0;i<stairCount;i++){
+  const treadHeight=Math.max(.08,.68-i*.09);
+  const mapY=data.stairs.y+(i+.5)*(data.stairs.h/stairCount);
+  const p=mapToWorld(data.stairs.x+data.stairs.w/2,mapY);
+  box(data.stairs.w*S,treadHeight,stairDepth,stairMat,p.x,treadHeight/2-.02,p.z);
 }
-const stairSign=new THREE.Mesh(new THREE.PlaneGeometry(2.2,.55),new THREE.MeshBasicMaterial({map:labelTexture('STAIRS')}));
-stairSign.position.set(stairCenter.x,2.25,stairCenter.z-2.15);scene.add(stairSign);
+const stairSign=new THREE.Mesh(new THREE.PlaneGeometry(2.2,.55),new THREE.MeshBasicMaterial({map:labelTexture('STAIRS DOWN')}));
+stairSign.position.set(stairStart.x,2.25,stairStart.z-.08);
+stairSign.rotation.y=Math.PI;
+scene.add(stairSign);
 
 const move={speed:5.4,radius:.42};
 function mapPointInCorridor(x,y){
@@ -228,7 +236,7 @@ function drawMinimap(){
   miniCtx.fillStyle='#dce9f0';for(const r of data.rooms)miniCtx.fillRect(r.x*sx,r.y*sy,r.w*sx,r.h*sy);
   miniCtx.fillStyle='#263746';miniCtx.fillRect(data.stairs.x*sx,data.stairs.y*sy,data.stairs.w*sx,data.stairs.h*sy);
   const p=worldToMap(camera.position.x,camera.position.z);miniCtx.fillStyle='#e63b53';miniCtx.beginPath();miniCtx.arc(p.x*sx,p.y*sy,4,0,Math.PI*2);miniCtx.fill();
-  const dx=Math.sin(camera.rotation.y)*9,dy=-Math.cos(camera.rotation.y)*9;miniCtx.strokeStyle='#fff';miniCtx.lineWidth=2;miniCtx.beginPath();miniCtx.moveTo(p.x*sx,p.y*sy);miniCtx.lineTo((p.x+dx)*sx,(p.y+dy)*sy);miniCtx.stroke();
+  const dx=-Math.sin(camera.rotation.y)*9,dy=-Math.cos(camera.rotation.y)*9;miniCtx.strokeStyle='#fff';miniCtx.lineWidth=2;miniCtx.beginPath();miniCtx.moveTo(p.x*sx,p.y*sy);miniCtx.lineTo((p.x+dx)*sx,(p.y+dy)*sy);miniCtx.stroke();
   miniCtx.strokeStyle='#ffffff55';miniCtx.strokeRect(.5,.5,w-1,h-1);
 }
 

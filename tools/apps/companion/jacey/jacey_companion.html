@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Jacey Cosmo — Companion Terminal v6.3.19 iPad Landscape Border Fix</title>
+<title>Jacey Cosmo — Companion Terminal v6.3.20 Dead Code Cleanup</title>
 <style>
 /* =========================================================
    JACEY COMPANION FRAMEWORK v5.6 — EPISODE ENGINE CLEANUP
@@ -1926,7 +1926,6 @@ function typing(){const m=document.createElement('div');m.className='message jac
 /* =========================================================
    SECTION 4 — DIALOGUE BANKS
    ========================================================= */
-let responseBanks={};
 /* =========================================================
    SECTION 5 — MESSAGE ROUTING
    ========================================================= */
@@ -2001,7 +2000,6 @@ function pick(bank){
   return normalized;
 }
 
-let aliasBanks={};
 function pickAlias(bank){
   const options=getBankResponses(bank,activeIdentity).length?getBankResponses(bank,activeIdentity):getBankResponses('generic',activeIdentity);
   if(!options.length)return null;
@@ -2313,9 +2311,9 @@ function respond(text){
   },FRAMEWORK_TIMING.replyBase+Math.min(text.length*FRAMEWORK_TIMING.replyPerCharacter,FRAMEWORK_TIMING.replyMaximumExtra));
 }
 
-let companionMode=false,idleTimer=null,lastActivity=Date.now();
+let companionMode=false,idleTimer=null;
 function nextIdleDelay(){return CHARACTER.idleMinMs+Math.random()*(CHARACTER.idleMaxMs-CHARACTER.idleMinMs)}
-function resetIdleTimer(){lastActivity=Date.now();clearTimeout(idleTimer);if(!companionMode)return;idleTimer=setTimeout(runIdle,nextIdleDelay())}
+function resetIdleTimer(){clearTimeout(idleTimer);if(!companionMode)return;idleTimer=setTimeout(runIdle,nextIdleDelay())}
 function runIdle(){
   if(!companionMode||busy){resetIdleTimer();return}
 
@@ -3502,8 +3500,6 @@ const MessageBankManager={
     if(!active){messageBankLoaded=false;return;}
     this.activeKey=normalizeTitle(active.title);
     loadedMessageBankDocument=active.data;
-    responseBanks=active.data.identities.jace?.banks||{};
-    aliasBanks={mao:active.data.identities.mao?.banks||{},naoya:active.data.identities.naoya?.banks||{}};
     messageBankLoaded=true;
   },
   toggle(title,enabled){const r=this.records.get(normalizeTitle(title));if(!r)return;r.enabled=Boolean(enabled);this.apply();refreshContentUI();},

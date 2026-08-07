@@ -27,3 +27,7 @@ No new variables are required.
 - `https://akailem.aquafia1247.workers.dev/api/characters/<NOTION_PAGE_ID>`
 
 Replace the Worker code in Cloudflare with `worker.js`, then publish the three frontend files to GitHub Pages when GitHub is available again.
+
+
+## Current UI structure
+Dashboard is now the world overview. Character Explorer lives under the Characters tab. Other sidebar tabs are lightweight placeholders until their Notion data sources are connected.

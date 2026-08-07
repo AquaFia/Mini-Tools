@@ -5,7 +5,9 @@ const state = {
   profiles: new Map(),
   query: "",
   filters: {},
-  view: localStorage.getItem("akailem-view") || "cards"
+  view: localStorage.getItem("akailem-view") || "cards",
+  tab: "dashboard",
+  spotlightId: null
 };
 
 const FILTERS = [
@@ -203,36 +205,34 @@ function upcomingBirthday(character) {
 }
 
 function renderStats() {
-  const now = Date.now();
-  const edited30 = state.characters.filter(character => {
-    if (!character.lastEditedTime) return false;
-    const edited = new Date(character.lastEditedTime).getTime();
-    return Number.isFinite(edited) && now - edited <= 30 * 86400000;
-  }).length;
-  const withBirthdays = state.characters.filter(character => upcomingBirthday(character) !== Infinity).length;
   const stats = [
-    ["👤", "Characters", state.characters.length],
-    ["✏️", "Updated in 30 Days", edited30],
-    ["🎂", "Birthdays Listed", withBirthdays],
-    ["🎁", "Upcoming Birthdays", state.characters.filter(character => upcomingBirthday(character) <= 60).length],
-    ["☁️", "Data Mode", "On demand"]
+    ["👥", "Characters", state.characters.length, "characters"],
+    ["🏛️", "Groups", "—", "groups"],
+    ["📅", "Events", "—", "events"],
+    ["📍", "Locations", "—", "locations"],
+    ["✨", "Lore Records", "—", "lore"]
   ];
-  $("#stats").innerHTML = stats.map(([icon,label,value]) => `<div class="card stat"><div class="stat-icon" aria-hidden="true">${icon}</div><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`).join("");
+  $("#stats").innerHTML = stats.map(([icon,label,value,tab]) =>
+    `<button class="card stat stat-link" type="button" data-tab-jump="${tab}"><div class="stat-icon" aria-hidden="true">${icon}</div><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></button>`
+  ).join("");
 }
-
-function renderSpotlight() {
+function renderSpotlight(forceNew = false) {
   const root = $("#spotlight");
   if (!state.characters.length) { root.innerHTML = '<div class="empty">No characters found.</div>'; return; }
-  const character = state.characters[Math.floor(Math.random() * state.characters.length)];
+  if (forceNew || !state.spotlightId || !state.characters.some(c => c.id === state.spotlightId)) {
+    const pool = state.characters.filter(c => c.id !== state.spotlightId);
+    const character = (pool.length ? pool : state.characters)[Math.floor(Math.random() * (pool.length ? pool.length : state.characters.length))];
+    state.spotlightId = character.id;
+  }
+  const character = state.characters.find(c => c.id === state.spotlightId) || state.characters[0];
   root.innerHTML = `
     <div class="spotlight-portrait"><strong style="font-size:52px">${initials(character.name)}</strong></div>
     <div class="spotlight-body">
       <h3>${escapeHtml(character.name)}</h3>
-      <p>Character profile</p>
-      <button class="primary" type="button" data-profile="${escapeHtml(character.id)}">👁️ Open Profile</button>
+      <p>Discover a character from the Akailem cast.</p>
+      <button class="primary" type="button" data-profile="${escapeHtml(character.id)}">👁️ View Character</button>
     </div>`;
 }
-
 function formatDate(value, options = {month:"short",day:"numeric"}) {
   if (!value) return "—";
   const dateText = typeof value === "object" ? value.start : value;
@@ -241,12 +241,33 @@ function formatDate(value, options = {month:"short",day:"numeric"}) {
 }
 
 function renderLists() {
-  const recent = [...state.characters].filter(c => c.lastEditedTime).sort((a,b) => new Date(b.lastEditedTime)-new Date(a.lastEditedTime)).slice(0,5);
-  $("#recent").innerHTML = recent.length ? recent.map(character => `<div class="list-row"><span><span class="row-icon" aria-hidden="true">✏️</span>${escapeHtml(character.name)}</span><small>${formatDate(character.lastEditedTime)}</small></div>`).join("") : '<div class="empty">No edit dates available.</div>';
-  const birthdays = [...state.characters].filter(c => upcomingBirthday(c) !== Infinity).sort((a,b) => upcomingBirthday(a)-upcomingBirthday(b)).slice(0,5);
-  $("#birthdays").innerHTML = birthdays.length ? birthdays.map(character => `<div class="list-row"><span><span class="row-icon" aria-hidden="true">🎁</span>${escapeHtml(character.name)}</span><small>${formatDate(property(character,"Birthdate"))}</small></div>`).join("") : '<div class="empty">No birthdates available.</div>';
+  const recent = [...state.characters].filter(c => c.lastEditedTime).sort((a,b) => new Date(b.lastEditedTime)-new Date(a.lastEditedTime)).slice(0,6);
+  $("#recent").innerHTML = recent.length ? recent.map(character => `<button class="list-row list-row-button" type="button" data-profile="${escapeHtml(character.id)}"><span><span class="row-icon" aria-hidden="true">👤</span>${escapeHtml(character.name)}</span><small>${formatDate(character.lastEditedTime)}</small></button>`).join("") : '<div class="empty">No edit dates available.</div>';
+  const birthdays = [...state.characters].filter(c => upcomingBirthday(c) !== Infinity).sort((a,b) => upcomingBirthday(a)-upcomingBirthday(b)).slice(0,6);
+  $("#birthdays").innerHTML = birthdays.length ? birthdays.map(character => `<button class="list-row list-row-button" type="button" data-profile="${escapeHtml(character.id)}"><span><span class="row-icon" aria-hidden="true">🎁</span>${escapeHtml(character.name)}</span><small>${formatDate(property(character,"Birthdate"))}</small></button>`).join("") : '<div class="empty">No birthdates available.</div>';
 }
 
+function renderQuickExplore() {
+  const root = $("#quickExplore");
+  if (!root) return;
+  if (!state.characters.length) { root.innerHTML = '<div class="empty">Nothing to explore yet.</div>'; return; }
+  const character = state.characters[Math.floor(Math.random() * state.characters.length)];
+  root.innerHTML = `
+    <button class="quick-row" type="button" data-profile="${escapeHtml(character.id)}"><span>👤</span><div><small>Meet a Character</small><strong>${escapeHtml(character.name)}</strong></div><b>→</b></button>
+    <button class="quick-row muted-row" type="button" data-tab-jump="groups"><span>🏛️</span><div><small>Explore</small><strong>Groups</strong></div><b>→</b></button>
+    <button class="quick-row muted-row" type="button" data-tab-jump="locations"><span>📍</span><div><small>Explore</small><strong>Locations</strong></div><b>→</b></button>
+    <button class="quick-row muted-row" type="button" data-tab-jump="events"><span>📅</span><div><small>Explore</small><strong>Events</strong></div><b>→</b></button>`;
+}
+
+function renderStoryGlance() {
+  const root = $("#storyGlance");
+  if (!root) return;
+  root.innerHTML = `
+    <button type="button" data-tab-jump="characters"><span>👥 Characters</span><strong>${state.characters.length}</strong></button>
+    <button type="button" data-tab-jump="groups"><span>🏛️ Groups</span><strong>—</strong></button>
+    <button type="button" data-tab-jump="events"><span>📅 Events</span><strong>—</strong></button>
+    <button type="button" data-tab-jump="locations"><span>📍 Locations</span><strong>—</strong></button>`;
+}
 function filterValue(character, name) {
   const value = property(character, name);
   return Array.isArray(value) ? value.map(relationLabels).filter(Boolean) : [plain(value)].filter(Boolean);
@@ -326,14 +347,51 @@ async function openProfile(id) {
 }
 
 function renderAll() {
-  renderStats(); renderSpotlight(); renderLists(); renderFilters(); renderExplorer();
+  renderStats(); renderSpotlight(); renderLists(); renderQuickExplore(); renderStoryGlance(); renderFilters(); renderExplorer();
   $("#updatedDate").textContent = new Intl.DateTimeFormat("en-CA", {dateStyle:"long"}).format(new Date());
   $("#apiMode").textContent = "Notion live";
 }
 
-$("#globalSearch").addEventListener("input", event => { state.query = event.target.value; renderExplorer(); });
+const TAB_META = {
+  groups: ["Groups", "Browse organizations, factions, families, teams, and other character groups.", "🏛️"],
+  relationships: ["Relationships", "Explore the connections between characters.", "🕸️"],
+  events: ["Events", "Browse important events across Akailem's stories and history.", "📅"],
+  locations: ["Locations", "Explore places, regions, kingdoms, and other locations.", "📍"],
+  lore: ["Lore", "A home for races, natures, domains, spells, items, and other worldbuilding records.", "✨"],
+  settings: ["Settings", "Hub preferences and configuration will live here.", "⚙️"]
+};
+
+function switchTab(tab) {
+  state.tab = tab;
+  $$(".nav-btn[data-tab]").forEach(btn => btn.classList.toggle("active", btn.dataset.tab === tab));
+  $("#dashboardView").classList.toggle("active", tab === "dashboard");
+  $("#charactersView").classList.toggle("active", tab === "characters");
+  const placeholder = !["dashboard","characters"].includes(tab);
+  $("#placeholderView").classList.toggle("active", placeholder);
+  if (placeholder) {
+    const [title, text, icon] = TAB_META[tab] || ["Coming Soon", "This section is ready for a database connection.", "✨"];
+    $("#placeholderTitle").textContent = title;
+    $("#placeholderText").textContent = text;
+    $("#placeholderIcon").textContent = icon;
+  }
+  $("#globalSearch").placeholder = tab === "characters" ? "🔍 Search characters…" : "🔍 Search Akailem…";
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+document.addEventListener("click", event => {
+  const nav = event.target.closest(".nav-btn[data-tab]");
+  const jump = event.target.closest("[data-tab-jump]");
+  if (nav) switchTab(nav.dataset.tab);
+  if (jump) switchTab(jump.dataset.tabJump);
+});
+
+$("#globalSearch").addEventListener("input", event => {
+  state.query = event.target.value;
+  if (state.query.trim() && state.tab === "dashboard") switchTab("characters");
+  renderExplorer();
+});
 $("#filters").addEventListener("change", event => { if (event.target.matches("select[data-filter]")) { state.filters[event.target.dataset.filter] = event.target.value; renderExplorer(); } });
-$("#randomize").addEventListener("click", renderSpotlight);
+$("#randomize").addEventListener("click", () => renderSpotlight(true));
 $("#refresh").addEventListener("click", () => loadCharacters(true).catch(error => setStatus(error.message, true)));
 $("#theme").addEventListener("click", () => { document.body.classList.toggle("light"); const light = document.body.classList.contains("light"); $("#theme").textContent = light ? "☀️" : "🌙"; localStorage.setItem("akailem-theme", light ? "light" : "dark"); });
 $("#closeDialog").addEventListener("click", () => $("#profileDialog").close());

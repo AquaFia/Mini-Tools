@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="Akailem Character Hub">
-  <title>Akailem Character Hub</title>
+  <title>Akailem Hub</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -12,18 +12,18 @@
     <aside class="sidebar">
       <div class="brand">
         <div class="brand-mark" aria-hidden="true"></div>
-        <div class="brand-copy"><strong>Akailem</strong><small>Character Hub</small></div>
+        <div class="brand-copy"><strong>Akailem</strong><small>World Hub</small></div>
       </div>
 
       <nav aria-label="Main navigation">
-        <button class="nav-btn active" type="button"><span class="nav-icon" aria-hidden="true">🏠</span><span class="nav-label">Dashboard</span></button>
-        <button class="nav-btn" type="button"><span class="nav-icon" aria-hidden="true">👤</span><span class="nav-label">Characters</span></button>
-        <button class="nav-btn" type="button"><span class="nav-icon" aria-hidden="true">👥</span><span class="nav-label">Groups</span></button>
-        <button class="nav-btn" type="button"><span class="nav-icon" aria-hidden="true">🕸</span><span class="nav-label">Relationships</span></button>
-        <button class="nav-btn" type="button"><span class="nav-icon" aria-hidden="true">📖</span><span class="nav-label">Events</span></button>
-        <button class="nav-btn" type="button"><span class="nav-icon" aria-hidden="true">🖼</span><span class="nav-label">Gallery</span></button>
-        <button class="nav-btn" type="button"><span class="nav-icon" aria-hidden="true">📊</span><span class="nav-label">Statistics</span></button>
-        <button class="nav-btn" type="button"><span class="nav-icon" aria-hidden="true">⚙️</span><span class="nav-label">Settings</span></button>
+        <button class="nav-btn active" data-tab="dashboard" type="button"><span class="nav-icon" aria-hidden="true">🏠</span><span class="nav-label">Dashboard</span></button>
+        <button class="nav-btn" data-tab="characters" type="button"><span class="nav-icon" aria-hidden="true">👥</span><span class="nav-label">Characters</span></button>
+        <button class="nav-btn" data-tab="groups" type="button"><span class="nav-icon" aria-hidden="true">🏛️</span><span class="nav-label">Groups</span></button>
+        <button class="nav-btn" data-tab="relationships" type="button"><span class="nav-icon" aria-hidden="true">🕸️</span><span class="nav-label">Relationships</span></button>
+        <button class="nav-btn" data-tab="events" type="button"><span class="nav-icon" aria-hidden="true">📅</span><span class="nav-label">Events</span></button>
+        <button class="nav-btn" data-tab="locations" type="button"><span class="nav-icon" aria-hidden="true">📍</span><span class="nav-label">Locations</span></button>
+        <button class="nav-btn" data-tab="lore" type="button"><span class="nav-icon" aria-hidden="true">✨</span><span class="nav-label">Lore</span></button>
+        <button class="nav-btn" data-tab="settings" type="button"><span class="nav-icon" aria-hidden="true">⚙️</span><span class="nav-label">Settings</span></button>
       </nav>
     </aside>
 
@@ -34,57 +34,93 @@
       </header>
 
       <div class="content">
-        <section class="page-head">
-          <div>
-            <span class="kicker">Personal universe encyclopedia</span>
-            <h1>Akailem Character Hub</h1>
-            <p><span id="apiMode">Connecting to Notion</span> · Last updated: <span id="updatedDate">—</span></p>
-          </div>
-          <button id="refresh" class="secondary" type="button">🔄 Refresh</button>
-        </section>
-
         <div id="status" class="status" hidden></div>
-        <section id="stats" class="grid stats" aria-label="Character statistics"></section>
 
-        <section class="grid dashboard-grid">
-          <div class="stack">
-            <div class="card panel">
-              <div class="panel-heading">
-                <h2><span aria-hidden="true">✨</span> Character Spotlight</h2>
-                <button id="randomize" class="icon-btn" type="button" aria-label="Choose another character">🎲</button>
+        <section id="dashboardView" class="tab-view active">
+          <section class="page-head">
+            <div>
+              <span class="kicker">Personal universe encyclopedia</span>
+              <h1>Akailem World Hub</h1>
+              <p><span id="apiMode">Connecting to Notion</span> · Last updated: <span id="updatedDate">—</span></p>
+            </div>
+            <button id="refresh" class="secondary" type="button">🔄 Refresh</button>
+          </section>
+
+          <section id="stats" class="grid stats dashboard-stats" aria-label="World statistics"></section>
+
+          <section class="grid dashboard-grid">
+            <div class="stack">
+              <div class="card panel">
+                <div class="panel-heading">
+                  <h2><span aria-hidden="true">✨</span> Character Spotlight</h2>
+                  <button id="randomize" class="icon-btn" type="button" aria-label="Choose another character">🎲</button>
+                </div>
+                <div id="spotlight"></div>
               </div>
-              <div id="spotlight"></div>
+              <div class="card panel">
+                <h2><span aria-hidden="true">🎲</span> Quick Explore</h2>
+                <div id="quickExplore" class="quick-explore"></div>
+              </div>
             </div>
-          </div>
 
-          <div class="stack">
-            <div class="card panel">
-              <h2><span aria-hidden="true">🕒</span> Recently Updated</h2>
-              <div id="recent" class="list"></div>
+            <div class="stack">
+              <div class="card panel">
+                <h2><span aria-hidden="true">🎂</span> Upcoming Birthdays</h2>
+                <div id="birthdays" class="list"></div>
+              </div>
+              <div class="card panel">
+                <h2><span aria-hidden="true">🕒</span> Recently Updated</h2>
+                <div id="recent" class="list"></div>
+              </div>
+              <div class="card panel">
+                <h2><span aria-hidden="true">📖</span> Story at a Glance</h2>
+                <div id="storyGlance" class="story-glance"></div>
+              </div>
             </div>
-            <div class="card panel">
-              <h2><span aria-hidden="true">🎂</span> Upcoming Birthdays</h2>
-              <div id="birthdays" class="list"></div>
-            </div>
-          </div>
+          </section>
         </section>
 
-        <section class="explorer">
-          <div class="explorer-toolbar">
+        <section id="charactersView" class="tab-view">
+          <section class="page-head">
             <div>
-              <h2><span aria-hidden="true">🧭</span> Character Explorer</h2>
-              <small id="resultCount"></small>
+              <span class="kicker">Cast database</span>
+              <h1>Characters</h1>
+              <p>Search, sort, and explore the cast of Akailem.</p>
             </div>
-            <div class="view-group" aria-label="Character view">
-              <button class="view-btn active" data-view="cards" type="button">▦ Cards</button>
-              <button class="view-btn" data-view="compact" type="button">☷ Compact</button>
-              <button class="view-btn" data-view="table" type="button">▤ Table</button>
-            </div>
-          </div>
+          </section>
 
-          <div class="filter-layout">
-            <aside id="filters" class="card filters" aria-label="Character filters"></aside>
-            <div id="characterResults"></div>
+          <section class="explorer character-explorer-page">
+            <div class="explorer-toolbar">
+              <div>
+                <h2><span aria-hidden="true">🧭</span> Character Explorer</h2>
+                <small id="resultCount"></small>
+              </div>
+              <div class="view-group" aria-label="Character view">
+                <button class="view-btn active" data-view="cards" type="button">▦ Cards</button>
+                <button class="view-btn" data-view="compact" type="button">☷ Compact</button>
+                <button class="view-btn" data-view="table" type="button">▤ Table</button>
+              </div>
+            </div>
+
+            <div class="filter-layout">
+              <aside id="filters" class="card filters" aria-label="Character filters"></aside>
+              <div id="characterResults"></div>
+            </div>
+          </section>
+        </section>
+
+        <section id="placeholderView" class="tab-view">
+          <section class="page-head">
+            <div>
+              <span class="kicker">Akailem database</span>
+              <h1 id="placeholderTitle">Coming Soon</h1>
+              <p id="placeholderText">This section is ready for its Notion database connection.</p>
+            </div>
+          </section>
+          <div class="card coming-soon">
+            <div id="placeholderIcon" class="coming-soon-icon">✨</div>
+            <h2>Database connection coming next</h2>
+            <p>This tab is already part of the hub navigation. Once its Notion source is connected, its records can load here on demand.</p>
           </div>
         </section>
       </div>

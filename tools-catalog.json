@@ -12,6 +12,14 @@
       "tags": ["language", "writing", "export", "worldbuilding"]
     },
     {
+      "title": "Character Hub",
+      "file": "tools/apps/Akailem Character Hub/index.html",
+      "icon": "✧",
+      "accent": "#a970ff",
+      "description": "Akailem Characters.",
+      "tags": ["characters", "writing", "worldbuilding"]
+    },
+    {
       "title": "Companion Episode Studio",
       "file": "tools/apps/companion/Companion Episode Studio.html",
       "icon": "◇",

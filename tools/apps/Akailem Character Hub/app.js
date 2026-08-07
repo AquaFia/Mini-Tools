@@ -15,6 +15,113 @@ const FILTERS = [
   ["Group/Organization", "Groups"]
 ];
 
+
+const PROFILE_SECTIONS = [
+  {
+    key: "identity",
+    icon: "🪪",
+    title: "Identity / Core Information",
+    subtitle: "Who is this character within the world?",
+    fields: [
+      ["Name", "Name"],
+      ["Gender", "Gender"],
+      ["Pronouns", "Pronouns"],
+      ["Birthdate", "Birthdate"],
+      ["Race", "Race", "relation"],
+      ["Birth Place", "Birth Place", "relation"],
+      ["Residence", "Residence", "relation"],
+      ["Aura Colour", "Aura Colour"],
+      ["Handedness", "Handedness"],
+      ["Nature", "Nature", "relation"],
+      ["Domain", "Domain", "relation"]
+    ]
+  },
+  {
+    key: "personality",
+    icon: "🧠",
+    title: "Personality / Symbolism",
+    subtitle: "What are they like, and what symbolic motifs represent them?",
+    fields: [
+      ["MBTI", "MBTI"],
+      ["Moral Alignment", "Moral Alignment"],
+      ["Temperament", "Temperament"],
+      ["Zodiac Sign", "Zodiac Sign"],
+      ["Hogwarts House", "Hogwarts House"],
+      ["Animal", "Animal"],
+      ["Plant", "Plant"],
+      ["Season", "Season"],
+      ["Scent", "Scent"]
+    ]
+  },
+  {
+    key: "connections",
+    icon: "🔗",
+    title: "Story Connections",
+    subtitle: "Where do they fit into the story and who are they connected to?",
+    fields: [
+      [["Groups", "Group/Organization"], "Groups", "relation"],
+      ["Relationship Map", "Relationship Map", "relation"],
+      ["Chapter Appearances", "Chapter Appearances", "relation"],
+      ["Chapter Mentions", "Chapter Mentions", "relation"],
+      ["Events", "Events", "relation"]
+    ]
+  },
+  {
+    key: "profile",
+    icon: "📖",
+    title: "Profile",
+    subtitle: "Additional material that expands on the character.",
+    fields: [
+      ["Summary", "Summary", "long"],
+      ["Spells & Items", "Spells & Items", "relation"],
+      ["Gallery", "Gallery", "relation"]
+    ]
+  }
+];
+
+function propertyAny(character, names) {
+  const list = Array.isArray(names) ? names : [names];
+  for (const name of list) {
+    const value = property(character, name);
+    if (value !== null && value !== undefined && value !== "" && (!Array.isArray(value) || value.length)) return value;
+  }
+  return null;
+}
+
+function hasDisplayValue(value) {
+  if (value === null || value === undefined || value === "") return false;
+  if (Array.isArray(value)) return value.length > 0;
+  return true;
+}
+
+function formatProfileValue(value, type) {
+  if (!hasDisplayValue(value)) return "";
+  if (type === "relation") {
+    const items = Array.isArray(value) ? value : [value];
+    return `<div class="profile-tags">${items.map(item => {
+      const label = typeof item === "object" ? item.name || item.title || item.id : item;
+      return `<span class="profile-tag">${escapeHtml(label)}</span>`;
+    }).join("")}</div>`;
+  }
+  if (type === "long") return `<div class="profile-longtext">${escapeHtml(relationLabels(value) || plain(value)).replace(/\n/g, "<br>")}</div>`;
+  if (typeof value === "object" && value?.start) return escapeHtml(formatDate(value, { year: "numeric", month: "long", day: "numeric" }));
+  return escapeHtml(relationLabels(value) || plain(value));
+}
+
+function renderProfileSection(character, section) {
+  const rows = section.fields.map(([source, label, type]) => {
+    const value = source === "Name" ? character.name : propertyAny(character, source);
+    if (!hasDisplayValue(value)) return "";
+    const wide = type === "long" ? " profile-field-wide" : "";
+    return `<div class="profile-field${wide}"><small>${escapeHtml(label)}</small><div>${formatProfileValue(value, type)}</div></div>`;
+  }).filter(Boolean).join("");
+  if (!rows) return "";
+  return `<section class="profile-section profile-section-${section.key}">
+    <div class="profile-section-head"><div class="profile-section-icon" aria-hidden="true">${section.icon}</div><div><h3>${escapeHtml(section.title)}</h3><p>${escapeHtml(section.subtitle)}</p></div></div>
+    <div class="profile-section-grid">${rows}</div>
+  </section>`;
+}
+
 const $ = selector => document.querySelector(selector);
 const $$ = selector => [...document.querySelectorAll(selector)];
 const escapeHtml = value => String(value ?? "").replace(/[&<>'"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"})[char]);
@@ -177,8 +284,12 @@ function renderExplorer() {
 function openProfile(id) {
   const character = state.characters.find(item => item.id === id);
   if (!character) return;
-  const entries = Object.entries(character.properties || {}).filter(([name,value]) => name !== "Name" && plain(value) !== "" && value !== null);
-  $("#profileContent").innerHTML = `<h2 class="profile-title">${escapeHtml(character.name)}</h2><p class="profile-subtitle">Character profile from Notion</p><div class="profile-properties">${entries.map(([name,value]) => `<div class="profile-property"><small>${escapeHtml(name)}</small><span>${escapeHtml(relationLabels(value) || plain(value))}</span></div>`).join("")}</div>${character.url ? `<p style="margin-top:20px"><a class="primary" href="${escapeHtml(character.url)}" target="_blank" rel="noopener">↗️ Open in Notion</a></p>` : ""}`;
+  const sections = PROFILE_SECTIONS.map(section => renderProfileSection(character, section)).filter(Boolean).join("");
+  $("#profileContent").innerHTML = `<div class="profile-hero">
+    <div><span class="kicker">Character Profile</span><h2 class="profile-title">${escapeHtml(character.name)}</h2><p class="profile-subtitle">Akailem character database</p></div>
+    ${character.url ? `<a class="primary" href="${escapeHtml(character.url)}" target="_blank" rel="noopener">↗️ Open in Notion</a>` : ""}
+  </div>
+  <div class="profile-sections">${sections || '<div class="empty">No profile information is available for this character yet.</div>'}</div>`;
   $("#profileDialog").showModal();
 }
 

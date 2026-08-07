@@ -36,3 +36,16 @@ Your Notion integration must be connected to the Character database.
 ## No placeholder data
 
 There is no local JSON character list. Every displayed character comes from your live Notion data source.
+
+## Character profile fields
+
+The character popup is intentionally curated. It displays only these groups:
+
+- Identity / Core Information
+- Personality / Symbolism
+- Story Connections
+- Profile
+
+To add another visible property later, edit `PROFILE_SECTIONS` near the top of `app.js`. This keeps display-only choices separate from Notion's internal sorting/helper properties.
+
+The Worker also resolves the configured relation properties into readable related-page names before returning them to the site.

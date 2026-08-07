@@ -65,17 +65,6 @@ const PROFILE_SECTIONS = [
       ["Chapter Mentions", "Chapter Mentions", "relation"],
       ["Events", "Events", "relation"]
     ]
-  },
-  {
-    key: "profile",
-    icon: "📖",
-    title: "Profile",
-    subtitle: "Additional material that expands on the character.",
-    fields: [
-      ["Summary", "Summary", "long"],
-      ["Spells & Items", "Spells & Items", "relation"],
-      ["Gallery", "Gallery", "relation"]
-    ]
   }
 ];
 
@@ -106,6 +95,15 @@ function formatProfileValue(value, type) {
   if (type === "long") return `<div class="profile-longtext">${escapeHtml(relationLabels(value) || plain(value)).replace(/\n/g, "<br>")}</div>`;
   if (typeof value === "object" && value?.start) return escapeHtml(formatDate(value, { year: "numeric", month: "long", day: "numeric" }));
   return escapeHtml(relationLabels(value) || plain(value));
+}
+
+function renderStandaloneProfileBlock(character, source, title, icon, type = "long") {
+  const value = propertyAny(character, source);
+  if (!hasDisplayValue(value)) return "";
+  return `<section class="profile-standalone profile-standalone-${String(title).toLowerCase().replace(/[^a-z0-9]+/g, "-")}">
+    <div class="profile-standalone-head"><span aria-hidden="true">${icon}</span><h3>${escapeHtml(title)}</h3></div>
+    <div class="profile-standalone-body">${formatProfileValue(value, type)}</div>
+  </section>`;
 }
 
 function renderProfileSection(character, section) {
@@ -284,12 +282,16 @@ function renderExplorer() {
 function openProfile(id) {
   const character = state.characters.find(item => item.id === id);
   if (!character) return;
+  const summary = renderStandaloneProfileBlock(character, "Summary", "Summary", "📖", "long");
   const sections = PROFILE_SECTIONS.map(section => renderProfileSection(character, section)).filter(Boolean).join("");
+  const spells = renderStandaloneProfileBlock(character, "Spells & Items", "Spells & Items", "✨", "relation");
+  const gallery = renderStandaloneProfileBlock(character, "Gallery", "Gallery", "🖼️", "relation");
+  const content = [summary, sections, spells, gallery].filter(Boolean).join("");
   $("#profileContent").innerHTML = `<div class="profile-hero">
     <div><span class="kicker">Character Profile</span><h2 class="profile-title">${escapeHtml(character.name)}</h2><p class="profile-subtitle">Akailem character database</p></div>
     ${character.url ? `<a class="primary" href="${escapeHtml(character.url)}" target="_blank" rel="noopener">↗️ Open in Notion</a>` : ""}
   </div>
-  <div class="profile-sections">${sections || '<div class="empty">No profile information is available for this character yet.</div>'}</div>`;
+  <div class="profile-layout">${content || '<div class="empty">No profile information is available for this character yet.</div>'}</div>`;
   $("#profileDialog").showModal();
 }
 

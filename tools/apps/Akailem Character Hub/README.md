@@ -49,3 +49,16 @@ The character popup is intentionally curated. It displays only these groups:
 To add another visible property later, edit `PROFILE_SECTIONS` near the top of `app.js`. This keeps display-only choices separate from Notion's internal sorting/helper properties.
 
 The Worker also resolves the configured relation properties into readable related-page names before returning them to the site.
+
+## Character profile layout
+
+Character profiles display content in this order:
+
+1. Summary
+2. Identity / Core Information
+3. Personality / Symbolism
+4. Story Connections
+5. Spells & Items
+6. Gallery
+
+Summary, Spells & Items, and Gallery are full-width standalone sections. Empty properties are hidden automatically.

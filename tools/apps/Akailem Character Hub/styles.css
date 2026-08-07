@@ -58,3 +58,15 @@ button,input,select{font:inherit}.app{display:grid;grid-template-columns:var(--s
 .profile-tag{display:inline-flex;padding:4px 8px;border:1px solid var(--line);border-radius:999px;background:var(--panel);font-size:12px}
 .profile-longtext{line-height:1.7;white-space:normal}
 @media(max-width:700px){.profile-hero{flex-direction:column}.profile-section-grid{grid-template-columns:1fr}.profile-field-wide{grid-column:auto}}
+
+/* Character profile content order: Summary → details → Spells & Items → Gallery */
+.profile-layout{display:grid;gap:18px;padding-top:20px}
+.profile-layout>.profile-sections{display:grid;gap:18px;padding-top:0}
+.profile-standalone{border:1px solid var(--line);border-radius:14px;background:var(--panel2);overflow:hidden}
+.profile-standalone-head{display:flex;align-items:center;gap:9px;padding:14px 18px;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--panel) 72%,transparent)}
+.profile-standalone-head span{font-size:18px}
+.profile-standalone-head h3{margin:0;font-size:16px}
+.profile-standalone-body{padding:17px 18px;line-height:1.7}
+.profile-standalone-summary .profile-standalone-body{font-size:14px}
+.profile-standalone-spells-items .profile-standalone-body,
+.profile-standalone-gallery .profile-standalone-body{min-height:54px}

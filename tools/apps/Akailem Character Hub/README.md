@@ -62,3 +62,17 @@ Character profiles display content in this order:
 6. Gallery
 
 Summary, Spells & Items, and Gallery are full-width standalone sections. Empty properties are hidden automatically.
+
+## Relation retrieval / caching
+
+The Worker now:
+
+- de-duplicates relation page IDs before resolving them;
+- resolves at most 3 relation pages concurrently;
+- retries Notion 429 and 5xx responses with exponential backoff and honors `Retry-After`;
+- caches resolved relation titles at Cloudflare's edge for 6 hours;
+- caches the complete character response for 5 minutes;
+- supports `/api/characters?refresh=1` to bypass the 5-minute full-response cache after a Notion edit;
+- logs relation lookup failures instead of silently pretending the page is literally named `Related Page`.
+
+No additional Cloudflare variables are required.

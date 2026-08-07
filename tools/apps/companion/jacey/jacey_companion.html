@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Jacey Cosmo — Companion Terminal v6.3.20 Dead Code Cleanup</title>
+<title>Jacey Cosmo — Companion Terminal v6.3.21 Identity Music</title>
 <style>
 /* =========================================================
    JACEY COMPANION FRAMEWORK v5.6 — EPISODE ENGINE CLEANUP
@@ -1368,7 +1368,7 @@ body:before{
   <button class="mode-tab active" id="chatModeBtn" type="button">CHAT</button>
   <button class="mode-tab" id="cipherModeBtn" type="button">CIPHER LAB</button>
 </div>
-<div class="head-actions"><button class="icon-btn" id="libraryBtn" title="Content library">▤</button><button class="icon-btn" id="dataLoadBtn" title="Load episode or memory JSON">↥</button><button class="icon-btn" id="memorySaveBtn" title="Export companion memory JSON">⇩</button><input id="dataFileInput" type="file" accept=".json,application/json" multiple hidden><button class="icon-btn" id="companionToggle" title="Companion mode: off" aria-pressed="false">◌</button><button class="icon-btn" id="glitchBtn" title="Glitch">⌁</button><button class="icon-btn" id="dossierBtn" title="Classified dossier">⌘</button></div></header>
+<div class="head-actions"><button class="icon-btn" id="libraryBtn" title="Content library">▤</button><button class="icon-btn" id="dataLoadBtn" title="Load episode or memory JSON">↥</button><button class="icon-btn" id="memorySaveBtn" title="Export companion memory JSON">⇩</button><input id="dataFileInput" type="file" accept=".json,application/json" multiple hidden><button class="icon-btn" id="musicToggle" type="button" title="Music: off" aria-label="Toggle identity music" aria-pressed="false">♫</button><button class="icon-btn" id="companionToggle" title="Companion mode: off" aria-pressed="false">◌</button><button class="icon-btn" id="glitchBtn" title="Glitch">⌁</button><button class="icon-btn" id="dossierBtn" title="Classified dossier">⌘</button></div></header>
     <div class="log" id="log"></div>
     <div class="composer">
   <div class="episode-overlay" id="episodeOverlay" aria-live="polite">
@@ -1458,6 +1458,7 @@ body:before{
   </div>
 </section>
 
+  <audio id="identityMusic" preload="metadata" loop hidden></audio>
 </main>
 <script>
 /* ================================================================
@@ -1617,10 +1618,145 @@ const IdentityManager={
     if(!profile)return false;
     Object.assign(CHARACTER,profile);
     applyCharacter(CHARACTER);
+
+/* =========================================================
+   IDENTITY MUSIC
+   One toolbar toggle. Tracks are loaded from:
+   audio/music_manifest.json
+   ========================================================= */
+const MUSIC_MANIFEST_URL='audio/music_manifest.json';
+
+const MusicManager={
+  manifest:null,
+  ready:false,
+  enabled:false,
+  currentIdentity:'jace',
+  audio:document.querySelector('#identityMusic'),
+  button:document.querySelector('#musicToggle'),
+  manifestBaseUrl:new URL('.',new URL(MUSIC_MANIFEST_URL,document.baseURI)),
+
+  async load(){
+    try{
+      const response=await fetch(MUSIC_MANIFEST_URL,{cache:'no-cache'});
+      if(!response.ok)throw new Error(`Music manifest request failed: ${response.status}`);
+      const manifest=await response.json();
+      if(!manifest || typeof manifest!=='object' || Array.isArray(manifest)){
+        throw new Error('Unsupported music manifest.');
+      }
+      this.manifest=manifest;
+      this.ready=true;
+      this.setIdentity(activeIdentity);
+      return manifest;
+    }catch(error){
+      this.ready=false;
+      this.updateButton();
+      console.error('Could not load identity music manifest.',error);
+      return null;
+    }
+  },
+
+  trackFile(identityId=this.currentIdentity){
+    const file=this.manifest?.[identityId];
+    return typeof file==='string' && file.trim() ? file.trim() : null;
+  },
+
+  trackUrl(identityId=this.currentIdentity){
+    const file=this.trackFile(identityId);
+    return file ? new URL(file,this.manifestBaseUrl).href : null;
+  },
+
+  setIdentity(identityId){
+    this.currentIdentity=identityId;
+    if(!this.ready)return false;
+
+    const nextUrl=this.trackUrl(identityId);
+    if(!nextUrl){
+      this.pause();
+      this.audio.removeAttribute('src');
+      this.audio.load();
+      this.updateButton();
+      return false;
+    }
+
+    const wasEnabled=this.enabled;
+    if(this.audio.src!==nextUrl){
+      this.audio.src=nextUrl;
+      this.audio.currentTime=0;
+      this.audio.load();
+    }
+
+    if(wasEnabled)this.play();
+    return true;
+  },
+
+  async play(){
+    if(!this.ready){
+      await this.load();
+      if(!this.ready)return false;
+    }
+
+    const nextUrl=this.trackUrl();
+    if(!nextUrl)return false;
+    if(this.audio.src!==nextUrl){
+      this.audio.src=nextUrl;
+      this.audio.currentTime=0;
+      this.audio.load();
+    }
+
+    try{
+      await this.audio.play();
+      this.enabled=true;
+      this.updateButton();
+      return true;
+    }catch(error){
+      this.enabled=false;
+      this.updateButton();
+      console.warn('Music playback was blocked by the browser.',error);
+      return false;
+    }
+  },
+
+  pause(){
+    this.audio.pause();
+    this.enabled=false;
+    this.updateButton();
+    return true;
+  },
+
+  toggle(){
+    return this.enabled ? this.pause() : this.play();
+  },
+
+  updateButton(){
+    if(!this.button)return;
+    this.button.classList.toggle('toggle-on',this.enabled);
+    this.button.setAttribute('aria-pressed',String(this.enabled));
+    this.button.title='Music: '+(this.enabled?'on':'off');
+  },
+
+  initialize(){
+    if(!this.audio || !this.button)return false;
+    this.audio.loop=true;
+    this.button.addEventListener('click',event=>{
+      event.preventDefault();
+      event.stopPropagation();
+      this.toggle();
+    });
+    this.audio.addEventListener('ended',()=>{this.enabled=false;this.updateButton();});
+    this.audio.addEventListener('error',()=>{this.enabled=false;this.updateButton();});
+    this.updateButton();
+    this.load();
+    return true;
+  }
+};
+
+Framework.modules.MusicManager=MusicManager;
+MusicManager.initialize();
     refreshQuickReplies();
     if(typeof renderExternalAchievements==='function')renderExternalAchievements();
 
     PortraitManager.renderIdentity(this._activeId);
+    Framework.modules.MusicManager?.setIdentity(this._activeId);
 
     if(Framework.modules.CipherLab){
       Framework.modules.CipherLab.refreshIdentity();

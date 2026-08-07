@@ -2,17 +2,17 @@ const API_URL = "https://akailem.aquafia1247.workers.dev/api/characters";
 
 const state = {
   characters: [],
+  profiles: new Map(),
   query: "",
   filters: {},
   view: localStorage.getItem("akailem-view") || "cards"
 };
 
 const FILTERS = [
-  ["Gender", "Gender"], ["Pronouns", "Pronouns"], ["Race", "Race"],
-  ["Residence", "Residence"], ["Birth Place", "Birth Place"], ["MBTI", "MBTI"],
-  ["Moral Alignment", "Moral Alignment"], ["Hogwarts House", "Hogwarts House"],
-  ["Season", "Season"], ["Nature", "Nature"], ["Domain", "Domain"],
-  ["Group/Organization", "Groups"]
+  ["Gender", "Gender"], ["Pronouns", "Pronouns"], ["MBTI", "MBTI"],
+  ["Moral Alignment", "Moral Alignment"], ["Temperament", "Temperament"],
+  ["Zodiac Sign", "Zodiac Sign"], ["Hogwarts House", "Hogwarts House"],
+  ["Season", "Season"]
 ];
 
 
@@ -86,10 +86,18 @@ function hasDisplayValue(value) {
 function formatProfileValue(value, type) {
   if (!hasDisplayValue(value)) return "";
   if (type === "relation") {
-    const items = Array.isArray(value) ? value : [value];
-    return `<div class="profile-tags">${items.map(item => {
-      const label = typeof item === "object" ? item.name || item.title || item.id : item;
-      return `<span class="profile-tag">${escapeHtml(label)}</span>`;
+    const items = (Array.isArray(value) ? value : [value])
+      .map(item => ({
+        item,
+        label: typeof item === "object" ? item.name || item.title || "" : item
+      }))
+      .filter(entry => entry.label);
+    if (!items.length) return "";
+    return `<div class="profile-tags">${items.map(({ item, label }) => {
+      const href = typeof item === "object" ? item.url : null;
+      return href
+        ? `<a class="profile-tag" href="${escapeHtml(href)}" target="_blank" rel="noopener">${escapeHtml(label)}</a>`
+        : `<span class="profile-tag">${escapeHtml(label)}</span>`;
     }).join("")}</div>`;
   }
   if (type === "long") return `<div class="profile-longtext">${escapeHtml(relationLabels(value) || plain(value)).replace(/\n/g, "<br>")}</div>`;
@@ -100,9 +108,11 @@ function formatProfileValue(value, type) {
 function renderStandaloneProfileBlock(character, source, title, icon, type = "long") {
   const value = propertyAny(character, source);
   if (!hasDisplayValue(value)) return "";
+  const formatted = formatProfileValue(value, type);
+  if (!formatted) return "";
   return `<section class="profile-standalone profile-standalone-${String(title).toLowerCase().replace(/[^a-z0-9]+/g, "-")}">
     <div class="profile-standalone-head"><span aria-hidden="true">${icon}</span><h3>${escapeHtml(title)}</h3></div>
-    <div class="profile-standalone-body">${formatProfileValue(value, type)}</div>
+    <div class="profile-standalone-body">${formatted}</div>
   </section>`;
 }
 
@@ -110,8 +120,10 @@ function renderProfileSection(character, section) {
   const rows = section.fields.map(([source, label, type]) => {
     const value = source === "Name" ? character.name : propertyAny(character, source);
     if (!hasDisplayValue(value)) return "";
+    const formatted = formatProfileValue(value, type);
+    if (!formatted) return "";
     const wide = type === "long" ? " profile-field-wide" : "";
-    return `<div class="profile-field${wide}"><small>${escapeHtml(label)}</small><div>${formatProfileValue(value, type)}</div></div>`;
+    return `<div class="profile-field${wide}"><small>${escapeHtml(label)}</small><div>${formatted}</div></div>`;
   }).filter(Boolean).join("");
   if (!rows) return "";
   return `<section class="profile-section profile-section-${section.key}">
@@ -191,28 +203,32 @@ function upcomingBirthday(character) {
 }
 
 function renderStats() {
+  const now = Date.now();
+  const edited30 = state.characters.filter(character => {
+    if (!character.lastEditedTime) return false;
+    const edited = new Date(character.lastEditedTime).getTime();
+    return Number.isFinite(edited) && now - edited <= 30 * 86400000;
+  }).length;
+  const withBirthdays = state.characters.filter(character => upcomingBirthday(character) !== Infinity).length;
   const stats = [
     ["👤", "Characters", state.characters.length],
-    ["👥", "Groups", uniquePropertyCount("Group/Organization")],
-    ["🧬", "Races", uniquePropertyCount("Race")],
-    ["✨", "Domains", uniquePropertyCount("Domain")],
-    ["🎂", "Upcoming Birthdays", state.characters.filter(character => upcomingBirthday(character) <= 60).length]
+    ["✏️", "Updated in 30 Days", edited30],
+    ["🎂", "Birthdays Listed", withBirthdays],
+    ["🎁", "Upcoming Birthdays", state.characters.filter(character => upcomingBirthday(character) <= 60).length],
+    ["☁️", "Data Mode", "On demand"]
   ];
-  $("#stats").innerHTML = stats.map(([icon,label,value]) => `<div class="card stat"><div class="stat-icon" aria-hidden="true">${icon}</div><span>${escapeHtml(label)}</span><strong>${value}</strong></div>`).join("");
+  $("#stats").innerHTML = stats.map(([icon,label,value]) => `<div class="card stat"><div class="stat-icon" aria-hidden="true">${icon}</div><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`).join("");
 }
 
 function renderSpotlight() {
   const root = $("#spotlight");
   if (!state.characters.length) { root.innerHTML = '<div class="empty">No characters found.</div>'; return; }
   const character = state.characters[Math.floor(Math.random() * state.characters.length)];
-  const image = portraitUrl(character);
-  const chips = [property(character,"Pronouns"),property(character,"MBTI"),property(character,"Season"),relationLabels(property(character,"Domain"))].map(plain).filter(Boolean);
   root.innerHTML = `
-    <div class="spotlight-portrait">${image ? `<img src="${escapeHtml(image)}" alt="${escapeHtml(character.name)}">` : `<strong style="font-size:52px">${initials(character.name)}</strong>`}</div>
+    <div class="spotlight-portrait"><strong style="font-size:52px">${initials(character.name)}</strong></div>
     <div class="spotlight-body">
       <h3>${escapeHtml(character.name)}</h3>
-      <p>${escapeHtml(relationLabels(property(character,"Race")) || "Character profile")}</p>
-      <div class="chips">${chips.map(value => `<span class="chip">${escapeHtml(value)}</span>`).join("")}</div>
+      <p>Character profile</p>
       <button class="primary" type="button" data-profile="${escapeHtml(character.id)}">👁️ Open Profile</button>
     </div>`;
 }
@@ -253,10 +269,6 @@ function visibleCharacters() {
   });
 }
 
-function characterChips(character) {
-  return [plain(property(character,"MBTI")), plain(property(character,"Season")), relationLabels(property(character,"Group/Organization"))].filter(Boolean).slice(0,3);
-}
-
 function renderExplorer() {
   const characters = visibleCharacters();
   $("#resultCount").textContent = `${characters.length} character${characters.length === 1 ? "" : "s"}`;
@@ -264,35 +276,53 @@ function renderExplorer() {
   if (!characters.length) { root.innerHTML = '<div class="card empty">No characters match the current search and filters.</div>'; return; }
 
   if (state.view === "compact") {
-    root.innerHTML = `<div class="compact-list">${characters.map(character => `<div class="card compact-row" data-profile="${escapeHtml(character.id)}"><strong>${escapeHtml(character.name)}</strong><span>${escapeHtml(plain(property(character,"Gender")))}</span><span>${escapeHtml(relationLabels(property(character,"Race")))}</span><span>${escapeHtml(relationLabels(property(character,"Domain")))}</span></div>`).join("")}</div>`;
+    root.innerHTML = `<div class="compact-list">${characters.map(character => `<div class="card compact-row compact-row-simple" data-profile="${escapeHtml(character.id)}"><strong>${escapeHtml(character.name)}</strong></div>`).join("")}</div>`;
     return;
   }
 
   if (state.view === "table") {
-    root.innerHTML = `<div class="card table-wrap"><table class="character-table"><thead><tr><th>Name</th><th>Race</th><th>Group</th><th>Domain</th><th>MBTI</th></tr></thead><tbody>${characters.map(character => `<tr data-profile="${escapeHtml(character.id)}"><td>${escapeHtml(character.name)}</td><td>${escapeHtml(relationLabels(property(character,"Race")))}</td><td>${escapeHtml(relationLabels(property(character,"Group/Organization")))}</td><td>${escapeHtml(relationLabels(property(character,"Domain")))}</td><td>${escapeHtml(plain(property(character,"MBTI")))}</td></tr>`).join("")}</tbody></table></div>`;
+    root.innerHTML = `<div class="card table-wrap"><table class="character-table"><thead><tr><th>Name</th><th>Last Updated</th></tr></thead><tbody>${characters.map(character => `<tr data-profile="${escapeHtml(character.id)}"><td>${escapeHtml(character.name)}</td><td>${escapeHtml(formatDate(character.lastEditedTime, {year:"numeric",month:"short",day:"numeric"}))}</td></tr>`).join("")}</tbody></table></div>`;
     return;
   }
 
-  root.innerHTML = `<div class="character-grid">${characters.map(character => {
-    const image = portraitUrl(character);
-    return `<article class="card character-card" data-profile="${escapeHtml(character.id)}"><div class="portrait">${image ? `<img src="${escapeHtml(image)}" alt="${escapeHtml(character.name)}">` : `<strong>${initials(character.name)}</strong>`}</div><div class="character-info"><h3>${escapeHtml(character.name)}</h3><small>${escapeHtml(plain(property(character,"Pronouns")) || relationLabels(property(character,"Race")))}</small><div class="chips">${characterChips(character).map(value => `<span class="chip">${escapeHtml(value)}</span>`).join("")}</div></div></article>`;
-  }).join("")}</div>`;
+  root.innerHTML = `<div class="character-grid">${characters.map(character => `
+    <article class="card character-card character-card-simple" data-profile="${escapeHtml(character.id)}">
+      <div class="portrait"><strong>${initials(character.name)}</strong></div>
+      <div class="character-info"><h3>${escapeHtml(character.name)}</h3></div>
+    </article>`).join("")}</div>`;
 }
 
-function openProfile(id) {
-  const character = state.characters.find(item => item.id === id);
-  if (!character) return;
-  const summary = renderStandaloneProfileBlock(character, "Summary", "Summary", "📖", "long");
-  const sections = PROFILE_SECTIONS.map(section => renderProfileSection(character, section)).filter(Boolean).join("");
-  const spells = renderStandaloneProfileBlock(character, "Spells & Items", "Spells & Items", "✨", "relation");
-  const gallery = renderStandaloneProfileBlock(character, "Gallery", "Gallery", "🖼️", "relation");
-  const content = [summary, sections, spells, gallery].filter(Boolean).join("");
-  $("#profileContent").innerHTML = `<div class="profile-hero">
-    <div><span class="kicker">Character Profile</span><h2 class="profile-title">${escapeHtml(character.name)}</h2><p class="profile-subtitle">Akailem character database</p></div>
-    ${character.url ? `<a class="primary" href="${escapeHtml(character.url)}" target="_blank" rel="noopener">↗️ Open in Notion</a>` : ""}
-  </div>
-  <div class="profile-layout">${content || '<div class="empty">No profile information is available for this character yet.</div>'}</div>`;
+async function openProfile(id) {
+  const preview = state.characters.find(item => item.id === id);
+  if (!preview) return;
+
+  $("#profileContent").innerHTML = `<div class="profile-hero"><div><span class="kicker">Character Profile</span><h2 class="profile-title">${escapeHtml(preview.name)}</h2><p class="profile-subtitle">Loading profile from Notion…</p></div></div><div class="profile-layout"><div class="empty">⏳ Loading detailed information…</div></div>`;
   $("#profileDialog").showModal();
+
+  try {
+    let character = state.profiles.get(id);
+    if (!character) {
+      const response = await fetch(`${API_URL}/${encodeURIComponent(id)}`, { headers: { Accept: "application/json" } });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.details || payload.error || `Worker returned ${response.status}`);
+      character = payload.character;
+      state.profiles.set(id, character);
+    }
+
+    const summary = renderStandaloneProfileBlock(character, "Summary", "Summary", "📖", "long");
+    const sections = PROFILE_SECTIONS.map(section => renderProfileSection(character, section)).filter(Boolean).join("");
+    const spells = renderStandaloneProfileBlock(character, "Spells & Items", "Spells & Items", "✨", "relation");
+    const gallery = renderStandaloneProfileBlock(character, "Gallery", "Gallery", "🖼️", "relation");
+    const content = [summary, sections, spells, gallery].filter(Boolean).join("");
+
+    $("#profileContent").innerHTML = `<div class="profile-hero">
+      <div><span class="kicker">Character Profile</span><h2 class="profile-title">${escapeHtml(character.name)}</h2><p class="profile-subtitle">Akailem character database</p></div>
+      ${character.url ? `<a class="primary" href="${escapeHtml(character.url)}" target="_blank" rel="noopener">↗️ Open in Notion</a>` : ""}
+    </div>
+    <div class="profile-layout">${content || '<div class="empty">No profile information is available for this character yet.</div>'}</div>`;
+  } catch (error) {
+    $("#profileContent").innerHTML = `<div class="profile-hero"><div><span class="kicker">Character Profile</span><h2 class="profile-title">${escapeHtml(preview.name)}</h2></div></div><div class="profile-layout"><div class="empty">⚠️ ${escapeHtml(error.message)}</div></div>`;
+  }
 }
 
 function renderAll() {

@@ -70,3 +70,9 @@ button,input,select{font:inherit}.app{display:grid;grid-template-columns:var(--s
 .profile-standalone-summary .profile-standalone-body{font-size:14px}
 .profile-standalone-spells-items .profile-standalone-body,
 .profile-standalone-gallery .profile-standalone-body{min-height:54px}
+
+/* Lightweight explorer: detail fields are intentionally loaded only on profile open. */
+.compact-row-simple { grid-template-columns: 1fr; }
+.character-card-simple .character-info { padding-bottom: 16px; }
+.character-card-simple .character-info h3 { margin-bottom: 0; }
+.profile-tag[href] { text-decoration: none; }

@@ -1,7 +1,15 @@
 const NOTION_VERSION = "2026-03-11";
 
-// Only relations the frontend actually displays need title resolution.
-const RELATION_FIELDS = new Set([
+// The main character list is intentionally tiny. These fields are enough for
+// dashboard basics (birthdays/recent updates) without resolving any relations.
+const LIST_FIELDS = new Set([
+  "Name", "Birthdate", "Gender", "Pronouns", "MBTI", "Moral Alignment",
+  "Temperament", "Zodiac Sign", "Hogwarts House", "Aura Colour",
+  "Handedness", "Animal", "Plant", "Season", "Scent"
+]);
+
+// Only these relations are resolved when a single profile is opened.
+const PROFILE_RELATION_FIELDS = new Set([
   "Race",
   "Birth Place",
   "Residence",
@@ -17,13 +25,11 @@ const RELATION_FIELDS = new Set([
   "Gallery"
 ]);
 
-// Keep the full character response fairly fresh while preventing every page load
-// from re-querying Notion. Relation titles can live longer because page names
-// generally change much less often than character records.
-const CHARACTER_CACHE_SECONDS = 300; // 5 minutes
-const RELATION_TITLE_CACHE_SECONDS = 21600; // 6 hours
-const RELATION_CONCURRENCY = 3;
-const MAX_RETRIES = 5;
+const LIST_CACHE_SECONDS = 300;          // 5 minutes
+const PROFILE_CACHE_SECONDS = 300;       // 5 minutes
+const RELATION_CACHE_SECONDS = 86400;    // 24 hours
+const RELATION_CONCURRENCY = 2;
+const MAX_RETRIES = 7;
 
 export default {
   async fetch(request, env, ctx) {
@@ -43,94 +49,97 @@ export default {
       return json({
         name: "Akailem API",
         status: "online",
-        endpoint: "/api/characters"
+        endpoints: {
+          characters: "/api/characters",
+          character: "/api/characters/:id"
+        }
       }, 200, cors);
     }
 
-    if (url.pathname !== "/api/characters") {
-      return json({ error: "Not found" }, 404, cors);
-    }
-
     try {
-      if (!env.NOTION_TOKEN) throw new Error("NOTION_TOKEN is missing.");
-      if (!env.NOTION_CHARACTERS_SOURCE_ID) {
-        throw new Error("NOTION_CHARACTERS_SOURCE_ID is missing.");
+      requireEnv(env);
+
+      if (url.pathname === "/api/characters") {
+        return await listCharacters(url, env, ctx, cors);
       }
 
-      // ?refresh=1 is useful after editing Notion and wanting an immediate refresh.
-      const forceRefresh = url.searchParams.get("refresh") === "1";
-      const responseCache = caches.default;
-      const responseCacheKey = new Request(`${url.origin}/api/characters`, { method: "GET" });
-
-      if (!forceRefresh) {
-        const cached = await responseCache.match(responseCacheKey);
-        if (cached) return withCors(cached, cors);
+      const match = url.pathname.match(/^\/api\/characters\/([0-9a-fA-F-]{32,36})$/);
+      if (match) {
+        return await getCharacterProfile(match[1], url, env, ctx, cors);
       }
 
-      const pages = await queryAll(
-        env.NOTION_CHARACTERS_SOURCE_ID,
-        env.NOTION_TOKEN
-      );
-
-      const relationNames = await resolveRelationNames(
-        pages,
-        env.NOTION_TOKEN,
-        ctx
-      );
-
-      const characters = pages.map(page => normalizePage(page, relationNames));
-
-      const response = json({
-        count: characters.length,
-        characters,
-        meta: {
-          cachedForSeconds: CHARACTER_CACHE_SECONDS,
-          relationTitlesCachedForSeconds: RELATION_TITLE_CACHE_SECONDS
-        }
-      }, 200, {
-        ...cors,
-        "Cache-Control": `public, max-age=${CHARACTER_CACHE_SECONDS}`
-      });
-
-      // Store a CORS-neutral copy and add CORS when serving it.
-      const cacheCopy = new Response(response.clone().body, {
-        status: response.status,
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-          "Cache-Control": `public, max-age=${CHARACTER_CACHE_SECONDS}`
-        }
-      });
-
-      ctx.waitUntil(responseCache.put(responseCacheKey, cacheCopy));
-      return response;
+      return json({ error: "Not found" }, 404, cors);
     } catch (error) {
-      console.error("Akailem character API error:", error);
+      console.error("Akailem API error:", error);
       return json({
-        error: "Unable to load characters.",
+        error: "Unable to load Notion data.",
         details: error.message
       }, 500, cors);
     }
   }
 };
 
-function corsHeaders(allowedOrigin) {
-  return {
-    "Access-Control-Allow-Origin": allowedOrigin,
-    "Access-Control-Allow-Methods": "GET, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
-    "Access-Control-Max-Age": "86400",
-    "Vary": "Origin"
-  };
+function requireEnv(env) {
+  if (!env.NOTION_TOKEN) throw new Error("NOTION_TOKEN is missing.");
+  if (!env.NOTION_CHARACTERS_SOURCE_ID) {
+    throw new Error("NOTION_CHARACTERS_SOURCE_ID is missing.");
+  }
 }
 
-function withCors(response, cors) {
-  const headers = new Headers(response.headers);
-  for (const [key, value] of Object.entries(cors)) headers.set(key, value);
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers
+async function listCharacters(url, env, ctx, cors) {
+  const forceRefresh = url.searchParams.get("refresh") === "1";
+  const cache = caches.default;
+  const cacheKey = new Request(`${url.origin}/api/characters`);
+
+  if (!forceRefresh) {
+    const cached = await cache.match(cacheKey);
+    if (cached) return withCors(cached, cors);
+  }
+
+  const pages = await queryAll(env.NOTION_CHARACTERS_SOURCE_ID, env.NOTION_TOKEN);
+  const characters = pages.map(normalizeListPage);
+
+  const response = json({
+    count: characters.length,
+    characters,
+    meta: { mode: "lightweight", cachedForSeconds: LIST_CACHE_SECONDS }
+  }, 200, {
+    ...cors,
+    "Cache-Control": `public, max-age=${LIST_CACHE_SECONDS}`
   });
+
+  ctx.waitUntil(cache.put(cacheKey, cacheNeutralCopy(response, LIST_CACHE_SECONDS)));
+  return response;
+}
+
+async function getCharacterProfile(id, url, env, ctx, cors) {
+  const forceRefresh = url.searchParams.get("refresh") === "1";
+  const cleanId = normalizeId(id);
+  const cache = caches.default;
+  const cacheKey = new Request(`${url.origin}/api/characters/${cleanId}`);
+
+  if (!forceRefresh) {
+    const cached = await cache.match(cacheKey);
+    if (cached) return withCors(cached, cors);
+  }
+
+  // Retrieve only the clicked character instead of resolving every character.
+  const page = await notionFetch(
+    `https://api.notion.com/v1/pages/${cleanId}`,
+    env.NOTION_TOKEN
+  );
+
+  await hydrateLargeRelations(page, env.NOTION_TOKEN);
+  const relationNames = await resolveRelationsForPage(page, env.NOTION_TOKEN, ctx);
+  const character = normalizeFullPage(page, relationNames);
+
+  const response = json({ character }, 200, {
+    ...cors,
+    "Cache-Control": `public, max-age=${PROFILE_CACHE_SECONDS}`
+  });
+
+  ctx.waitUntil(cache.put(cacheKey, cacheNeutralCopy(response, PROFILE_CACHE_SECONDS)));
+  return response;
 }
 
 async function queryAll(sourceId, token) {
@@ -142,16 +151,12 @@ async function queryAll(sourceId, token) {
       page_size: 100,
       sorts: [{ property: "Name", direction: "ascending" }]
     };
-
     if (cursor) body.start_cursor = cursor;
 
     const response = await notionFetch(
       `https://api.notion.com/v1/data_sources/${sourceId}/query`,
       token,
-      {
-        method: "POST",
-        body: JSON.stringify(body)
-      }
+      { method: "POST", body: JSON.stringify(body) }
     );
 
     results.push(...(response.results || []));
@@ -161,96 +166,23 @@ async function queryAll(sourceId, token) {
   return results;
 }
 
-async function resolveRelationNames(pages, token, ctx) {
-  // A Set means a related page shared by many characters is resolved once per run.
-  const ids = new Set();
-
-  for (const page of pages) {
-    for (const [name, property] of Object.entries(page.properties || {})) {
-      if (property?.type !== "relation" || !RELATION_FIELDS.has(name)) continue;
-      for (const item of property.relation || []) {
-        if (item?.id) ids.add(item.id);
-      }
-    }
+function normalizeListPage(page) {
+  const properties = {};
+  for (const [name, value] of Object.entries(page.properties || {})) {
+    if (LIST_FIELDS.has(name)) properties[name] = normalizeProperty(value, new Map());
   }
 
-  const uniqueIds = [...ids];
-  const map = new Map();
-  let nextIndex = 0;
-
-  async function resolverWorker() {
-    while (true) {
-      const index = nextIndex++;
-      if (index >= uniqueIds.length) return;
-
-      const id = uniqueIds[index];
-
-      try {
-        const resolved = await getRelationTitle(id, token, ctx);
-        map.set(id, resolved);
-      } catch (error) {
-        // Don't disguise an API failure as if "Related Page" were the real title.
-        console.error(`Could not resolve Notion relation ${id}:`, error);
-        map.set(id, {
-          id,
-          name: "Unavailable relation",
-          unavailable: true
-        });
-      }
-    }
-  }
-
-  const workerCount = Math.min(RELATION_CONCURRENCY, uniqueIds.length);
-  await Promise.all(Array.from({ length: workerCount }, () => resolverWorker()));
-
-  return map;
-}
-
-async function getRelationTitle(id, token, ctx) {
-  const cache = caches.default;
-  const cacheKey = new Request(`https://akailem-relation-cache.invalid/title/${id}`);
-  const cached = await cache.match(cacheKey);
-
-  if (cached) {
-    return await cached.json();
-  }
-
-  const page = await notionFetch(
-    `https://api.notion.com/v1/pages/${id}`,
-    token
-  );
-
-  const result = {
-    id,
-    name: pageTitle(page) || "Untitled",
-    url: page.url || null
+  return {
+    id: page.id,
+    url: page.url,
+    name: properties.Name || "Unnamed Character",
+    createdTime: page.created_time,
+    lastEditedTime: page.last_edited_time,
+    properties
   };
-
-  const cacheResponse = new Response(JSON.stringify(result), {
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": `public, max-age=${RELATION_TITLE_CACHE_SECONDS}`
-    }
-  });
-
-  // Avoid making the current request wait on the cache write.
-  ctx.waitUntil(cache.put(cacheKey, cacheResponse));
-  return result;
 }
 
-function pageTitle(page) {
-  // Detect the title property by Notion type, not by property name. This works
-  // whether a related database calls its title field Name, Nature, Nom, Title, etc.
-  for (const property of Object.values(page.properties || {})) {
-    if (property?.type === "title") {
-      const value = text(property.title).trim();
-      if (value) return value;
-    }
-  }
-  return null;
-}
-
-function normalizePage(page, relationNames) {
+function normalizeFullPage(page, relationNames) {
   const properties = Object.fromEntries(
     Object.entries(page.properties || {}).map(([name, value]) => [
       name,
@@ -268,62 +200,156 @@ function normalizePage(page, relationNames) {
   };
 }
 
+
+async function hydrateLargeRelations(page, token) {
+  const jobs = [];
+
+  for (const [name, property] of Object.entries(page.properties || {})) {
+    if (property?.type !== "relation" || !PROFILE_RELATION_FIELDS.has(name)) continue;
+    if (!property.has_more) continue;
+    jobs.push(loadCompleteRelation(page.id, property.id, token).then(ids => {
+      property.relation = ids.map(id => ({ id }));
+      property.has_more = false;
+    }));
+  }
+
+  // A character usually has no oversized relations. If it does, fetch only
+  // those properties and keep the concurrency low.
+  for (let i = 0; i < jobs.length; i += RELATION_CONCURRENCY) {
+    await Promise.all(jobs.slice(i, i + RELATION_CONCURRENCY));
+  }
+}
+
+async function loadCompleteRelation(pageId, propertyId, token) {
+  const ids = [];
+  let cursor;
+
+  do {
+    const endpoint = new URL(`https://api.notion.com/v1/pages/${normalizeId(pageId)}/properties/${encodeURIComponent(propertyId)}`);
+    endpoint.searchParams.set("page_size", "100");
+    if (cursor) endpoint.searchParams.set("start_cursor", cursor);
+
+    const payload = await notionFetch(endpoint.toString(), token);
+    for (const item of payload.results || []) {
+      const id = item?.relation?.id;
+      if (id) ids.push(normalizeId(id));
+    }
+    cursor = payload.has_more ? payload.next_cursor : undefined;
+  } while (cursor);
+
+  return [...new Set(ids)];
+}
+
+async function resolveRelationsForPage(page, token, ctx) {
+  const ids = new Set();
+
+  for (const [name, property] of Object.entries(page.properties || {})) {
+    if (property?.type !== "relation" || !PROFILE_RELATION_FIELDS.has(name)) continue;
+    for (const item of property.relation || []) {
+      if (item?.id) ids.add(normalizeId(item.id));
+    }
+  }
+
+  const uniqueIds = [...ids];
+  const map = new Map();
+  let cursor = 0;
+
+  async function worker() {
+    while (cursor < uniqueIds.length) {
+      const id = uniqueIds[cursor++];
+      try {
+        map.set(id, await getRelationTitle(id, token, ctx));
+      } catch (error) {
+        // Preserve the relation ID but do not manufacture a fake visible title.
+        // The frontend hides unresolved relations rather than displaying noise.
+        console.error(`Relation lookup failed for ${id}:`, error);
+        map.set(id, { id, name: null, unavailable: true });
+      }
+    }
+  }
+
+  const count = Math.min(RELATION_CONCURRENCY, uniqueIds.length);
+  await Promise.all(Array.from({ length: count }, worker));
+  return map;
+}
+
+async function getRelationTitle(id, token, ctx) {
+  const cache = caches.default;
+  const cacheKey = new Request(`https://akailem-cache.local/relation/${normalizeId(id)}`);
+  const cached = await cache.match(cacheKey);
+  if (cached) return cached.json();
+
+  const page = await notionFetch(
+    `https://api.notion.com/v1/pages/${normalizeId(id)}`,
+    token
+  );
+
+  const result = {
+    id: normalizeId(id),
+    name: pageTitle(page) || null,
+    url: page.url || null
+  };
+
+  // Cache only successful, titled lookups. Failures are not cached, so a
+  // temporary Notion error can recover naturally on the next profile open.
+  if (result.name) {
+    const cachedResponse = new Response(JSON.stringify(result), {
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+        "Cache-Control": `public, max-age=${RELATION_CACHE_SECONDS}`
+      }
+    });
+    ctx.waitUntil(cache.put(cacheKey, cachedResponse));
+  }
+
+  return result;
+}
+
+function pageTitle(page) {
+  for (const property of Object.values(page.properties || {})) {
+    if (property?.type === "title") {
+      const value = text(property.title).trim();
+      if (value) return value;
+    }
+  }
+  return null;
+}
+
 function normalizeProperty(property, relationNames) {
   if (!property) return null;
 
   switch (property.type) {
-    case "title":
-      return text(property.title);
-    case "rich_text":
-      return text(property.rich_text);
-    case "number":
-      return property.number;
-    case "checkbox":
-      return property.checkbox;
-    case "url":
-      return property.url;
-    case "email":
-      return property.email;
-    case "phone_number":
-      return property.phone_number;
-    case "select":
-      return property.select?.name ?? null;
-    case "status":
-      return property.status?.name ?? null;
-    case "multi_select":
-      return (property.multi_select || []).map(item => item.name);
+    case "title": return text(property.title);
+    case "rich_text": return text(property.rich_text);
+    case "number": return property.number;
+    case "checkbox": return property.checkbox;
+    case "url": return property.url;
+    case "email": return property.email;
+    case "phone_number": return property.phone_number;
+    case "select": return property.select?.name ?? null;
+    case "status": return property.status?.name ?? null;
+    case "multi_select": return (property.multi_select || []).map(item => item.name);
     case "date":
-      return property.date
-        ? {
-            start: property.date.start,
-            end: property.date.end,
-            timeZone: property.date.time_zone
-          }
-        : null;
+      return property.date ? {
+        start: property.date.start,
+        end: property.date.end,
+        timeZone: property.date.time_zone
+      } : null;
     case "people":
-      return (property.people || []).map(person => ({
-        id: person.id,
-        name: person.name || null
-      }));
+      return (property.people || []).map(person => ({ id: person.id, name: person.name || null }));
     case "relation":
-      return (property.relation || []).map(item =>
-        relationNames.get(item.id) || {
-          id: item.id,
-          name: "Unavailable relation",
-          unavailable: true
-        }
-      );
-    case "formula":
-      return normalizeFormula(property.formula);
-    case "rollup":
-      return normalizeRollup(property.rollup, relationNames);
+      return (property.relation || []).map(item => {
+        const id = normalizeId(item.id);
+        return relationNames.get(id) || { id, name: null, unavailable: true };
+      });
+    case "formula": return normalizeFormula(property.formula);
+    case "rollup": return normalizeRollup(property.rollup, relationNames);
     case "files":
       return (property.files || []).map(file => ({
         name: file.name,
         url: file.type === "external" ? file.external?.url : file.file?.url
       }));
-    default:
-      return null;
+    default: return null;
   }
 }
 
@@ -361,53 +387,63 @@ async function notionFetch(url, token, init = {}, retriesRemaining = MAX_RETRIES
   }
 
   let payload = null;
-  try {
-    payload = await response.json();
-  } catch {
-    // Keep payload null; the status-based error below will still be useful.
-  }
-
+  try { payload = await response.json(); } catch {}
   if (response.ok) return payload;
 
-  // 429 = rate limited. 5xx = transient server-side errors worth retrying.
-  const retryable = response.status === 429 || response.status >= 500;
-
+  const retryable = response.status === 408 || response.status === 409 || response.status === 429 || response.status >= 500;
   if (retryable && retriesRemaining > 0) {
-    const retryAfterHeader = response.headers.get("Retry-After");
-    const retryAfterSeconds = retryAfterHeader ? Number(retryAfterHeader) : NaN;
-    const delay = Number.isFinite(retryAfterSeconds)
-      ? Math.max(250, retryAfterSeconds * 1000)
+    const retryAfter = Number(response.headers.get("Retry-After"));
+    const delay = Number.isFinite(retryAfter) && retryAfter > 0
+      ? Math.max(500, retryAfter * 1000)
       : backoffMs(MAX_RETRIES - retriesRemaining);
-
     await sleep(delay);
     return notionFetch(url, token, init, retriesRemaining - 1);
   }
 
-  const message = payload?.message || `Notion returned HTTP ${response.status}.`;
-  throw new Error(`${message} (${response.status})`);
+  throw new Error(`${payload?.message || `Notion returned HTTP ${response.status}.`} (${response.status})`);
 }
 
 function backoffMs(attempt) {
-  // Exponential backoff with small jitter: ~0.5s, 1s, 2s, 4s, 8s.
-  const base = Math.min(8000, 500 * (2 ** attempt));
-  const jitter = Math.floor(Math.random() * 250);
-  return base + jitter;
+  const base = Math.min(12000, 600 * (2 ** attempt));
+  return base + Math.floor(Math.random() * 350);
 }
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+function normalizeId(id) {
+  return String(id || "").replace(/-/g, "").toLowerCase();
 }
 
-function text(items = []) {
-  return items.map(item => item.plain_text || "").join("");
+function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+function text(items = []) { return items.map(item => item.plain_text || "").join(""); }
+
+function corsHeaders(allowedOrigin) {
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Methods": "GET, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Max-Age": "86400",
+    "Vary": "Origin"
+  };
+}
+
+function withCors(response, cors) {
+  const headers = new Headers(response.headers);
+  for (const [key, value] of Object.entries(cors)) headers.set(key, value);
+  return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+}
+
+function cacheNeutralCopy(response, seconds) {
+  return new Response(response.clone().body, {
+    status: response.status,
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": `public, max-age=${seconds}`
+    }
+  });
 }
 
 function json(data, status, headers = {}) {
   return new Response(JSON.stringify(data, null, 2), {
     status,
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      ...headers
-    }
+    headers: { "Content-Type": "application/json; charset=utf-8", ...headers }
   });
 }

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Jacey Cosmo — Companion Terminal v6.3.23 Identity Music Playlists</title>
+<title>Jacey Cosmo — Companion Terminal v6.3.24 Playlist Music Button Fix</title>
 <style>
 /* =========================================================
    JACEY COMPANION FRAMEWORK v5.6 — EPISODE ENGINE CLEANUP
@@ -1368,7 +1368,7 @@ body:before{
   <button class="mode-tab active" id="chatModeBtn" type="button">CHAT</button>
   <button class="mode-tab" id="cipherModeBtn" type="button">CIPHER LAB</button>
 </div>
-<div class="head-actions"><button class="icon-btn" id="libraryBtn" title="Content library">▤</button><button class="icon-btn" id="dataLoadBtn" title="Load episode or memory JSON">↥</button><button class="icon-btn" id="memorySaveBtn" title="Export companion memory JSON">⇩</button><input id="dataFileInput" type="file" accept=".json,application/json" multiple hidden><button class="icon-btn" id="musicToggle" type="button" title="Music: off" aria-label="Toggle identity music" aria-pressed="false">♫</button><button class="icon-btn" id="companionToggle" title="Companion mode: off" aria-pressed="false">◌</button><button class="icon-btn" id="glitchBtn" title="Glitch">⌁</button><button class="icon-btn" id="dossierBtn" title="Classified dossier">⌘</button></div></header>
+<div class="head-actions"><button class="icon-btn" id="libraryBtn" title="Content library">▤</button><button class="icon-btn" id="dataLoadBtn" title="Load episode or memory JSON">↥</button><button class="icon-btn" id="memorySaveBtn" title="Export companion memory JSON">⇩</button><input id="dataFileInput" type="file" accept=".json,application/json" multiple hidden><button class="icon-btn" id="musicToggle" type="button" title="Music: loading" aria-label="Toggle identity music" aria-pressed="false" disabled>♫</button><button class="icon-btn" id="companionToggle" title="Companion mode: off" aria-pressed="false">◌</button><button class="icon-btn" id="glitchBtn" title="Glitch">⌁</button><button class="icon-btn" id="dossierBtn" title="Classified dossier">⌘</button></div></header>
     <div class="log" id="log"></div>
     <div class="composer">
   <div class="episode-overlay" id="episodeOverlay" aria-live="polite">
@@ -1692,11 +1692,11 @@ const IdentityManager={
 Framework.modules.IdentityManager=IdentityManager;
 
 /* =========================================================
-   IDENTITY MUSIC v6.3.23
+   IDENTITY MUSIC v6.3.24
    Canonical playlist arrays only.
-   One track: loops that track.
-   Multiple tracks: play in order, then loop the playlist.
-   Identity changes crossfade into the target playlist.
+   The manifest and current track are prepared before the
+   music button becomes clickable so browser user-gesture
+   playback is never lost behind an asynchronous fetch.
    ========================================================= */
 const MUSIC_MANIFEST_URL='audio/music_manifest.json';
 
@@ -1727,22 +1727,32 @@ const MusicManager={
       }
 
       for(const [identityId,playlist] of Object.entries(manifest)){
-        if(!Array.isArray(playlist) || !playlist.length ||
-           playlist.some(file=>typeof file!=='string' || !file.trim())){
+        if(
+          !Array.isArray(playlist) ||
+          !playlist.length ||
+          playlist.some(file=>typeof file!=='string' || !file.trim())
+        ){
           throw new Error(`Music playlist for "${identityId}" must be a non-empty array of filenames.`);
         }
       }
 
       this.manifest=manifest;
-      this.ready=true;
       this.currentIdentity=activeIdentity;
       this.playlistIndex=0;
-      this.prepareCurrentTrack();
+      this.ready=true;
+
+      if(!this.prepareCurrentTrack()){
+        throw new Error(`No music playlist is available for "${activeIdentity}".`);
+      }
+
+      this.button.disabled=false;
       this.updateButton();
       return manifest;
     }catch(error){
       this.ready=false;
-      this.updateButton();
+      this.enabled=false;
+      this.button.disabled=true;
+      this.button.title='Music unavailable';
       console.error('Could not load identity music manifest.',error);
       return null;
     }
@@ -1767,40 +1777,48 @@ const MusicManager={
 
   configureChannel(channel,url,{volume=1,reset=true,loop=false}={}){
     if(!channel||!url)return false;
+
     if(channel.src!==url){
       channel.src=url;
       if(reset)channel.currentTime=0;
       channel.load();
     }
+
     channel.loop=loop;
     channel.volume=Math.max(0,Math.min(1,volume));
     return true;
   },
 
   prepareCurrentTrack(){
+    if(!this.ready)return false;
+
     const playlist=this.playlist();
     const url=this.currentUrl();
     if(!url)return false;
+
     return this.configureChannel(
       this.channels[this.activeChannel],
       url,
-      {volume:1,reset:true,loop:playlist.length===1}
+      {
+        volume:1,
+        reset:true,
+        loop:playlist.length===1
+      }
     );
   },
 
   setIdentity(identityId,{play=false}={}){
     this.currentIdentity=identityId;
     this.playlistIndex=0;
+
     if(!this.ready)return false;
-    this.prepareCurrentTrack();
+    if(!this.prepareCurrentTrack())return false;
+
     return play?this.play():true;
   },
 
   async play(){
-    if(!this.ready){
-      await this.load();
-      if(!this.ready)return false;
-    }
+    if(!this.ready || this.button.disabled)return false;
 
     const playlist=this.playlist();
     const url=this.currentUrl();
@@ -1814,6 +1832,7 @@ const MusicManager={
     });
 
     try{
+      /* This call happens directly inside the user's click gesture. */
       await channel.play();
       this.enabled=true;
       this.updateButton();
@@ -1828,10 +1847,12 @@ const MusicManager={
 
   pause(){
     this._fadeToken++;
+
     this.channels.forEach(channel=>{
       channel.pause();
       channel.volume=1;
     });
+
     this.enabled=false;
     this.updateButton();
     return true;
@@ -1842,13 +1863,20 @@ const MusicManager={
     if(!this.enabled || playlist.length<=1)return false;
 
     this.playlistIndex=(this.playlistIndex+1)%playlist.length;
+
     const url=this.currentUrl();
+    if(!url)return false;
+
     const fromIndex=this.activeChannel;
     const toIndex=fromIndex===0?1:0;
     const from=this.channels[fromIndex];
     const to=this.channels[toIndex];
 
-    this.configureChannel(to,url,{volume:1,reset:true,loop:false});
+    this.configureChannel(to,url,{
+      volume:1,
+      reset:true,
+      loop:false
+    });
 
     try{
       await to.play();
@@ -1868,15 +1896,15 @@ const MusicManager={
     this.currentIdentity=identityId;
     this.playlistIndex=0;
 
-    if(!this.ready){
-      await this.load();
-      if(!this.ready)return false;
-    }
+    if(!this.ready)return false;
 
     const playlist=this.playlist();
     const url=this.currentUrl();
     if(!url)return false;
-    if(!this.enabled)return this.setIdentity(identityId,{play:false});
+
+    if(!this.enabled){
+      return this.setIdentity(identityId,{play:false});
+    }
 
     const fromIndex=this.activeChannel;
     const toIndex=fromIndex===0?1:0;
@@ -1901,10 +1929,15 @@ const MusicManager={
 
     await new Promise(resolve=>{
       const step=now=>{
-        if(token!==this._fadeToken){resolve();return;}
+        if(token!==this._fadeToken){
+          resolve();
+          return;
+        }
+
         const t=Math.min(1,(now-started)/this.fadeDuration);
         from.volume=1-t;
         to.volume=t;
+
         if(t<1){
           requestAnimationFrame(step);
         }else{
@@ -1916,6 +1949,7 @@ const MusicManager={
           resolve();
         }
       };
+
       requestAnimationFrame(step);
     });
 
@@ -1925,24 +1959,38 @@ const MusicManager={
   },
 
   toggle(){
+    if(!this.ready || this.button.disabled)return false;
     return this.enabled?this.pause():this.play();
   },
 
   updateButton(){
     if(!this.button)return;
+
     this.button.classList.toggle('toggle-on',this.enabled);
     this.button.setAttribute('aria-pressed',String(this.enabled));
-    this.button.title='Music: '+(this.enabled?'on':'off');
+
+    if(!this.ready){
+      this.button.title='Music: loading';
+    }else{
+      this.button.title='Music: '+(this.enabled?'on':'off');
+    }
   },
 
   initialize(){
-    if(!this.button||this.channels.some(channel=>!channel))return false;
+    if(!this.button || this.channels.some(channel=>!channel))return false;
+
+    this.button.disabled=true;
+    this.updateButton();
 
     this.channels.forEach(channel=>{
       channel.volume=1;
+
       channel.addEventListener('ended',()=>{
-        if(channel===this.channels[this.activeChannel])this.advanceTrack();
+        if(channel===this.channels[this.activeChannel]){
+          this.advanceTrack();
+        }
       });
+
       channel.addEventListener('error',()=>{
         console.error('Identity music failed to load:',channel.src);
       });
@@ -1956,7 +2004,7 @@ const MusicManager={
 
     this.currentIdentity=activeIdentity;
     this.playlistIndex=0;
-    this.updateButton();
+
     this.load();
     return true;
   }

@@ -103,11 +103,38 @@ function box(w,h,d,mat,x,y,z){
   m.position.set(x,y,z);m.receiveShadow=true;m.castShadow=true;scene.add(m);return m;
 }
 
-// Floor and ceiling use the same three rectangles as the original Dorms map.
+// Floor and ceiling follow the same hallway footprint as the Dorms map.
+// At corridor junctions, do not stack two coplanar floor meshes on top of
+// each other: that caused z-fighting/clipping where the connector met the
+// horizontal halls.  The connector is trimmed to the open span between the
+// upper and main halls, while the horizontal halls own the junction squares.
+function visibleFloorSegment(hall){
+  if(hall.id !== 'connector') return {...hall};
+
+  const upper = data.corridors.find(c => c.id === 'upper-hall');
+  const main = data.corridors.find(c => c.id === 'main-hall');
+  if(!upper || !main) return {...hall};
+
+  const startY = upper.y + upper.h;
+  const endY = main.y;
+  return {
+    ...hall,
+    y: startY,
+    h: Math.max(0, endY - startY)
+  };
+}
+
 for (const hall of data.corridors) {
-  const c = mapToWorld(hall.x + hall.w/2, hall.y + hall.h/2);
-  box(hall.w*S,.18,hall.h*S,floorMaterialFor(hall),c.x,0,c.z);
-  box(hall.w*S,.16,hall.h*S,ceilingMat,c.x,data.height,c.z);
+  const floorHall = visibleFloorSegment(hall);
+  if(floorHall.w > 0 && floorHall.h > 0){
+    const fc = mapToWorld(floorHall.x + floorHall.w/2, floorHall.y + floorHall.h/2);
+    box(floorHall.w*S,.18,floorHall.h*S,floorMaterialFor(floorHall),fc.x,0,fc.z);
+  }
+
+  // Ceilings are high enough that coplanar floor z-fighting is irrelevant,
+  // so retain the original coverage there.
+  const cc = mapToWorld(hall.x + hall.w/2, hall.y + hall.h/2);
+  box(hall.w*S,.16,hall.h*S,ceilingMat,cc.x,data.height,cc.z);
 }
 
 // Exterior walls follow the exact union outline of those rectangles.

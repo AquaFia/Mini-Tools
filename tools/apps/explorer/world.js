@@ -50,8 +50,48 @@ function restorePosition() {
 restorePosition();
 
 scene.add(new THREE.HemisphereLight(0xa9dfff, 0x1b2635, 1.65));
-const floorMat = new THREE.MeshStandardMaterial({color:0x355a72,roughness:.75,metalness:.05});
-const wallMat = new THREE.MeshStandardMaterial({color:0xd9e4ec,roughness:.82});
+
+// Dorm hallway artwork supplied for the prototype.  Each wall segment receives
+// its own texture clone so the full wall height is preserved while the artwork
+// repeats horizontally.  Corridor floors use the same idea, with the artwork
+// rotated on vertical branches so its purple border remains along the hallway
+// edges instead of running across the walking path.
+const textureLoader = new THREE.TextureLoader();
+function loadColorTexture(path){
+  const t=textureLoader.load(path);
+  t.colorSpace=THREE.SRGBColorSpace;
+  t.wrapS=THREE.RepeatWrapping;
+  t.wrapT=THREE.RepeatWrapping;
+  t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
+  return t;
+}
+const dormFloorTexture=loadColorTexture('./assets/textures/dorm-floor.png');
+const dormWallTexture=loadColorTexture('./assets/textures/dorm-wall.png');
+
+function floorMaterialFor(hall){
+  const horizontal=hall.w>=hall.h;
+  const longSide=horizontal?hall.w:hall.h;
+  const shortSide=horizontal?hall.h:hall.w;
+  const t=dormFloorTexture.clone();
+  t.needsUpdate=true;
+  t.center.set(.5,.5);
+  if(horizontal){
+    t.repeat.set(Math.max(1,longSide/(Math.max(shortSide,.01)*2)),1);
+  }else{
+    t.rotation=Math.PI/2;
+    t.repeat.set(Math.max(1,longSide/(Math.max(shortSide,.01)*2)),1);
+  }
+  return new THREE.MeshStandardMaterial({map:t,color:0xffffff,roughness:.72,metalness:.03});
+}
+function wallMaterialFor(length){
+  const t=dormWallTexture.clone();
+  t.needsUpdate=true;
+  // The source wall artwork is 2:1.  One undistorted tile therefore spans
+  // roughly twice the wall height before repeating along longer wall runs.
+  t.repeat.set(Math.max(1,length/(data.height*2)),1);
+  return new THREE.MeshStandardMaterial({map:t,color:0xffffff,roughness:.78,metalness:.02});
+}
+
 const ceilingMat = new THREE.MeshStandardMaterial({color:0xaebdca,roughness:.9});
 const trimMat = new THREE.MeshStandardMaterial({color:0x27475d,roughness:.7});
 const doorMat = new THREE.MeshStandardMaterial({color:0x50352b,roughness:.65});
@@ -66,7 +106,7 @@ function box(w,h,d,mat,x,y,z){
 // Floor and ceiling use the same three rectangles as the original Dorms map.
 for (const hall of data.corridors) {
   const c = mapToWorld(hall.x + hall.w/2, hall.y + hall.h/2);
-  box(hall.w*S,.18,hall.h*S,floorMat,c.x,0,c.z);
+  box(hall.w*S,.18,hall.h*S,floorMaterialFor(hall),c.x,0,c.z);
   box(hall.w*S,.16,hall.h*S,ceilingMat,c.x,data.height,c.z);
 }
 
@@ -76,7 +116,7 @@ for(let i=0;i<outline.length;i++){
   const a=outline[i], b=outline[(i+1)%outline.length];
   const dx=b.x-a.x, dz=b.z-a.z;
   const length=Math.hypot(dx,dz), cx=(a.x+b.x)/2, cz=(a.z+b.z)/2;
-  const wall=box(length,.001,.001,wallMat,cx,data.height/2,cz);
+  const wall=box(length,.001,.001,wallMaterialFor(length),cx,data.height/2,cz);
   wall.geometry.dispose();
   wall.geometry=new THREE.BoxGeometry(length,data.height,.18);
   wall.rotation.y=-Math.atan2(dz,dx);

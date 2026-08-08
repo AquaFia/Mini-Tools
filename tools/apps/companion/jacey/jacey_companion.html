@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Jacey Cosmo — Companion Terminal v6.3.21 Identity Music</title>
+<title>Jacey Cosmo — Companion Terminal v6.3.22 Identity Music Crossfade</title>
 <style>
 /* =========================================================
    JACEY COMPANION FRAMEWORK v5.6 — EPISODE ENGINE CLEANUP
@@ -1458,7 +1458,8 @@ body:before{
   </div>
 </section>
 
-  <audio id="identityMusic" preload="metadata" loop hidden></audio>
+  <audio id="identityMusicA" preload="metadata" loop hidden></audio>
+  <audio id="identityMusicB" preload="metadata" loop hidden></audio>
 </main>
 <script>
 /* ================================================================
@@ -1619,144 +1620,10 @@ const IdentityManager={
     Object.assign(CHARACTER,profile);
     applyCharacter(CHARACTER);
 
-/* =========================================================
-   IDENTITY MUSIC
-   One toolbar toggle. Tracks are loaded from:
-   audio/music_manifest.json
-   ========================================================= */
-const MUSIC_MANIFEST_URL='audio/music_manifest.json';
-
-const MusicManager={
-  manifest:null,
-  ready:false,
-  enabled:false,
-  currentIdentity:'jace',
-  audio:document.querySelector('#identityMusic'),
-  button:document.querySelector('#musicToggle'),
-  manifestBaseUrl:new URL('.',new URL(MUSIC_MANIFEST_URL,document.baseURI)),
-
-  async load(){
-    try{
-      const response=await fetch(MUSIC_MANIFEST_URL,{cache:'no-cache'});
-      if(!response.ok)throw new Error(`Music manifest request failed: ${response.status}`);
-      const manifest=await response.json();
-      if(!manifest || typeof manifest!=='object' || Array.isArray(manifest)){
-        throw new Error('Unsupported music manifest.');
-      }
-      this.manifest=manifest;
-      this.ready=true;
-      this.setIdentity(activeIdentity);
-      return manifest;
-    }catch(error){
-      this.ready=false;
-      this.updateButton();
-      console.error('Could not load identity music manifest.',error);
-      return null;
-    }
-  },
-
-  trackFile(identityId=this.currentIdentity){
-    const file=this.manifest?.[identityId];
-    return typeof file==='string' && file.trim() ? file.trim() : null;
-  },
-
-  trackUrl(identityId=this.currentIdentity){
-    const file=this.trackFile(identityId);
-    return file ? new URL(file,this.manifestBaseUrl).href : null;
-  },
-
-  setIdentity(identityId){
-    this.currentIdentity=identityId;
-    if(!this.ready)return false;
-
-    const nextUrl=this.trackUrl(identityId);
-    if(!nextUrl){
-      this.pause();
-      this.audio.removeAttribute('src');
-      this.audio.load();
-      this.updateButton();
-      return false;
-    }
-
-    const wasEnabled=this.enabled;
-    if(this.audio.src!==nextUrl){
-      this.audio.src=nextUrl;
-      this.audio.currentTime=0;
-      this.audio.load();
-    }
-
-    if(wasEnabled)this.play();
-    return true;
-  },
-
-  async play(){
-    if(!this.ready){
-      await this.load();
-      if(!this.ready)return false;
-    }
-
-    const nextUrl=this.trackUrl();
-    if(!nextUrl)return false;
-    if(this.audio.src!==nextUrl){
-      this.audio.src=nextUrl;
-      this.audio.currentTime=0;
-      this.audio.load();
-    }
-
-    try{
-      await this.audio.play();
-      this.enabled=true;
-      this.updateButton();
-      return true;
-    }catch(error){
-      this.enabled=false;
-      this.updateButton();
-      console.warn('Music playback was blocked by the browser.',error);
-      return false;
-    }
-  },
-
-  pause(){
-    this.audio.pause();
-    this.enabled=false;
-    this.updateButton();
-    return true;
-  },
-
-  toggle(){
-    return this.enabled ? this.pause() : this.play();
-  },
-
-  updateButton(){
-    if(!this.button)return;
-    this.button.classList.toggle('toggle-on',this.enabled);
-    this.button.setAttribute('aria-pressed',String(this.enabled));
-    this.button.title='Music: '+(this.enabled?'on':'off');
-  },
-
-  initialize(){
-    if(!this.audio || !this.button)return false;
-    this.audio.loop=true;
-    this.button.addEventListener('click',event=>{
-      event.preventDefault();
-      event.stopPropagation();
-      this.toggle();
-    });
-    this.audio.addEventListener('ended',()=>{this.enabled=false;this.updateButton();});
-    this.audio.addEventListener('error',()=>{this.enabled=false;this.updateButton();});
-    this.updateButton();
-    this.load();
-    return true;
-  }
-};
-
-Framework.modules.MusicManager=MusicManager;
-MusicManager.initialize();
     refreshQuickReplies();
     if(typeof renderExternalAchievements==='function')renderExternalAchievements();
 
     PortraitManager.renderIdentity(this._activeId);
-    Framework.modules.MusicManager?.setIdentity(this._activeId);
 
     if(Framework.modules.CipherLab){
       Framework.modules.CipherLab.refreshIdentity();
@@ -1800,6 +1667,11 @@ MusicManager.initialize();
       this._activeId=id;
       activeIdentity=id;
       this.render();
+      if(Framework.modules.MusicManager?.enabled){
+        await Framework.modules.MusicManager.crossfadeTo(id);
+      }else{
+        Framework.modules.MusicManager?.setIdentity(id,{play:false});
+      }
 
       belief.classList.add('show');
       await sleep(1650);
@@ -1818,6 +1690,200 @@ MusicManager.initialize();
   }
 };
 Framework.modules.IdentityManager=IdentityManager;
+
+/* =========================================================
+   IDENTITY MUSIC v6.3.22
+   Initializes immediately for Jace and crossfades continuously
+   between identity tracks using two hidden audio channels.
+   ========================================================= */
+const MUSIC_MANIFEST_URL='audio/music_manifest.json';
+
+const MusicManager={
+  manifest:null,
+  ready:false,
+  enabled:false,
+  currentIdentity:'jace',
+  button:document.querySelector('#musicToggle'),
+  channels:[
+    document.querySelector('#identityMusicA'),
+    document.querySelector('#identityMusicB')
+  ],
+  activeChannel:0,
+  fadeDuration:1200,
+  manifestBaseUrl:new URL('.',new URL(MUSIC_MANIFEST_URL,document.baseURI)),
+  _fadeToken:0,
+
+  async load(){
+    try{
+      const response=await fetch(MUSIC_MANIFEST_URL,{cache:'no-cache'});
+      if(!response.ok)throw new Error(`Music manifest request failed: ${response.status}`);
+      const manifest=await response.json();
+      if(!manifest||typeof manifest!=='object'||Array.isArray(manifest)){
+        throw new Error('Unsupported music manifest.');
+      }
+      this.manifest=manifest;
+      this.ready=true;
+      this.setIdentity(activeIdentity,{play:false});
+      this.updateButton();
+      return manifest;
+    }catch(error){
+      this.ready=false;
+      this.updateButton();
+      console.error('Could not load identity music manifest.',error);
+      return null;
+    }
+  },
+
+  trackFile(identityId=this.currentIdentity){
+    const file=this.manifest?.[identityId];
+    return typeof file==='string'&&file.trim()?file.trim():null;
+  },
+
+  trackUrl(identityId=this.currentIdentity){
+    const file=this.trackFile(identityId);
+    return file?new URL(file,this.manifestBaseUrl).href:null;
+  },
+
+  configureChannel(channel,url,{volume=1,reset=true}={}){
+    if(!channel||!url)return false;
+    if(channel.src!==url){
+      channel.src=url;
+      if(reset)channel.currentTime=0;
+      channel.load();
+    }
+    channel.loop=true;
+    channel.volume=Math.max(0,Math.min(1,volume));
+    return true;
+  },
+
+  setIdentity(identityId,{play=false}={}){
+    this.currentIdentity=identityId;
+    if(!this.ready)return false;
+    const url=this.trackUrl(identityId);
+    if(!url)return false;
+    const channel=this.channels[this.activeChannel];
+    this.configureChannel(channel,url,{volume:1,reset:true});
+    return play?this.play():true;
+  },
+
+  async play(){
+    if(!this.ready){
+      await this.load();
+      if(!this.ready)return false;
+    }
+    const url=this.trackUrl(this.currentIdentity);
+    if(!url)return false;
+    const channel=this.channels[this.activeChannel];
+    const changed=channel.src!==url;
+    this.configureChannel(channel,url,{volume:1,reset:changed});
+    try{
+      await channel.play();
+      this.enabled=true;
+      this.updateButton();
+      return true;
+    }catch(error){
+      this.enabled=false;
+      this.updateButton();
+      console.warn('Music playback was blocked by the browser.',error);
+      return false;
+    }
+  },
+
+  pause(){
+    this._fadeToken++;
+    this.channels.forEach(channel=>{
+      channel.pause();
+      channel.volume=1;
+    });
+    this.enabled=false;
+    this.updateButton();
+    return true;
+  },
+
+  async crossfadeTo(identityId){
+    this.currentIdentity=identityId;
+    if(!this.ready){
+      await this.load();
+      if(!this.ready)return false;
+    }
+    const url=this.trackUrl(identityId);
+    if(!url)return false;
+    if(!this.enabled)return this.setIdentity(identityId,{play:false});
+
+    const fromIndex=this.activeChannel;
+    const toIndex=fromIndex===0?1:0;
+    const from=this.channels[fromIndex];
+    const to=this.channels[toIndex];
+
+    if(from.src===url&&!from.paused)return true;
+
+    this.configureChannel(to,url,{volume:0,reset:true});
+    try{
+      await to.play();
+    }catch(error){
+      console.warn('Could not start the next identity track.',error);
+      return false;
+    }
+
+    const token=++this._fadeToken;
+    const started=performance.now();
+    await new Promise(resolve=>{
+      const step=now=>{
+        if(token!==this._fadeToken){resolve();return;}
+        const t=Math.min(1,(now-started)/this.fadeDuration);
+        from.volume=1-t;
+        to.volume=t;
+        if(t<1){
+          requestAnimationFrame(step);
+        }else{
+          from.pause();
+          from.currentTime=0;
+          from.volume=1;
+          to.volume=1;
+          this.activeChannel=toIndex;
+          resolve();
+        }
+      };
+      requestAnimationFrame(step);
+    });
+
+    this.enabled=true;
+    this.updateButton();
+    return true;
+  },
+
+  toggle(){
+    return this.enabled?this.pause():this.play();
+  },
+
+  updateButton(){
+    if(!this.button)return;
+    this.button.classList.toggle('toggle-on',this.enabled);
+    this.button.setAttribute('aria-pressed',String(this.enabled));
+    this.button.title='Music: '+(this.enabled?'on':'off');
+  },
+
+  initialize(){
+    if(!this.button||this.channels.some(channel=>!channel))return false;
+    this.channels.forEach(channel=>{
+      channel.loop=true;
+      channel.volume=1;
+      channel.addEventListener('error',()=>console.error('Identity music failed to load:',channel.src));
+    });
+    this.button.addEventListener('click',event=>{
+      event.preventDefault();
+      event.stopPropagation();
+      this.toggle();
+    });
+    this.currentIdentity=activeIdentity;
+    this.updateButton();
+    this.load();
+    return true;
+  }
+};
+
+Framework.modules.MusicManager=MusicManager;
+MusicManager.initialize();
 
 function applyCharacter(c){
   const r=document.documentElement.style;

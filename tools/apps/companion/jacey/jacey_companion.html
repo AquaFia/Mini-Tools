@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Jacey Cosmo — Companion Terminal v6.3.26 Music Transition Timing</title>
+<title>Jacey Cosmo — Companion Terminal v6.3.25 Music Identity Isolation</title>
 <style>
 /* =========================================================
    JACEY COMPANION FRAMEWORK v5.6 — EPISODE ENGINE CLEANUP
@@ -1691,7 +1691,7 @@ Framework.modules.IdentityManager=IdentityManager;
    Canonical playlist arrays only.
    One track: loops that track.
    Multiple tracks: play in order, then loop the playlist.
-   Music independently observes the loading-screen visual transition and crossfades.
+   Music independently observes identity presentation changes and crossfades.
    ========================================================= */
 const MUSIC_MANIFEST_URL='audio/music_manifest.json';
 
@@ -1707,7 +1707,8 @@ const MusicManager={
     document.querySelector('#identityMusicB')
   ],
   activeChannel:0,
-  fadeDuration:1200,
+  fadeDuration:2000,
+  fadePreroll:120,
   manifestBaseUrl:new URL('.',new URL(MUSIC_MANIFEST_URL,document.baseURI)),
   _fadeToken:0,
 
@@ -1892,6 +1893,12 @@ const MusicManager={
     }
 
     const token=++this._fadeToken;
+
+    // Give the incoming MP3 a brief silent pre-roll after playback begins.
+    // This avoids exposing decoder/startup transients at the beginning of a fade.
+    await new Promise(resolve=>setTimeout(resolve,this.fadePreroll));
+    if(token!==this._fadeToken)return false;
+
     const started=performance.now();
 
     await new Promise(resolve=>{
@@ -1909,7 +1916,10 @@ const MusicManager={
         resolve();
       };
 
-      const safetyTimer=setTimeout(finish,this.fadeDuration+600);
+      const safetyTimer=setTimeout(
+        finish,
+        this.fadePreroll+this.fadeDuration+700
+      );
 
       const step=now=>{
         if(finished)return;
@@ -1920,8 +1930,11 @@ const MusicManager={
         }
 
         const t=Math.min(1,(now-started)/this.fadeDuration);
-        from.volume=1-t;
-        to.volume=t;
+
+        // Equal-power crossfade keeps perceived loudness steadier than
+        // a straight linear fade and avoids the abrupt midpoint dip/jump.
+        from.volume=Math.cos(t*Math.PI/2);
+        to.volume=Math.sin(t*Math.PI/2);
 
         if(t<1){
           requestAnimationFrame(step);
@@ -1969,15 +1982,9 @@ const MusicManager={
       this.toggle();
     });
 
-    const transitionScreen=document.querySelector('#belief');
-    if(transitionScreen){
-      this.transitionObserver=new MutationObserver(mutations=>{
-        const visualStateChanged=mutations.some(mutation=>
-          mutation.type==='attributes' &&
-          (mutation.attributeName==='class' || mutation.attributeName==='style')
-        );
-        if(!visualStateChanged)return;
-
+    const identityPresentation=document.querySelector('#characterName');
+    if(identityPresentation){
+      this.identityObserver=new MutationObserver(()=>{
         const nextIdentity=activeIdentity;
         if(nextIdentity===this.currentIdentity)return;
 
@@ -1990,9 +1997,10 @@ const MusicManager={
         }
       });
 
-      this.transitionObserver.observe(transitionScreen,{
-        attributes:true,
-        attributeFilter:['class','style']
+      this.identityObserver.observe(identityPresentation,{
+        childList:true,
+        characterData:true,
+        subtree:true
       });
     }
 

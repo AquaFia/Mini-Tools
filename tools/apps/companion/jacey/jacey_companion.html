@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Jacey Cosmo — Companion Terminal v6.3.32 Contextual Message Awareness</title>
+<title>Jacey Cosmo — Companion Terminal v6.3.33 Visual Context Foundation</title>
 <style>
 /* =========================================================
    JACEY COMPANION FRAMEWORK v5.6 — EPISODE ENGINE CLEANUP
@@ -1354,11 +1354,17 @@ body:before{
 </style>
 
 <script src="shared/context_awareness.js"></script>
+<script src="shared/visual_context.js"></script>
 <script>
 window.addEventListener('DOMContentLoaded',()=>{
   window.CompanionContext?.initialize({
     companionId:'jacey',
     endpoint:'https://awareness.aquafia1247.workers.dev/context'
+  });
+});
+window.addEventListener('DOMContentLoaded',()=>{
+  window.VisualContextManager?.initialize({
+    companionId:'jacey'
   });
 });
 </script>

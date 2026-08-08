@@ -2623,7 +2623,6 @@ function cfcDecrypt(text){
 }
 
 function executeCipherRequest(req){
-  if(req.help)return CIPHER_HELP;
   if(!req.message)throw new Error(`Add ${req.mode==='encrypt'?'Message':'Ciphertext'}: after a | separator.`);
   if(req.type==='FFC'){
     const result=req.mode==='encrypt'?ffcEncrypt(req.message):ffcDecrypt(req.message);
@@ -3056,11 +3055,6 @@ const CipherLab={
     updateCipherIdentityText();
   }
 };
-
-// Compatibility alias for existing internal calls.
-function setInterfaceMode(mode){
-  return mode==='cipher'?CipherLab.open():CipherLab.close();
-}
 
 function updateCipherForm(){
   const copy=getCipherIdentityCopy();
@@ -3727,13 +3721,6 @@ function resumeEpisodeInterface(){
   }
   return true;
 }
-
-const episodeBaseSetInterfaceMode=setInterfaceMode;
-setInterfaceMode=function(mode){
-  episodeBaseSetInterfaceMode(mode);
-  if(mode==='cipher')EpisodeOverlayController.suspend();
-  else resumeEpisodeInterface();
-};
 
 /* ---------------------------------------------------------
    9. PUBLIC EPISODE API

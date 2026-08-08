@@ -1,8 +1,8 @@
 /* =========================================================
-   SHARED COMPANION CONTEXT AWARENESS v2
+   SHARED COMPANION CONTEXT AWARENESS v2.2
    Phase 2: Notion-backed event repository.
    - Browser-local clock/date remains authoritative for "now".
-   - Remote repository supplies birthdays and authored events.
+   - All supplied birthday/event month-day data is annual by definition.
    - Emits "companioncontextchange" when meaningful context changes.
    - Emits "companioncontextrepositorychange" when repository status changes.
    - Does not directly modify chat, portraits, themes, music, identity, or episodes.
@@ -66,7 +66,10 @@
 
   function normalizeBirthday(item,index){
     if(!item || typeof item!=='object')return null;
-    const date=normalizeDateValue(item.date||item.birthday);
+    const suppliedMonthDay=String(item.monthDay||'').match(/^(\d{2})-(\d{2})$/);
+    const date=suppliedMonthDay
+      ? {dateKey:null,monthDay:`${suppliedMonthDay[1]}-${suppliedMonthDay[2]}`}
+      : normalizeDateValue(item.date||item.birthday);
     if(!date)return null;
     const character=String(item.character||item.name||'').trim();
     if(!character)return null;
@@ -76,7 +79,6 @@
       character,
       date:date.dateKey,
       monthDay:date.monthDay,
-      recurring:item.recurring!==false,
       visualContext:String(item.visualContext||'birthday').trim()||'birthday',
       metadata:item.metadata&&typeof item.metadata==='object'?item.metadata:{}
     };
@@ -84,20 +86,23 @@
 
   function normalizeEvent(item,index){
     if(!item || typeof item!=='object')return null;
-    const start=normalizeDateValue(item.date||item.startDate||item.start);
+    const suppliedStart=String(item.startMonthDay||'').match(/^(\d{2})-(\d{2})$/);
+    const suppliedEnd=String(item.endMonthDay||'').match(/^(\d{2})-(\d{2})$/);
+    const start=suppliedStart
+      ? {monthDay:`${suppliedStart[1]}-${suppliedStart[2]}`}
+      : normalizeDateValue(item.date||item.startDate||item.start);
     if(!start)return null;
-    const end=normalizeDateValue(item.endDate||item.end)||start;
+    const end=suppliedEnd
+      ? {monthDay:`${suppliedEnd[1]}-${suppliedEnd[2]}`}
+      : (normalizeDateValue(item.endDate||item.end)||start);
     const name=String(item.name||item.title||'').trim();
     if(!name)return null;
     return {
       id:String(item.id||slug(name)||`event-${index}`),
       type:String(item.type||'event').trim().toLowerCase(),
       name,
-      startDate:start.dateKey,
-      endDate:end.dateKey,
       startMonthDay:start.monthDay,
       endMonthDay:end.monthDay,
-      recurring:Boolean(item.recurring),
       visualContext:String(item.visualContext||slug(name)).trim(),
       metadata:item.metadata&&typeof item.metadata==='object'?item.metadata:{}
     };
@@ -111,12 +116,11 @@
   }
 
   function eventIsActive(event,date){
-    const today=localDateKey(date);
-    const md=monthDayKey(date);
-    if(event.recurring){
-      return annualRangeContains(md,event.startMonthDay,event.endMonthDay);
-    }
-    return today>=event.startDate && today<=event.endDate;
+    return annualRangeContains(
+      monthDayKey(date),
+      event.startMonthDay,
+      event.endMonthDay
+    );
   }
 
   function birthdayIsToday(birthday,date){

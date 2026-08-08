@@ -1687,11 +1687,13 @@ const IdentityManager={
 Framework.modules.IdentityManager=IdentityManager;
 
 /* =========================================================
-   IDENTITY MUSIC v6.3.23
+   IDENTITY MUSIC v6.3.26
    Canonical playlist arrays only.
    One track: loops that track.
    Multiple tracks: play in order, then loop the playlist.
-   Music independently observes identity presentation changes and crossfades.
+   Music independently observes identity presentation changes.
+   Identity crossfades begin immediately after the new identity
+   colors have had a browser paint frame to appear.
    ========================================================= */
 const MUSIC_MANIFEST_URL='audio/music_manifest.json';
 
@@ -1707,10 +1709,11 @@ const MusicManager={
     document.querySelector('#identityMusicB')
   ],
   activeChannel:0,
-  fadeDuration:2000,
-  fadePreroll:120,
+  fadeDuration:950,
   manifestBaseUrl:new URL('.',new URL(MUSIC_MANIFEST_URL,document.baseURI)),
   _fadeToken:0,
+  _identityTransitionToken:0,
+  _preloads:new Map(),
 
   async load(){
     try{
@@ -1733,6 +1736,7 @@ const MusicManager={
       this.ready=true;
       this.currentIdentity=activeIdentity;
       this.playlistIndex=0;
+      this.preloadIdentityStarts();
       this.prepareCurrentTrack();
       this.updateButton();
       return manifest;
@@ -1749,6 +1753,10 @@ const MusicManager={
     return Array.isArray(value)?value:[];
   },
 
+  fileUrl(file){
+    return file?new URL(file,this.manifestBaseUrl).href:null;
+  },
+
   currentFile(){
     const playlist=this.playlist();
     if(!playlist.length)return null;
@@ -1757,8 +1765,21 @@ const MusicManager={
   },
 
   currentUrl(){
-    const file=this.currentFile();
-    return file?new URL(file,this.manifestBaseUrl).href:null;
+    return this.fileUrl(this.currentFile());
+  },
+
+  preloadIdentityStarts(){
+    for(const [identityId,playlist] of Object.entries(this.manifest||{})){
+      const first=Array.isArray(playlist)?playlist[0]:null;
+      const url=this.fileUrl(first);
+      if(!url || this._preloads.has(identityId))continue;
+
+      const preload=new Audio();
+      preload.preload='auto';
+      preload.src=url;
+      preload.load();
+      this._preloads.set(identityId,preload);
+    }
   },
 
   configureChannel(channel,url,{volume=1,reset=true,loop=false}={}){
@@ -1824,6 +1845,7 @@ const MusicManager={
 
   pause(){
     this._fadeToken++;
+    this._identityTransitionToken++;
     this.channels.forEach(channel=>{
       channel.pause();
       channel.volume=1;
@@ -1893,12 +1915,6 @@ const MusicManager={
     }
 
     const token=++this._fadeToken;
-
-    // Give the incoming MP3 a brief silent pre-roll after playback begins.
-    // This avoids exposing decoder/startup transients at the beginning of a fade.
-    await new Promise(resolve=>setTimeout(resolve,this.fadePreroll));
-    if(token!==this._fadeToken)return false;
-
     const started=performance.now();
 
     await new Promise(resolve=>{
@@ -1916,10 +1932,7 @@ const MusicManager={
         resolve();
       };
 
-      const safetyTimer=setTimeout(
-        finish,
-        this.fadePreroll+this.fadeDuration+700
-      );
+      const safetyTimer=setTimeout(finish,this.fadeDuration+500);
 
       const step=now=>{
         if(finished)return;
@@ -1931,8 +1944,7 @@ const MusicManager={
 
         const t=Math.min(1,(now-started)/this.fadeDuration);
 
-        // Equal-power crossfade keeps perceived loudness steadier than
-        // a straight linear fade and avoids the abrupt midpoint dip/jump.
+        /* Equal-power crossfade avoids the audible dip of a linear fade. */
         from.volume=Math.cos(t*Math.PI/2);
         to.volume=Math.sin(t*Math.PI/2);
 
@@ -1952,6 +1964,27 @@ const MusicManager={
     return true;
   },
 
+  scheduleIdentityTransition(identityId){
+    const token=++this._identityTransitionToken;
+
+    /*
+      The identity presentation mutation occurs in the same task that changes
+      the interface colors. Waiting for one animation frame lets those colors
+      paint first; the music transition then begins immediately afterward.
+    */
+    requestAnimationFrame(()=>{
+      if(token!==this._identityTransitionToken)return;
+
+      if(this.enabled){
+        this.crossfadeTo(identityId).catch(error=>{
+          console.warn('Identity music transition failed.',error);
+        });
+      }else{
+        this.setIdentity(identityId,{play:false});
+      }
+    });
+  },
+
   toggle(){
     return this.enabled?this.pause():this.play();
   },
@@ -1967,6 +2000,7 @@ const MusicManager={
     if(!this.button||this.channels.some(channel=>!channel))return false;
 
     this.channels.forEach(channel=>{
+      channel.preload='auto';
       channel.volume=1;
       channel.addEventListener('ended',()=>{
         if(channel===this.channels[this.activeChannel])this.advanceTrack();
@@ -1987,14 +2021,7 @@ const MusicManager={
       this.identityObserver=new MutationObserver(()=>{
         const nextIdentity=activeIdentity;
         if(nextIdentity===this.currentIdentity)return;
-
-        if(this.enabled){
-          this.crossfadeTo(nextIdentity).catch(error=>{
-            console.warn('Identity music transition failed.',error);
-          });
-        }else{
-          this.setIdentity(nextIdentity,{play:false});
-        }
+        this.scheduleIdentityTransition(nextIdentity);
       });
 
       this.identityObserver.observe(identityPresentation,{

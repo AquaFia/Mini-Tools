@@ -1,16 +1,17 @@
 /* =========================================================
-   SHARED COMPANION CONTEXT AWARENESS v1
-   Phase 1 foundation only.
-   - Uses the browser's local clock/date.
-   - Accepts supplied birthday/event data.
-   - Emits "companioncontextchange" when context changes.
-   - Does not directly modify chat, portraits, themes, music,
-     identity, episodes, or any other companion subsystem.
+   SHARED COMPANION CONTEXT AWARENESS v2
+   Phase 2: Notion-backed event repository.
+   - Browser-local clock/date remains authoritative for "now".
+   - Remote repository supplies birthdays and authored events.
+   - Emits "companioncontextchange" when meaningful context changes.
+   - Emits "companioncontextrepositorychange" when repository status changes.
+   - Does not directly modify chat, portraits, themes, music, identity, or episodes.
    ========================================================= */
 (()=>{
   'use strict';
 
   const EVENT_NAME='companioncontextchange';
+  const REPOSITORY_EVENT_NAME='companioncontextrepositorychange';
 
   function pad2(value){
     return String(value).padStart(2,'0');
@@ -54,6 +55,10 @@
     const match=text.match(/^(\d{4})-(\d{2})-(\d{2})/);
     if(!match)return null;
     return {
+      source:text,
+      year:Number(match[1]),
+      month:Number(match[2]),
+      day:Number(match[3]),
       dateKey:`${match[1]}-${match[2]}-${match[3]}`,
       monthDay:`${match[2]}-${match[3]}`
     };
@@ -98,9 +103,11 @@
     };
   }
 
-  function annualRangeContains(current,start,end){
-    if(start<=end)return current>=start && current<=end;
-    return current>=start || current<=end;
+  function annualRangeContains(currentMonthDay,startMonthDay,endMonthDay){
+    if(startMonthDay<=endMonthDay){
+      return currentMonthDay>=startMonthDay && currentMonthDay<=endMonthDay;
+    }
+    return currentMonthDay>=startMonthDay || currentMonthDay<=endMonthDay;
   }
 
   function eventIsActive(event,date){
@@ -110,6 +117,10 @@
       return annualRangeContains(md,event.startMonthDay,event.endMonthDay);
     }
     return today>=event.startDate && today<=event.endDate;
+  }
+
+  function birthdayIsToday(birthday,date){
+    return birthday.monthDay===monthDayKey(date);
   }
 
   function stableComparable(state){
@@ -126,23 +137,125 @@
   }
 
   const CompanionContext={
-    config:{companionId:null},
-    data:{birthdays:[],events:[]},
+    config:{
+      companionId:null,
+      endpoint:null
+    },
+
+    data:{
+      birthdays:[],
+      events:[]
+    },
+
+    repository:{
+      status:'idle',
+      source:null,
+      fetchedAt:null,
+      error:null
+    },
+
     state:null,
     timer:null,
+    loadPromise:null,
 
-    initialize(config={}){
-      if(config && typeof config==='object')this.config={...this.config,...config};
+    async initialize(config={}){
+      if(config && typeof config==='object'){
+        this.config={...this.config,...config};
+      }
+
       this.refresh({force:true});
-      if(!this.timer)this.timer=window.setInterval(()=>this.refresh(),60000);
+
+      if(!this.timer){
+        this.timer=window.setInterval(()=>this.refresh(),60000);
+      }
+
+      if(this.config.endpoint){
+        await this.loadRemoteEvents();
+      }
+
       return this.get();
+    },
+
+    setRepositoryStatus(status,details={}){
+      this.repository={
+        status,
+        source:details.source??this.repository.source??null,
+        fetchedAt:details.fetchedAt??this.repository.fetchedAt??null,
+        error:details.error??null
+      };
+
+      window.dispatchEvent(new CustomEvent(REPOSITORY_EVENT_NAME,{
+        detail:this.getRepositoryStatus()
+      }));
+    },
+
+    getRepositoryStatus(){
+      return {...this.repository};
+    },
+
+    async loadRemoteEvents({force=false}={}){
+      if(!this.config.endpoint)return null;
+      if(this.loadPromise && !force)return this.loadPromise;
+
+      this.setRepositoryStatus('loading');
+
+      this.loadPromise=(async()=>{
+        try{
+          const response=await fetch(this.config.endpoint,{
+            method:'GET',
+            headers:{'Accept':'application/json'},
+            cache:force?'reload':'default'
+          });
+
+          if(!response.ok){
+            throw new Error(`Context repository request failed: ${response.status}`);
+          }
+
+          const payload=await response.json();
+
+          if(
+            !payload ||
+            payload.schema!=='companion-context-repository-v1' ||
+            !Array.isArray(payload.birthdays) ||
+            !Array.isArray(payload.events)
+          ){
+            throw new Error('Unsupported context repository response.');
+          }
+
+          this.setEvents(payload);
+
+          this.setRepositoryStatus('ready',{
+            source:payload.source||'notion',
+            fetchedAt:payload.generatedAt||new Date().toISOString()
+          });
+
+          return payload;
+        }catch(error){
+          this.setRepositoryStatus('unavailable',{
+            error:String(error?.message||error)
+          });
+          console.error('Could not load companion context repository.',error);
+          return null;
+        }finally{
+          this.loadPromise=null;
+        }
+      })();
+
+      return this.loadPromise;
     },
 
     setEvents(payload={}){
       const birthdays=Array.isArray(payload.birthdays)?payload.birthdays:[];
       const events=Array.isArray(payload.events)?payload.events:[];
-      this.data.birthdays=birthdays.map(normalizeBirthday).filter(Boolean);
-      this.data.events=events.map(normalizeEvent).filter(Boolean);
+
+      this.data.birthdays=birthdays
+        .map(normalizeBirthday)
+        .filter(Boolean);
+
+      this.data.events=events
+        .map(normalizeEvent)
+        .filter(Boolean);
+
       return this.refresh({force:true});
     },
 
@@ -153,9 +266,8 @@
     },
 
     buildState(now=new Date()){
-      const todayMonthDay=monthDayKey(now);
       const birthdaysToday=this.data.birthdays
-        .filter(item=>item.monthDay===todayMonthDay)
+        .filter(item=>birthdayIsToday(item,now))
         .map(item=>({...item}));
 
       const eventsToday=this.data.events
@@ -163,11 +275,16 @@
         .map(item=>({...item}));
 
       const visualContexts=[];
-      for(const item of [...birthdaysToday,...eventsToday]){
+      birthdaysToday.forEach(item=>{
         if(item.visualContext && !visualContexts.includes(item.visualContext)){
           visualContexts.push(item.visualContext);
         }
-      }
+      });
+      eventsToday.forEach(item=>{
+        if(item.visualContext && !visualContexts.includes(item.visualContext)){
+          visualContexts.push(item.visualContext);
+        }
+      });
 
       return Object.freeze({
         companionId:this.config.companionId||null,
@@ -188,22 +305,30 @@
 
     refresh({force=false}={}){
       const next=this.buildState(new Date());
-      const changed=force || !this.state || stableComparable(this.state)!==stableComparable(next);
+      const changed=
+        force ||
+        !this.state ||
+        stableComparable(this.state)!==stableComparable(next);
+
       this.state=next;
+
       if(changed){
-        window.dispatchEvent(new CustomEvent(EVENT_NAME,{detail:this.get()}));
+        window.dispatchEvent(new CustomEvent(EVENT_NAME,{
+          detail:this.get()
+        }));
       }
+
       return this.get();
     },
 
     get(){
-      if(!this.state)return null;
-      return {
+      return this.state?{
         ...this.state,
         birthdaysToday:[...this.state.birthdaysToday],
         eventsToday:[...this.state.eventsToday],
-        visualContexts:[...this.state.visualContexts]
-      };
+        visualContexts:[...this.state.visualContexts],
+        repository:this.getRepositoryStatus()
+      }:null;
     },
 
     subscribe(listener){
@@ -211,6 +336,13 @@
       const handler=event=>listener(event.detail);
       window.addEventListener(EVENT_NAME,handler);
       return ()=>window.removeEventListener(EVENT_NAME,handler);
+    },
+
+    subscribeRepository(listener){
+      if(typeof listener!=='function')return ()=>{};
+      const handler=event=>listener(event.detail);
+      window.addEventListener(REPOSITORY_EVENT_NAME,handler);
+      return ()=>window.removeEventListener(REPOSITORY_EVENT_NAME,handler);
     },
 
     destroy(){

@@ -1356,7 +1356,10 @@ body:before{
 <script src="shared/context_awareness.js"></script>
 <script>
 window.addEventListener('DOMContentLoaded',()=>{
-  window.CompanionContext?.initialize({companionId:'jacey'});
+  window.CompanionContext?.initialize({
+    companionId:'jacey',
+    endpoint:'https://awareness.aquafia1247.workers.dev/context'
+  });
 });
 </script>
 </head>

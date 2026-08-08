@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Jacey Cosmo — Companion Terminal v6.3.25 Music Identity Isolation</title>
+<title>Jacey Cosmo — Companion Terminal v6.3.26 Music Transition Timing</title>
 <style>
 /* =========================================================
    JACEY COMPANION FRAMEWORK v5.6 — EPISODE ENGINE CLEANUP
@@ -1691,7 +1691,7 @@ Framework.modules.IdentityManager=IdentityManager;
    Canonical playlist arrays only.
    One track: loops that track.
    Multiple tracks: play in order, then loop the playlist.
-   Music independently observes identity presentation changes and crossfades.
+   Music independently observes the loading-screen visual transition and crossfades.
    ========================================================= */
 const MUSIC_MANIFEST_URL='audio/music_manifest.json';
 
@@ -1969,9 +1969,15 @@ const MusicManager={
       this.toggle();
     });
 
-    const identityPresentation=document.querySelector('#characterName');
-    if(identityPresentation){
-      this.identityObserver=new MutationObserver(()=>{
+    const transitionScreen=document.querySelector('#belief');
+    if(transitionScreen){
+      this.transitionObserver=new MutationObserver(mutations=>{
+        const visualStateChanged=mutations.some(mutation=>
+          mutation.type==='attributes' &&
+          (mutation.attributeName==='class' || mutation.attributeName==='style')
+        );
+        if(!visualStateChanged)return;
+
         const nextIdentity=activeIdentity;
         if(nextIdentity===this.currentIdentity)return;
 
@@ -1984,10 +1990,9 @@ const MusicManager={
         }
       });
 
-      this.identityObserver.observe(identityPresentation,{
-        childList:true,
-        characterData:true,
-        subtree:true
+      this.transitionObserver.observe(transitionScreen,{
+        attributes:true,
+        attributeFilter:['class','style']
       });
     }
 

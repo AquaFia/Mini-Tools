@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Jacey Cosmo — Companion Terminal v6.3.24 Music Switch Fix</title>
+<title>Jacey Cosmo — Companion Terminal v6.3.25 Music Identity Isolation</title>
 <style>
 /* =========================================================
    JACEY COMPANION FRAMEWORK v5.6 — EPISODE ENGINE CLEANUP
@@ -1667,14 +1667,6 @@ const IdentityManager={
       this._activeId=id;
       activeIdentity=id;
       this.render();
-      const musicManager=Framework.modules.MusicManager;
-      if(musicManager?.enabled){
-        musicManager.crossfadeTo(id).catch(error=>{
-          console.warn('Identity music transition failed.',error);
-        });
-      }else{
-        musicManager?.setIdentity(id,{play:false});
-      }
 
       belief.classList.add('show');
       await sleep(1650);
@@ -1699,7 +1691,7 @@ Framework.modules.IdentityManager=IdentityManager;
    Canonical playlist arrays only.
    One track: loops that track.
    Multiple tracks: play in order, then loop the playlist.
-   Identity changes crossfade into the target playlist.
+   Music independently observes identity presentation changes and crossfades.
    ========================================================= */
 const MUSIC_MANIFEST_URL='audio/music_manifest.json';
 
@@ -1976,6 +1968,28 @@ const MusicManager={
       event.stopPropagation();
       this.toggle();
     });
+
+    const identityPresentation=document.querySelector('#characterName');
+    if(identityPresentation){
+      this.identityObserver=new MutationObserver(()=>{
+        const nextIdentity=activeIdentity;
+        if(nextIdentity===this.currentIdentity)return;
+
+        if(this.enabled){
+          this.crossfadeTo(nextIdentity).catch(error=>{
+            console.warn('Identity music transition failed.',error);
+          });
+        }else{
+          this.setIdentity(nextIdentity,{play:false});
+        }
+      });
+
+      this.identityObserver.observe(identityPresentation,{
+        childList:true,
+        characterData:true,
+        subtree:true
+      });
+    }
 
     this.currentIdentity=activeIdentity;
     this.playlistIndex=0;

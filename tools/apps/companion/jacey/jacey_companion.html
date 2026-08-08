@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Jacey Cosmo — Companion Terminal v6.3.23 Identity Music Playlists</title>
+<title>Jacey Cosmo — Companion Terminal v6.3.24 Music Switch Fix</title>
 <style>
 /* =========================================================
    JACEY COMPANION FRAMEWORK v5.6 — EPISODE ENGINE CLEANUP
@@ -1667,10 +1667,13 @@ const IdentityManager={
       this._activeId=id;
       activeIdentity=id;
       this.render();
-      if(Framework.modules.MusicManager?.enabled){
-        await Framework.modules.MusicManager.crossfadeTo(id);
+      const musicManager=Framework.modules.MusicManager;
+      if(musicManager?.enabled){
+        musicManager.crossfadeTo(id).catch(error=>{
+          console.warn('Identity music transition failed.',error);
+        });
       }else{
-        Framework.modules.MusicManager?.setIdentity(id,{play:false});
+        musicManager?.setIdentity(id,{play:false});
       }
 
       belief.classList.add('show');
@@ -1900,22 +1903,42 @@ const MusicManager={
     const started=performance.now();
 
     await new Promise(resolve=>{
-      const step=now=>{
-        if(token!==this._fadeToken){resolve();return;}
-        const t=Math.min(1,(now-started)/this.fadeDuration);
-        from.volume=1-t;
-        to.volume=t;
-        if(t<1){
-          requestAnimationFrame(step);
-        }else{
+      let finished=false;
+      const finish=()=>{
+        if(finished)return;
+        finished=true;
+        if(token===this._fadeToken){
           from.pause();
           from.currentTime=0;
           from.volume=1;
           to.volume=1;
           this.activeChannel=toIndex;
-          resolve();
+        }
+        resolve();
+      };
+
+      const safetyTimer=setTimeout(finish,this.fadeDuration+600);
+
+      const step=now=>{
+        if(finished)return;
+        if(token!==this._fadeToken){
+          clearTimeout(safetyTimer);
+          finish();
+          return;
+        }
+
+        const t=Math.min(1,(now-started)/this.fadeDuration);
+        from.volume=1-t;
+        to.volume=t;
+
+        if(t<1){
+          requestAnimationFrame(step);
+        }else{
+          clearTimeout(safetyTimer);
+          finish();
         }
       };
+
       requestAnimationFrame(step);
     });
 

@@ -1353,6 +1353,12 @@ body:before{
 }
 </style>
 
+<script src="shared/context_awareness.js"></script>
+<script>
+window.addEventListener('DOMContentLoaded',()=>{
+  window.CompanionContext?.initialize({companionId:'jacey'});
+});
+</script>
 </head>
 <body>
 <main class="terminal" id="terminal">

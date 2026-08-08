@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Jacey Cosmo — Companion Terminal v6.3.22 Identity Music Crossfade</title>
+<title>Jacey Cosmo — Companion Terminal v6.3.23 Identity Music Playlists</title>
 <style>
 /* =========================================================
    JACEY COMPANION FRAMEWORK v5.6 — EPISODE ENGINE CLEANUP
@@ -1692,9 +1692,11 @@ const IdentityManager={
 Framework.modules.IdentityManager=IdentityManager;
 
 /* =========================================================
-   IDENTITY MUSIC v6.3.22
-   Initializes immediately for Jace and crossfades continuously
-   between identity tracks using two hidden audio channels.
+   IDENTITY MUSIC v6.3.23
+   Canonical playlist arrays only.
+   One track: loops that track.
+   Multiple tracks: play in order, then loop the playlist.
+   Identity changes crossfade into the target playlist.
    ========================================================= */
 const MUSIC_MANIFEST_URL='audio/music_manifest.json';
 
@@ -1703,6 +1705,7 @@ const MusicManager={
   ready:false,
   enabled:false,
   currentIdentity:'jace',
+  playlistIndex:0,
   button:document.querySelector('#musicToggle'),
   channels:[
     document.querySelector('#identityMusicA'),
@@ -1718,12 +1721,23 @@ const MusicManager={
       const response=await fetch(MUSIC_MANIFEST_URL,{cache:'no-cache'});
       if(!response.ok)throw new Error(`Music manifest request failed: ${response.status}`);
       const manifest=await response.json();
-      if(!manifest||typeof manifest!=='object'||Array.isArray(manifest)){
+
+      if(!manifest || typeof manifest!=='object' || Array.isArray(manifest)){
         throw new Error('Unsupported music manifest.');
       }
+
+      for(const [identityId,playlist] of Object.entries(manifest)){
+        if(!Array.isArray(playlist) || !playlist.length ||
+           playlist.some(file=>typeof file!=='string' || !file.trim())){
+          throw new Error(`Music playlist for "${identityId}" must be a non-empty array of filenames.`);
+        }
+      }
+
       this.manifest=manifest;
       this.ready=true;
-      this.setIdentity(activeIdentity,{play:false});
+      this.currentIdentity=activeIdentity;
+      this.playlistIndex=0;
+      this.prepareCurrentTrack();
       this.updateButton();
       return manifest;
     }catch(error){
@@ -1734,35 +1748,51 @@ const MusicManager={
     }
   },
 
-  trackFile(identityId=this.currentIdentity){
-    const file=this.manifest?.[identityId];
-    return typeof file==='string'&&file.trim()?file.trim():null;
+  playlist(identityId=this.currentIdentity){
+    const value=this.manifest?.[identityId];
+    return Array.isArray(value)?value:[];
   },
 
-  trackUrl(identityId=this.currentIdentity){
-    const file=this.trackFile(identityId);
+  currentFile(){
+    const playlist=this.playlist();
+    if(!playlist.length)return null;
+    if(this.playlistIndex>=playlist.length)this.playlistIndex=0;
+    return playlist[this.playlistIndex];
+  },
+
+  currentUrl(){
+    const file=this.currentFile();
     return file?new URL(file,this.manifestBaseUrl).href:null;
   },
 
-  configureChannel(channel,url,{volume=1,reset=true}={}){
+  configureChannel(channel,url,{volume=1,reset=true,loop=false}={}){
     if(!channel||!url)return false;
     if(channel.src!==url){
       channel.src=url;
       if(reset)channel.currentTime=0;
       channel.load();
     }
-    channel.loop=true;
+    channel.loop=loop;
     channel.volume=Math.max(0,Math.min(1,volume));
     return true;
   },
 
+  prepareCurrentTrack(){
+    const playlist=this.playlist();
+    const url=this.currentUrl();
+    if(!url)return false;
+    return this.configureChannel(
+      this.channels[this.activeChannel],
+      url,
+      {volume:1,reset:true,loop:playlist.length===1}
+    );
+  },
+
   setIdentity(identityId,{play=false}={}){
     this.currentIdentity=identityId;
+    this.playlistIndex=0;
     if(!this.ready)return false;
-    const url=this.trackUrl(identityId);
-    if(!url)return false;
-    const channel=this.channels[this.activeChannel];
-    this.configureChannel(channel,url,{volume:1,reset:true});
+    this.prepareCurrentTrack();
     return play?this.play():true;
   },
 
@@ -1771,11 +1801,18 @@ const MusicManager={
       await this.load();
       if(!this.ready)return false;
     }
-    const url=this.trackUrl(this.currentIdentity);
+
+    const playlist=this.playlist();
+    const url=this.currentUrl();
     if(!url)return false;
+
     const channel=this.channels[this.activeChannel];
-    const changed=channel.src!==url;
-    this.configureChannel(channel,url,{volume:1,reset:changed});
+    this.configureChannel(channel,url,{
+      volume:1,
+      reset:channel.src!==url,
+      loop:playlist.length===1
+    });
+
     try{
       await channel.play();
       this.enabled=true;
@@ -1800,13 +1837,44 @@ const MusicManager={
     return true;
   },
 
+  async advanceTrack(){
+    const playlist=this.playlist();
+    if(!this.enabled || playlist.length<=1)return false;
+
+    this.playlistIndex=(this.playlistIndex+1)%playlist.length;
+    const url=this.currentUrl();
+    const fromIndex=this.activeChannel;
+    const toIndex=fromIndex===0?1:0;
+    const from=this.channels[fromIndex];
+    const to=this.channels[toIndex];
+
+    this.configureChannel(to,url,{volume:1,reset:true,loop:false});
+
+    try{
+      await to.play();
+    }catch(error){
+      console.warn('Could not advance to the next playlist track.',error);
+      return false;
+    }
+
+    from.pause();
+    from.currentTime=0;
+    from.volume=1;
+    this.activeChannel=toIndex;
+    return true;
+  },
+
   async crossfadeTo(identityId){
     this.currentIdentity=identityId;
+    this.playlistIndex=0;
+
     if(!this.ready){
       await this.load();
       if(!this.ready)return false;
     }
-    const url=this.trackUrl(identityId);
+
+    const playlist=this.playlist();
+    const url=this.currentUrl();
     if(!url)return false;
     if(!this.enabled)return this.setIdentity(identityId,{play:false});
 
@@ -1815,9 +1883,12 @@ const MusicManager={
     const from=this.channels[fromIndex];
     const to=this.channels[toIndex];
 
-    if(from.src===url&&!from.paused)return true;
+    this.configureChannel(to,url,{
+      volume:0,
+      reset:true,
+      loop:playlist.length===1
+    });
 
-    this.configureChannel(to,url,{volume:0,reset:true});
     try{
       await to.play();
     }catch(error){
@@ -1827,6 +1898,7 @@ const MusicManager={
 
     const token=++this._fadeToken;
     const started=performance.now();
+
     await new Promise(resolve=>{
       const step=now=>{
         if(token!==this._fadeToken){resolve();return;}
@@ -1865,17 +1937,25 @@ const MusicManager={
 
   initialize(){
     if(!this.button||this.channels.some(channel=>!channel))return false;
+
     this.channels.forEach(channel=>{
-      channel.loop=true;
       channel.volume=1;
-      channel.addEventListener('error',()=>console.error('Identity music failed to load:',channel.src));
+      channel.addEventListener('ended',()=>{
+        if(channel===this.channels[this.activeChannel])this.advanceTrack();
+      });
+      channel.addEventListener('error',()=>{
+        console.error('Identity music failed to load:',channel.src);
+      });
     });
+
     this.button.addEventListener('click',event=>{
       event.preventDefault();
       event.stopPropagation();
       this.toggle();
     });
+
     this.currentIdentity=activeIdentity;
+    this.playlistIndex=0;
     this.updateButton();
     this.load();
     return true;

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Jacey Cosmo — Companion Terminal v6.3.25 Playlist Button Repair</title>
+<title>Jacey Cosmo — Companion Terminal v6.3.24 Music Button Fix</title>
 <style>
 /* =========================================================
    JACEY COMPANION FRAMEWORK v5.6 — EPISODE ENGINE CLEANUP
@@ -1692,15 +1692,16 @@ const IdentityManager={
 Framework.modules.IdentityManager=IdentityManager;
 
 /* =========================================================
-   IDENTITY MUSIC v6.3.25
-   Built directly on the proven-working v6.3.22 music runtime.
-   Canonical manifest format: arrays only.
+   IDENTITY MUSIC v6.3.24
+   Canonical playlist arrays only.
+   Fixes music-toggle startup/readiness behavior.
    ========================================================= */
 const MUSIC_MANIFEST_URL='audio/music_manifest.json';
 
 const MusicManager={
   manifest:null,
   ready:false,
+  loadPromise:null,
   enabled:false,
   currentIdentity:'jace',
   playlistIndex:0,
@@ -1715,22 +1716,21 @@ const MusicManager={
   _fadeToken:0,
 
   async load(){
-    try{
+    if(this.loadPromise)return this.loadPromise;
+
+    this.loadPromise=(async()=>{
       const response=await fetch(MUSIC_MANIFEST_URL,{cache:'no-cache'});
       if(!response.ok)throw new Error(`Music manifest request failed: ${response.status}`);
-      const manifest=await response.json();
 
+      const manifest=await response.json();
       if(!manifest || typeof manifest!=='object' || Array.isArray(manifest)){
         throw new Error('Unsupported music manifest.');
       }
 
       for(const [identityId,playlist] of Object.entries(manifest)){
-        if(
-          !Array.isArray(playlist) ||
-          !playlist.length ||
-          playlist.some(file=>typeof file!=='string' || !file.trim())
-        ){
-          throw new Error(`Music playlist for "${identityId}" must be a non-empty array.`);
+        if(!Array.isArray(playlist) || !playlist.length ||
+           playlist.some(file=>typeof file!=='string' || !file.trim())){
+          throw new Error(`Music playlist for "${identityId}" must be a non-empty array of filenames.`);
         }
       }
 
@@ -1738,19 +1738,23 @@ const MusicManager={
       this.ready=true;
       this.currentIdentity=activeIdentity;
       this.playlistIndex=0;
-      this.prepareActiveTrack();
+      this.prepareCurrentTrack();
       this.updateButton();
       return manifest;
-    }catch(error){
+    })().catch(error=>{
       this.ready=false;
+      this.loadPromise=null;
       this.updateButton();
       console.error('Could not load identity music manifest.',error);
       return null;
-    }
+    });
+
+    return this.loadPromise;
   },
 
   playlist(identityId=this.currentIdentity){
-    return this.manifest?.[identityId]||[];
+    const value=this.manifest?.[identityId];
+    return Array.isArray(value)?value:[];
   },
 
   currentFile(){
@@ -1765,48 +1769,67 @@ const MusicManager={
     return file?new URL(file,this.manifestBaseUrl).href:null;
   },
 
-  configureChannel(channel,url,{volume=1,reset=true}={}){
+  configureChannel(channel,url,{volume=1,reset=true,loop=false}={}){
     if(!channel||!url)return false;
-    if(channel.src!==url){
+
+    const sourceChanged=channel.src!==url;
+    if(sourceChanged){
       channel.src=url;
       if(reset)channel.currentTime=0;
       channel.load();
     }
-    channel.loop=this.playlist().length===1;
+
+    channel.loop=Boolean(loop);
     channel.volume=Math.max(0,Math.min(1,volume));
     return true;
   },
 
-  prepareActiveTrack(){
+  prepareCurrentTrack(){
+    const playlist=this.playlist();
     const url=this.currentUrl();
     if(!url)return false;
-    return this.configureChannel(this.channels[this.activeChannel],url,{
-      volume:1,
-      reset:true
-    });
+
+    return this.configureChannel(
+      this.channels[this.activeChannel],
+      url,
+      {
+        volume:1,
+        reset:true,
+        loop:playlist.length===1
+      }
+    );
   },
 
   setIdentity(identityId,{play=false}={}){
     this.currentIdentity=identityId;
     this.playlistIndex=0;
     if(!this.ready)return false;
-    if(!this.prepareActiveTrack())return false;
+    this.prepareCurrentTrack();
     return play?this.play():true;
   },
 
   async play(){
     if(!this.ready){
-      await this.load();
-      if(!this.ready)return false;
+      const loaded=await this.load();
+      if(!loaded)return false;
     }
 
+    this.currentIdentity=activeIdentity;
+
+    const playlist=this.playlist();
     const url=this.currentUrl();
-    if(!url)return false;
+    if(!url){
+      console.warn(`No music playlist is configured for identity "${this.currentIdentity}".`);
+      return false;
+    }
 
     const channel=this.channels[this.activeChannel];
+    const sourceChanged=channel.src!==url;
+
     this.configureChannel(channel,url,{
       volume:1,
-      reset:channel.src!==url
+      reset:sourceChanged,
+      loop:playlist.length===1
     });
 
     try{
@@ -1817,7 +1840,7 @@ const MusicManager={
     }catch(error){
       this.enabled=false;
       this.updateButton();
-      console.warn('Music playback was blocked by the browser.',error);
+      console.warn('Music playback was blocked or failed.',error);
       return false;
     }
   },
@@ -1838,15 +1861,15 @@ const MusicManager={
     if(!this.enabled || playlist.length<=1)return false;
 
     this.playlistIndex=(this.playlistIndex+1)%playlist.length;
-    const nextUrl=this.currentUrl();
-    if(!nextUrl)return false;
+    const url=this.currentUrl();
+    if(!url)return false;
 
     const fromIndex=this.activeChannel;
     const toIndex=fromIndex===0?1:0;
     const from=this.channels[fromIndex];
     const to=this.channels[toIndex];
 
-    this.configureChannel(to,nextUrl,{volume:1,reset:true});
+    this.configureChannel(to,url,{volume:1,reset:true,loop:false});
 
     try{
       await to.play();
@@ -1867,15 +1890,17 @@ const MusicManager={
     this.playlistIndex=0;
 
     if(!this.ready){
-      await this.load();
-      if(!this.ready)return false;
+      const loaded=await this.load();
+      if(!loaded)return false;
     }
 
+    const playlist=this.playlist(identityId);
     const url=this.currentUrl();
     if(!url)return false;
 
     if(!this.enabled){
-      return this.setIdentity(identityId,{play:false});
+      this.prepareCurrentTrack();
+      return true;
     }
 
     const fromIndex=this.activeChannel;
@@ -1883,7 +1908,11 @@ const MusicManager={
     const from=this.channels[fromIndex];
     const to=this.channels[toIndex];
 
-    this.configureChannel(to,url,{volume:0,reset:true});
+    this.configureChannel(to,url,{
+      volume:0,
+      reset:true,
+      loop:playlist.length===1
+    });
 
     try{
       await to.play();
@@ -1897,22 +1926,28 @@ const MusicManager={
 
     await new Promise(resolve=>{
       const step=now=>{
-        if(token!==this._fadeToken){resolve();return;}
+        if(token!==this._fadeToken){
+          resolve();
+          return;
+        }
+
         const t=Math.min(1,(now-started)/this.fadeDuration);
         from.volume=1-t;
         to.volume=t;
 
         if(t<1){
           requestAnimationFrame(step);
-        }else{
-          from.pause();
-          from.currentTime=0;
-          from.volume=1;
-          to.volume=1;
-          this.activeChannel=toIndex;
-          resolve();
+          return;
         }
+
+        from.pause();
+        from.currentTime=0;
+        from.volume=1;
+        to.volume=1;
+        this.activeChannel=toIndex;
+        resolve();
       };
+
       requestAnimationFrame(step);
     });
 
@@ -1921,8 +1956,12 @@ const MusicManager={
     return true;
   },
 
-  toggle(){
-    return this.enabled?this.pause():this.play();
+  async toggle(){
+    if(this.enabled){
+      this.pause();
+      return true;
+    }
+    return this.play();
   },
 
   updateButton(){
@@ -1933,24 +1972,28 @@ const MusicManager={
   },
 
   initialize(){
-    if(!this.button||this.channels.some(channel=>!channel))return false;
+    if(!this.button || this.channels.some(channel=>!channel))return false;
 
     this.channels.forEach(channel=>{
+      channel.removeAttribute('loop');
+      channel.loop=false;
       channel.volume=1;
+
       channel.addEventListener('ended',()=>{
         if(channel===this.channels[this.activeChannel]){
           this.advanceTrack();
         }
       });
+
       channel.addEventListener('error',()=>{
-        console.error('Identity music failed to load:',channel.src);
+        console.error('Identity music failed to load:',channel.currentSrc||channel.src);
       });
     });
 
-    this.button.addEventListener('click',event=>{
+    this.button.addEventListener('click',async event=>{
       event.preventDefault();
       event.stopPropagation();
-      this.toggle();
+      await this.toggle();
     });
 
     this.currentIdentity=activeIdentity;

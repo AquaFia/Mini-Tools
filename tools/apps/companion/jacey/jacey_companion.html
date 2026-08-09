@@ -211,7 +211,7 @@ body:before{
   transition:background 1.15s ease,border-color 1.15s ease,color .75s ease,box-shadow 1.15s ease,filter .7s ease;
 }
 
-/* Dedicated Cipher Mode */
+/* Special module shell */
 .mode-tabs{display:flex;gap:8px;align-items:center}
 .mode-tab{
   border:1px solid var(--line);background:color-mix(in srgb,var(--panel) 90%,black);
@@ -224,88 +224,24 @@ body:before{
   background:color-mix(in srgb,var(--panel2) 72%,var(--violet));
   box-shadow:0 0 14px color-mix(in srgb,var(--violet) 22%,transparent)
 }
-.cipher-mode{
+#specialModuleNav:empty{display:none}
+.special-module-mount{
   display:none;
   min-height:0;
   overflow:auto;
-  padding:clamp(16px,1.5vw,28px);
-  background:linear-gradient(180deg,color-mix(in srgb,var(--panel) 96%,transparent),color-mix(in srgb,var(--bg) 98%,transparent))
 }
-.cipher-mode.active{display:block}
-.cipher-shell{
-  width:100%;
-  max-width:none;
-  margin:0;
-  display:grid;
-  gap:clamp(14px,1.1vw,20px);
-}
-.cipher-intro,.cipher-card,.cipher-result{
-  border:1px solid var(--line);border-radius:16px;
-  background:color-mix(in srgb,var(--panel2) 88%,black);
-  box-shadow:inset 0 0 30px color-mix(in srgb,var(--violet) 8%,transparent)
-}
-.cipher-intro{padding:16px}
-.cipher-intro h3{margin:0 0 7px;color:var(--ink);font-size:15px}
-.cipher-intro p{margin:0;color:var(--muted);font-size:12px;line-height:1.55}
-.cipher-card{padding:16px;display:grid;gap:12px}
-.cipher-grid{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(260px,1fr));
-  gap:clamp(11px,1vw,18px);
-}
-.cipher-field{display:grid;gap:6px}
-.cipher-field.full{grid-column:1/-1}
-.cipher-field label{
-  color:color-mix(in srgb,var(--violet) 70%,var(--ink));
-  font:700 10px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.12em
-}
-.cipher-field select,.cipher-field input,.cipher-field textarea{
-  width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:11px;
-  background:color-mix(in srgb,var(--bg) 90%,black);color:var(--ink);
-  padding:10px 11px;font:12px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace;
-  outline:none;transition:.25s ease
-}
-.cipher-field textarea{min-height:120px;resize:vertical}
-.cipher-field select:focus,.cipher-field input:focus,.cipher-field textarea:focus{
-  border-color:var(--violet);box-shadow:0 0 0 3px color-mix(in srgb,var(--violet) 14%,transparent)
-}
-.cipher-actions{display:flex;gap:9px;flex-wrap:wrap}
-.cipher-run,.cipher-clear{
-  border:1px solid var(--line);border-radius:11px;padding:10px 14px;cursor:pointer;
-  font:800 10px/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.12em
-}
-.cipher-run{color:white;background:linear-gradient(135deg,var(--violet),var(--blue));border-color:transparent}
-.cipher-clear{color:var(--muted);background:color-mix(in srgb,var(--panel) 90%,black)}
-.cipher-result{padding:16px;display:none}
-.cipher-result.show{display:block}
-.cipher-result.error{border-color:var(--red)}
-.cipher-result.success{border-color:color-mix(in srgb,var(--cyan) 60%,var(--line))}
-.cipher-result-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px}
-.cipher-result-title{font:800 11px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.13em;color:var(--ink)}
-.cipher-result-expression{font-size:10px;color:var(--muted)}
-.cipher-result pre{
-  margin:0;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink);
-  font:12px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace
-}
-.cipher-note{font-size:11px;color:var(--muted);line-height:1.45}
-.cipher-duty-wrap.hidden,.cipher-version-wrap.hidden{display:none}
-@media(max-width:700px){
-  .cipher-grid{grid-template-columns:1fr}
-  .cipher-field.full{grid-column:auto}
-  .mode-tab{padding:7px 9px;font-size:9px}
-}
-
-/* Cipher mode layout fix: keep the shared header visible */
-.chat.cipher-active{
+.chat.special-module-active{
   grid-template-rows:auto minmax(0,1fr);
 }
-.chat.cipher-active .log,
-.chat.cipher-active .composer{
+.chat.special-module-active .log,
+.chat.special-module-active .composer{
   display:none;
 }
-.chat .cipher-mode{
-  min-height:0;
-  overflow:auto;
+.chat.special-module-active .special-module-mount{
+  display:block;
+}
+@media(max-width:700px){
+  .mode-tab{padding:7px 9px;font-size:9px}
 }
 
 .mode-tabs,.mode-tab{position:relative;z-index:20;pointer-events:auto}
@@ -783,18 +719,6 @@ body:before{
   .composer{
     padding:12px 14px 14px;
   }
-
-  .cipher-mode{
-    padding:16px;
-  }
-
-  .cipher-grid{
-    grid-template-columns:1fr;
-  }
-
-  .cipher-field.full{
-    grid-column:auto;
-  }
 }
 
 
@@ -1014,19 +938,6 @@ body:before{
     padding:10px 13px;
     font-size:11px;
   }
-
-  .cipher-mode{
-    padding:14px;
-  }
-
-  .cipher-grid{
-    grid-template-columns:1fr;
-  }
-
-  .cipher-field.full{
-    grid-column:auto;
-  }
-
   .library-panel,
   .dossier{
     width:100%;
@@ -1275,34 +1186,6 @@ body:before{
     padding:0 9px;
     font-size:8px;
   }
-
-  .cipher-mode{
-    padding:10px;
-  }
-
-  .cipher-card,
-  .cipher-intro,
-  .cipher-result{
-    border-radius:12px;
-  }
-
-  .cipher-card,
-  .cipher-intro{
-    padding:12px;
-  }
-
-  .cipher-grid{
-    grid-template-columns:1fr;
-  }
-
-  .cipher-field.full{
-    grid-column:auto;
-  }
-
-  .cipher-field textarea{
-    min-height:96px;
-  }
-
   .library-panel,
   .dossier{
     width:100%;
@@ -1354,6 +1237,7 @@ body:before{
 </style>
 
 <script src="character.js"></script>
+<script src="special_module.js"></script>
 <script src="shared/context_awareness.js"></script>
 <script src="shared/visual_context.js"></script>
 <script>
@@ -1382,7 +1266,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   <section class="chat">
     <header class="chat-head"><div class="channel-info"><div class="mobile-avatar-slot" id="mobileAvatarSlot" aria-label="Active companion portrait"></div><div class="channel-copy"><b id="channelTitle">COMPANION CHANNEL</b><small id="channel">channel: loading // initializing</small></div></div><div class="mode-tabs" aria-label="Interface mode">
   <button class="mode-tab active" id="chatModeBtn" type="button">CHAT</button>
-  <button class="mode-tab" id="cipherModeBtn" type="button">CIPHER LAB</button>
+  <span id="specialModuleNav"></span>
 </div>
 <div class="head-actions"><button class="icon-btn" id="libraryBtn" title="Content library">▤</button><button class="icon-btn" id="dataLoadBtn" title="Load episode or memory JSON">↥</button><button class="icon-btn" id="memorySaveBtn" title="Export companion memory JSON">⇩</button><input id="dataFileInput" type="file" accept=".json,application/json" multiple hidden><button class="icon-btn" id="musicToggle" type="button" title="Music: off" aria-label="Toggle identity music" aria-pressed="false">♫</button><button class="icon-btn" id="companionToggle" title="Companion mode: off" aria-pressed="false">◌</button><button class="icon-btn" id="glitchBtn" title="Glitch">⌁</button><button class="icon-btn" id="dossierBtn" title="Classified dossier">⌘</button></div></header>
     <div class="log" id="log"></div>
@@ -1398,6 +1282,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     </div>
   </div>
   <div class="quick" id="quick"></div><form class="input-row" id="form" novalidate><input id="input" type="text" inputmode="text" enterkeyhint="send" autocomplete="off" autocapitalize="sentences" spellcheck="true" maxlength="1800" placeholder="Message companion…" aria-label="Message companion"><button class="send" id="sendBtn" type="button" aria-label="Send message">➤</button></form></div>
+    <div class="special-module-mount" id="specialModuleMount" aria-live="polite"></div>
   </section>
   <div class="identity-overlay" id="identityOverlay" aria-hidden="true"><div class="identity-card"><div class="identity-kicker" id="identityKicker">AUTHENTICATION PHRASE RECOGNIZED</div><div class="identity-name" id="identityName">PROFILE</div><div class="identity-step" id="identityStep">Verifying…</div><div class="identity-bar"><i id="identityProgress"></i></div><div class="identity-belief" id="identityBelief"></div></div></div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -1408,71 +1293,6 @@ window.addEventListener('DOMContentLoaded',()=>{
     <section class="library-section"><h3>MESSAGE BANKS</h3><div id="libraryMessageBanks"></div></section>
   </aside>
   <aside class="dossier" id="dossier"><button class="icon-btn close" id="closeDossier">×</button><h2 id="dossierTitle">CLASSIFIED</h2><div class="codebox" id="dossierBody"></div></aside>
-
-<section class="cipher-mode" id="cipherMode" aria-label="Cipher Lab">
-  <div class="cipher-shell">
-    <div class="cipher-intro">
-      <h3 id="cipherLabTitle">JACE // CIPHER LAB</h3>
-      <p id="cipherLabIntro">Build, test, encrypt, and decrypt your messages. I’ll verify the format before running anything, and I’ll let you know if I spot a mistake.</p>
-    </div>
-
-    <div class="cipher-card">
-      <div class="cipher-grid">
-        <div class="cipher-field">
-          <label for="cipherFamily">CIPHER FAMILY</label>
-          <select id="cipherFamily">
-            <option value="CLC">Committee Lanes Cipher (CLC)</option>
-            <option value="FFC">Fushimi Fenrir Cipher (FFC)</option>
-            <option value="CFC">Cosmo Family Cipher (CFC)</option>
-          </select>
-        </div>
-<div class="cipher-field">
-          <label for="cipherOperation">MODE</label>
-          <select id="cipherOperation">
-            <option value="encrypt">Encrypt</option>
-            <option value="decrypt">Decrypt</option>
-          </select>
-        </div>
-
-        <div class="cipher-field cipher-version-wrap hidden" id="cipherVersionWrap">
-          <label for="cipherVersion">CLC VERSION</label>
-          <select id="cipherVersion">
-            <option value="CLC-1">CLC-1 — Original</option>
-            <option value="CLC-2">CLC-2 — After Saya Left</option>
-          </select>
-        </div>
-
-        <div class="cipher-field cipher-duty-wrap hidden" id="cipherDutyWrap">
-          <label for="cipherDuty">DUTY LIST — 2 TO 5 NAMES</label>
-          <input id="cipherDuty" placeholder="Tokiko / Ludo / Daika">
-        </div>
-
-        <div class="cipher-field full">
-          <label id="cipherTextLabel" for="cipherText">MESSAGE</label>
-          <textarea id="cipherText" placeholder="Enter the text to encrypt…"></textarea>
-        </div>
-      </div>
-
-      <label class="cipher-note">
-        <input id="cipherPreserve" type="checkbox">
-        Preserve spaces and punctuation for CLC. FFC always preserves them; CFC normalizes to letters only.
-      </label>
-
-      <div class="cipher-actions">
-        <button class="cipher-run" id="cipherRun" type="button">RUN CIPHER</button>
-        <button class="cipher-clear" id="cipherClear" type="button">CLEAR</button>
-      </div>
-    </div>
-
-    <div class="cipher-result" id="cipherResult">
-      <div class="cipher-result-head">
-        <span class="cipher-result-title" id="cipherResultTitle">JACE // VALIDATION</span>
-        <span class="cipher-result-expression" id="cipherResultExpression">READY</span>
-      </div>
-      <pre id="cipherResultText"></pre>
-    </div>
-  </div>
-</section>
 
   <audio id="identityMusicA" preload="metadata" loop hidden></audio>
   <audio id="identityMusicB" preload="metadata" loop hidden></audio>
@@ -1490,8 +1310,6 @@ const FRAMEWORK_TIMING={
   replyBase:650,
   replyPerCharacter:11,
   replyMaximumExtra:900,
-  cipherProcessing:900,
-  unknownCipherReset:1100,
   dossierSlide:420
 };
 
@@ -1518,7 +1336,7 @@ const CHARACTER={
    ========================================================= */
 const Framework=window.Framework||{};
 window.Framework=Framework;
-Framework.version='6.1.2';
+Framework.version='7.0.6';
 Framework.modules=Framework.modules||{};
 /* v6.1.2 response-owned expressions:
    - Every dialogue bank owns its own keywords, expression, and responses.
@@ -1534,10 +1352,10 @@ Framework.modules=Framework.modules||{};
    Previous v5.9.3 companion-chat dialogue purge:
    - Removed hardcoded Jacey prefaces and follow-up prompts from normal chat.
    - Moved companion-mode idle dialogue into the external message bank.
-   - Preserved Cipher Lab automatic responses, episode dialogue, and the no-bank upload instruction.
+   - Preserved special-module automatic responses, episode dialogue, and the no-bank upload instruction.
 
    Previous v5.9.2 dead-code sweep:
-   - removed the unreferenced transformLetters cipher helper
+   - removed an unreferenced legacy transformation helper
    - removed the obsolete mode-hidden interface class and CSS
    - removed a duplicate startup quick-reply render
    Compatibility wrappers and public globals remain intentionally preserved. */
@@ -1552,8 +1370,8 @@ Framework.resume=function(context={}){
   return true;
 };
 
-/* Compatibility read used by the current chat, episode, achievement, and Cipher
-   code. IdentityManager is the sole writer. */
+/* Compatibility read used by the current chat, episode, achievement, and optional
+   special-module bridge. IdentityManager is the sole writer. */
 let activeIdentity=DEFAULT_IDENTITY;
 
 const IdentityManager={
@@ -1581,11 +1399,8 @@ const IdentityManager={
 
     PortraitManager.renderIdentity(this._activeId);
 
-    if(Framework.modules.CipherLab){
-      Framework.modules.CipherLab.refreshIdentity();
-    }else{
-      if(typeof updateCipherKnowledge==='function')updateCipherKnowledge();
-      if(typeof updateCipherIdentityText==='function')updateCipherIdentityText();
+    if(Framework.specialModule?.onIdentityChange){
+      Framework.specialModule.onIdentityChange(this._activeId);
     }
     return true;
   },
@@ -2641,148 +2456,6 @@ const EpisodeOverlayController={
   }
 };
 
-/* =========================================================
-   SECTION 6 — CIPHER ENGINE
-   ========================================================= */
-// === CYPHER HUB TOOLS ===
-// Supported formats:
-// Encrypt FFC | Message: hello
-// Decrypt FFC | Ciphertext: RQI...
-// Encrypt CFC | Message: hello
-// Decrypt CFC | Ciphertext: C64 M37...
-// Encrypt CLC-1 | Duty: Tokiko / Ludo / Daika | Message: meet at lab
-// Decrypt CLC-2 | Duty: Tokiko / Ludo / Daika | Ciphertext: BOHIKWAKE
-
-const CLC_LANES={
-  'CLC-1':['Aria','Tokiko','Damian','Ludo','Daika','Fate','Luxi','Tyler','Kouji','Ruby','Juno','Hikari','Alice','Saya','Adair','Milo','Meggie','Jace'],
-  'CLC-2':['Adair','Alice','Aria','Daika','Damian','Fate','Hikari','Jace','Juno','Kouji','Ludo','Luxi','Meggie','Milo','Ruby','Tokiko','Tyler']
-};
-const NAME_ALIASES={
-  'jacey':'Jace','jacey cosmo':'Jace','jace cosmo':'Jace',
-  'ty':'Tyler','ari':'Aria','damon':'Damian'
-};
-function canonicalDutyName(name){
-  const raw=name.trim().replace(/[^a-zA-Z ]/g,'').replace(/\s+/g,' ');
-  const key=raw.toLowerCase();
-  const alias=NAME_ALIASES[key];
-  const wanted=(alias||raw).toLowerCase();
-  const all=[...new Set([...CLC_LANES['CLC-1'],...CLC_LANES['CLC-2']])];
-  return all.find(n=>n.toLowerCase()===wanted)||null;
-}
-function clcTransform(text,version,duties,decrypt=false,preserve=false){
-  const lanes=CLC_LANES[version];
-  if(!lanes)throw new Error('Use CLC-1 or CLC-2.');
-  if(duties.length<2||duties.length>5)throw new Error('CLC requires 2–5 duty names.');
-  const nums=duties.map(name=>{
-    const canon=canonicalDutyName(name);
-    if(!canon)throw new Error(`Unknown duty name: ${name.trim()}`);
-    const n=lanes.findIndex(x=>x.toLowerCase()===canon.toLowerCase())+1;
-    if(!n)throw new Error(`${canon} is not in ${version}.`);
-    return n;
-  });
-  let keyIndex=0,out='';
-  for(const ch of text.toUpperCase()){
-    if(/[A-Z]/.test(ch)){
-      const p=ch.charCodeAt(0)-65;
-      const k=(nums[keyIndex++%nums.length]-1)%26;
-      out+=String.fromCharCode(65+((decrypt?p-k:p+k)+26)%26);
-    }else if(preserve){
-      out+=ch;
-    }
-  }
-  const keyword=nums.map(n=>String.fromCharCode(64+((n-1)%26+1))).join('');
-  return {result:out,keyword,laneNumbers:nums.join('/')};
-}
-
-const FFC_PLAIN='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-const FFC_CIPHER='WOLFABCDGHJKMPQTUVXYZENRIS';
-const FFC_KEY='FUSHIMI';
-function ffcEncrypt(text){
-  let keyI=0,out='';
-  for(const ch of text.toUpperCase()){
-    if(/[A-Z]/.test(ch)){
-      const sub=FFC_CIPHER[FFC_PLAIN.indexOf(ch)];
-      const p=sub.charCodeAt(0)-65;
-      const k=FFC_KEY.charCodeAt(keyI++%FFC_KEY.length)-65;
-      out+=String.fromCharCode(65+(p+k)%26);
-    }else out+=ch;
-  }
-  return out;
-}
-function ffcDecrypt(text){
-  let keyI=0,out='';
-  for(const ch of text.toUpperCase()){
-    if(/[A-Z]/.test(ch)){
-      const c=ch.charCodeAt(0)-65;
-      const k=FFC_KEY.charCodeAt(keyI++%FFC_KEY.length)-65;
-      const sub=String.fromCharCode(65+((c-k)+26)%26);
-      const idx=FFC_CIPHER.indexOf(sub);
-      if(idx<0)throw new Error(`Invalid FFC symbol: ${sub}`);
-      out+=FFC_PLAIN[idx];
-    }else out+=ch;
-  }
-  return out;
-}
-
-const CFC_ROWS=['INTEG','RYOVU','HABCD','FKLMP','QSWXZ'];
-const CFC_ENC={},CFC_DEC={};
-CFC_ROWS.forEach((row,r)=>[...row].forEach((ch,c)=>{
-  const token=`${r+1}${c+1}`;
-  CFC_ENC[ch]=token;CFC_DEC[token]=ch;
-}));
-const CFC_ORDER=[0,3,1,4,2];
-const CFC_IOT=[11,23,13];
-const CFC_TAGS=['C','M','O','O','S'];
-function cfcEncrypt(text){
-  const normalized=text.toUpperCase().replace(/J/g,'I').replace(/[^A-Z]/g,'');
-  if(!normalized)throw new Error('CFC needs at least one letter.');
-  const tokens=[...normalized].map(ch=>CFC_ENC[ch]);
-  while(tokens.length%5)tokens.push('54');
-  const rows=tokens.length/5;
-  const grid=Array.from({length:rows},(_,r)=>tokens.slice(r*5,r*5+5));
-  const transposed=[];
-  CFC_ORDER.forEach(col=>{for(let r=0;r<rows;r++)transposed.push(grid[r][col]);});
-  const cipher=transposed.map((tok,i)=>String((Number(tok)+CFC_IOT[i%3])%100).padStart(2,'0'));
-  return cipher.map((tok,i)=>CFC_TAGS[i%5]+tok).join(' ');
-}
-function cfcDecrypt(text){
-  const matches=[...text.toUpperCase().matchAll(/[CMOS]?\s*(\d{2})/g)].map(m=>m[1]);
-  if(!matches.length)throw new Error('No CFC tokens found.');
-  if(matches.length%5!==0)throw new Error('CFC token count must be divisible by 5.');
-  const transposed=matches.map((tok,i)=>String((Number(tok)-CFC_IOT[i%3]+100)%100).padStart(2,'0'));
-  const rows=transposed.length/5;
-  const grid=Array.from({length:rows},()=>Array(5));
-  let p=0;
-  CFC_ORDER.forEach(col=>{for(let r=0;r<rows;r++)grid[r][col]=transposed[p++];});
-  const original=grid.flat();
-  let plain='';
-  for(const tok of original){
-    if(!CFC_DEC[tok])throw new Error(`Invalid CFC coordinate: ${tok}`);
-    plain+=CFC_DEC[tok];
-  }
-  return plain.replace(/X+$/,'');
-}
-
-function executeCipherRequest(req){
-  if(!req.message)throw new Error(`Add ${req.mode==='encrypt'?'Message':'Ciphertext'}: after a | separator.`);
-  if(req.type==='FFC'){
-    const result=req.mode==='encrypt'?ffcEncrypt(req.message):ffcDecrypt(req.message);
-    return `${req.mode==='encrypt'?'FFC ENCRYPTED':'FFC DECRYPTED'}\n${result}`;
-  }
-  if(req.type==='CFC'){
-    const result=req.mode==='encrypt'?cfcEncrypt(req.message):cfcDecrypt(req.message);
-    return `${req.mode==='encrypt'?'CFC ENCRYPTED':'CFC DECRYPTED'}\n${result}`;
-  }
-  if(req.type==='CLC-1'||req.type==='CLC-2'){
-    if(!req.duty)throw new Error('CLC requires Duty: NAME / NAME.');
-    const duties=req.duty.split(/\s*\/\s*|\s*,\s*/).filter(Boolean);
-    const data=clcTransform(req.message,req.type,duties,req.mode==='decrypt',req.preserve);
-    const label=req.mode==='encrypt'?'CIPHERTEXT':'PLAINTEXT';
-    return `${req.type} ${req.mode.toUpperCase()}\nDUTY: ${duties.map(canonicalDutyName).join(' / ')}\nLANES: ${data.laneNumbers}\nKEYWORD: ${data.keyword}\n${label}: ${data.result}`;
-  }
-  throw new Error('Unsupported cipher.');
-}
-
 function showToast(text){const el=document.querySelector('#toast');el.innerHTML=formatMarkdownText(text);el.classList.add('show');clearTimeout(showToast.t);showToast.t=setTimeout(()=>el.classList.remove('show'),2200)}
 
 function respond(text){
@@ -2902,379 +2575,68 @@ chatInput.addEventListener('focus',()=>{
   requestAnimationFrame(()=>chatInput.scrollIntoView({block:'nearest'}));
 });
 
-const CIPHER_KNOWLEDGE={
-  jace:['CLC'],
-  naoya:['FFC','CFC'],
-  mao:['FFC','CFC']
-};
-const DEFAULT_CIPHER={
-  jace:'CLC',
-  naoya:'FFC',
-  mao:'FFC'
-};
-
-function getKnownCipherFamilies(){
-  return CIPHER_KNOWLEDGE[activeIdentity]||[];
-}
-
-function unknownCipherMessage(family){
-  if(activeIdentity==='jace'){
-    return family==='CLC'
-      ?''
-      :"Hmm...\n\nI've never seen this cipher before.\n\nIt feels strangely familiar, but I don't actually remember how it works.";
-  }
-  if(activeIdentity==='naoya'){
-    return family==='CLC'
-      ?'Unknown encryption method.\n\nRecent construction. It is not part of this memory set.'
-      :'';
-  }
-  if(activeIdentity==='mao'){
-    return family==='CLC'
-      ?'Not ours.'
-      :'';
-  }
-  return 'Cipher unavailable.';
-}
-
-function updateCipherKnowledge(){
-  const fallback=DEFAULT_CIPHER[activeIdentity]||'CLC';
-  cipherFamily.value=fallback;
-  updateCipherForm();
-  cipherResult.className='cipher-result';
-  cipherResultText.textContent='';
-}
-
-function reactToUnknownCipher(family){
-  const message=unknownCipherMessage(family);
-  if(!message)return false;
-
-  if(activeIdentity==='jace' && CHARACTER.portrait!==false){
-    setExpression('curious'); // OPEN_CURIOUS
-  }
-
-  const expressionLabel=
-    activeIdentity==='jace' ? 'OPEN_CURIOUS' :
-    activeIdentity==='naoya' ? 'UNKNOWN METHOD' :
-    'UNRECOGNIZED';
-
-  showCipherFeedback(
-    `${CHARACTER.shortName.toUpperCase()} // UNKNOWN CIPHER`,
-    message,
-    'error',
-    expressionLabel
-  );
-  showToast('CIPHER MEMORY // UNAVAILABLE');
-
-  const fallback=DEFAULT_CIPHER[activeIdentity]||'CLC';
-  window.setTimeout(()=>{
-    cipherFamily.value=fallback;
-    updateCipherForm();
-  },FRAMEWORK_TIMING.unknownCipherReset);
-
-  return true;
-}
-
-const CIPHER_IDENTITY_COPY={
-  jace:{
-    title:'JACE // CIPHER LAB',
-    intro:'Build, test, encrypt, and decrypt your messages. I’ll verify the format before running anything, and I’ll let you know if I spot a mistake.',
-    run:'RUN CIPHER',
-    clear:'CLEAR',
-    encryptPlaceholder:'Enter the text to encrypt…',
-    decryptPlaceholder:'Enter the ciphertext to decrypt…',
-    validationTitle:'JACE // FORMAT ERROR',
-    validationExpression:'CONTRADICTION FOUND',
-    successTitle:'JACE // OPERATION COMPLETE',
-    successEncrypt:'ENCRYPTED',
-    successDecrypt:'DECRYPTED',
-    failureTitle:'JACE // OPERATION FAILED',
-    failureExpression:'RECHECK REQUIRED',
-    invalidTail:'Fix those fields and I’ll try again.',
-    failureLead:'The format passed, but the cipher still rejected something:'
-  },
-  naoya:{
-    title:'NAOYA // ANALYSIS TERMINAL',
-    intro:'Every cipher follows a pattern. Provide the required information and I’ll verify the structure before processing the data.',
-    run:'PROCESS DATA',
-    clear:'RESET',
-    encryptPlaceholder:'Input plaintext…',
-    decryptPlaceholder:'Input ciphertext…',
-    validationTitle:'NAOYA // STRUCTURE ERROR',
-    validationExpression:'FORMAT INVALID',
-    successTitle:'NAOYA // ANALYSIS COMPLETE',
-    successEncrypt:'ENCODED',
-    successDecrypt:'DECODED',
-    failureTitle:'NAOYA // PROCESSING FAILED',
-    failureExpression:'RECHECK STRUCTURE',
-    invalidTail:'Correct the fields and resubmit.',
-    failureLead:'The format was accepted, but processing failed:'
-  },
-  mao:{
-    title:'MAO // FENRIR OPERATIONS',
-    intro:'Accuracy matters. Incomplete or incorrect information compromises the operation. Verify the fields before continuing.',
-    run:'EXECUTE',
-    clear:'CLEAR',
-    encryptPlaceholder:'Awaiting plaintext.',
-    decryptPlaceholder:'Awaiting ciphertext.',
-    validationTitle:'MAO // FORMAT REJECTED',
-    validationExpression:'INPUT INVALID',
-    successTitle:'MAO // OPERATION COMPLETE',
-    successEncrypt:'ENCRYPTED',
-    successDecrypt:'DECRYPTED',
-    failureTitle:'MAO // OPERATION FAILED',
-    failureExpression:'VERIFY INPUT',
-    invalidTail:'Correct it.',
-    failureLead:'The operation failed after validation:'
-  }
-};
-
-function getCipherIdentityCopy(){
-  return CIPHER_IDENTITY_COPY[activeIdentity]||CIPHER_IDENTITY_COPY.jace;
-}
-
-function updateCipherIdentityText(){
-  const copy=getCipherIdentityCopy();
-  const title=document.querySelector('#cipherLabTitle');
-  const intro=document.querySelector('#cipherLabIntro');
-  if(title)title.textContent=copy.title;
-  if(intro)intro.textContent=copy.intro;
-  if(cipherRun)cipherRun.textContent=copy.run;
-  if(cipherClear)cipherClear.textContent=copy.clear;
-  updateCipherForm();
-}
 
 /* =========================================================
-   SECTION 7 — CIPHER LAB UI
+   OPTIONAL SPECIAL MODULE BRIDGE
+   One optional module is supported in the current base.
    ========================================================= */
-// === DEDICATED CIPHER MODE ===
 const chatPanel=document.querySelector('.chat');
 const chatModeBtn=document.querySelector('#chatModeBtn');
-const cipherModeBtn=document.querySelector('#cipherModeBtn');
-const cipherModePanel=document.querySelector('#cipherMode');
-const cipherFamily=document.querySelector('#cipherFamily');
-const cipherOperation=document.querySelector('#cipherOperation');
-const cipherVersion=document.querySelector('#cipherVersion');
-const cipherVersionWrap=document.querySelector('#cipherVersionWrap');
-const cipherDuty=document.querySelector('#cipherDuty');
-const cipherDutyWrap=document.querySelector('#cipherDutyWrap');
-const cipherText=document.querySelector('#cipherText');
-const cipherTextLabel=document.querySelector('#cipherTextLabel');
-const cipherPreserve=document.querySelector('#cipherPreserve');
-const cipherRun=document.querySelector('#cipherRun');
-const cipherClear=document.querySelector('#cipherClear');
-const cipherResult=document.querySelector('#cipherResult');
-const cipherResultTitle=document.querySelector('#cipherResultTitle');
-const cipherResultExpression=document.querySelector('#cipherResultExpression');
-const cipherResultText=document.querySelector('#cipherResultText');
+const specialModuleNav=document.querySelector('#specialModuleNav');
+const specialModuleMount=document.querySelector('#specialModuleMount');
 
-// Move Cipher Lab into the chat panel so the shared header and mode tabs remain visible.
-if(cipherModePanel.parentElement!==chatPanel){
-  chatPanel.appendChild(cipherModePanel);
-}
-const CipherLab={
-  state:{open:false,initialized:false},
-  elements:{
-    chatPanel,chatModeBtn,cipherModeBtn,panel:cipherModePanel,
-    family:cipherFamily,operation:cipherOperation,version:cipherVersion,
-    versionWrap:cipherVersionWrap,duty:cipherDuty,dutyWrap:cipherDutyWrap,
-    text:cipherText,textLabel:cipherTextLabel,preserve:cipherPreserve,
-    runButton:cipherRun,clearButton:cipherClear,result:cipherResult,
-    resultTitle:cipherResultTitle,resultExpression:cipherResultExpression,
-    resultText:cipherResultText
-  },
-  initialize(){
-    if(this.state.initialized)return this;
-    this.state.initialized=true;
-    chatModeBtn.addEventListener('click',()=>this.close());
-    cipherModeBtn.addEventListener('click',()=>this.open());
-    cipherFamily.addEventListener('change',()=>this.handleFamilyChange());
-    cipherOperation.addEventListener('change',()=>this.renderForm());
-    cipherRun.addEventListener('click',()=>this.run());
-    cipherClear.addEventListener('click',()=>this.clear());
-    updateCipherKnowledge();
-    updateCipherIdentityText();
-    this.renderForm();
-    return this;
-  },
-  isOpen(){return this.state.open},
-  open(){
-    if(this.state.open)return false;
-    this.state.open=true;
-    chatPanel.classList.add('cipher-active');
-    
-    cipherModePanel.classList.add('active');
+const SpecialModuleRuntime=Object.freeze({
+  getActiveIdentity:()=>IdentityManager.getCurrentId(),
+  getCharacter:()=>CompanionCharacter,
+  setExpression,
+  showToast,
+  mounts:Object.freeze({
+    navigation:specialModuleNav,
+    content:specialModuleMount
+  }),
+  enterSpecialMode(){
+    chatPanel.classList.add('special-module-active');
     chatModeBtn.classList.remove('active');
-    cipherModeBtn.classList.add('active');
-    if(typeof EpisodeOverlayController!=='undefined')EpisodeOverlayController.suspend();
-    showToast('CIPHER LAB // ACTIVE');
-    this.renderForm();
+    EpisodeOverlayController.suspend();
     return true;
   },
-  close(){
-    if(!this.state.open){
-      chatPanel.classList.remove('cipher-active');
-      cipherModePanel.classList.remove('active');
-      chatModeBtn.classList.add('active');
-      cipherModeBtn.classList.remove('active');
-      return false;
-    }
-    this.state.open=false;
-    chatPanel.classList.remove('cipher-active');
-    cipherModePanel.classList.remove('active');
+  leaveSpecialMode(){
+    chatPanel.classList.remove('special-module-active');
     chatModeBtn.classList.add('active');
-    cipherModeBtn.classList.remove('active');
-    showToast('COMPANION CHAT // ACTIVE');
-    Framework.resume({source:'cipher-lab'});
+    Framework.resume({source:'special-module'});
     return true;
-  },
-  toggle(){return this.state.open?this.close():this.open()},
-  renderForm(){updateCipherForm()},
-  handleFamilyChange(){
-    const selected=cipherFamily.value;
-    if(!getKnownCipherFamilies().includes(selected)){
-      reactToUnknownCipher(selected);
-      return false;
-    }
-    this.renderForm();
-    return true;
-  },
-  run(){
-    const problems=validateCipherForm();
-    const copy=getCipherIdentityCopy();
-    if(problems.length){
-      if(activeIdentity==='jace'&&CHARACTER.portrait!==false)setExpression('deadpan');
-      showCipherFeedback(
-        copy.validationTitle,
-        `I found ${problems.length===1?'a problem':'some problems'}:\n\n• ${problems.join('\n• ')}\n\n${copy.invalidTail}`,
-        'error',
-        copy.validationExpression
-      );
-      showToast('CIPHER FORMAT // INVALID');
-      return false;
-    }
+  }
+});
+
+const SpecialModuleController={
+  module:null,
+  initialize(){
+    const module=window.CompanionSpecialModule;
+    if(!module||typeof module.init!=='function')return false;
     try{
-      const family=cipherFamily.value;
-      const operation=cipherOperation.value;
-      const req={mode:operation,type:family,message:cipherText.value.trim(),preserve:cipherPreserve.checked};
-      if(family==='CLC'){
-        req.type=cipherVersion.value;
-        req.duty=cipherDuty.value.trim();
-      }
-      const output=executeCipherRequest(req);
-      if(activeIdentity==='jace'&&CHARACTER.portrait!==false)setExpression('clue');
-      showCipherFeedback(
-        copy.successTitle,
-        output,
-        'success',
-        operation==='encrypt'?copy.successEncrypt:copy.successDecrypt
-      );
-      showToast('CIPHER OPERATION // COMPLETE');
+      module.init(SpecialModuleRuntime);
+      this.module=module;
+      Framework.specialModule=module;
       return true;
-    }catch(err){
-      if(activeIdentity==='jace'&&CHARACTER.portrait!==false)setExpression('panic');
-      showCipherFeedback(
-        copy.failureTitle,
-        `${copy.failureLead}\n\n${err.message}`,
-        'error',
-        copy.failureExpression
-      );
-      showToast('CIPHER OPERATION // ERROR');
+    }catch(error){
+      console.error('Special module initialization failed:',error);
+      specialModuleNav.replaceChildren();
+      specialModuleMount.replaceChildren();
+      chatPanel.classList.remove('special-module-active');
+      chatModeBtn.classList.add('active');
       return false;
     }
-  },
-  clear(){
-    cipherDuty.value='';
-    cipherText.value='';
-    cipherPreserve.checked=false;
-    cipherResult.className='cipher-result';
-    cipherResultText.textContent='';
-    this.renderForm();
-    return true;
-  },
-  refreshIdentity(){
-    updateCipherKnowledge();
-    updateCipherIdentityText();
   }
 };
 
-function updateCipherForm(){
-  const copy=getCipherIdentityCopy();
-  const isCLC=cipherFamily.value==='CLC';
-  cipherVersionWrap.classList.toggle('hidden',!isCLC);
-  cipherDutyWrap.classList.toggle('hidden',!isCLC);
-  cipherTextLabel.textContent=cipherOperation.value==='encrypt'?'MESSAGE':'CIPHERTEXT';
-  cipherText.placeholder=cipherOperation.value==='encrypt'
-    ?copy.encryptPlaceholder
-    :copy.decryptPlaceholder;
-}
-
-function showCipherFeedback(title,text,type='error',expression='FORMAT CHECK'){
-  cipherResult.classList.add('show');
-  cipherResult.classList.toggle('error',type==='error');
-  cipherResult.classList.toggle('success',type==='success');
-  cipherResultTitle.textContent=title;
-  cipherResultExpression.textContent=expression;
-  cipherResultText.textContent=text;
-  cipherResult.scrollIntoView({behavior:'smooth',block:'nearest'});
-}
-
-function validateCipherForm(){
-  const family=cipherFamily.value;
-  const known=getKnownCipherFamilies();
-  if(!known.includes(family)){
-    return [unknownCipherMessage(family)];
+chatModeBtn.addEventListener('click',()=>{
+  if(Framework.specialModule?.close){
+    Framework.specialModule.close();
   }
-  const operation=cipherOperation.value;
-  const text=cipherText.value.trim();
-  const problems=[];
+});
 
-  if(!text){
-    problems.push(operation==='encrypt'
-      ?'The message field is empty.'
-      :'The ciphertext field is empty.');
-  }
+SpecialModuleController.initialize();
 
-  if(family==='CLC'){
-    const duties=cipherDuty.value.split(/\s*\/\s*|\s*,\s*/).filter(Boolean);
-    if(!cipherDuty.value.trim()){
-      problems.push('CLC needs a duty list.');
-    }else if(duties.length<2||duties.length>5){
-      problems.push(`CLC needs 2–5 duty names. I counted ${duties.length}.`);
-    }else{
-      const version=cipherVersion.value;
-      const invalid=[];
-      const unavailable=[];
-      duties.forEach(name=>{
-        const canon=canonicalDutyName(name);
-        if(!canon)invalid.push(name.trim());
-        else if(!CLC_LANES[version].some(x=>x.toLowerCase()===canon.toLowerCase()))unavailable.push(canon);
-      });
-      if(invalid.length)problems.push(`I don't recognize these duty names: ${invalid.join(', ')}.`);
-      if(unavailable.length)problems.push(`${unavailable.join(', ')} ${unavailable.length===1?'is':'are'} not in ${version}.`);
-    }
-    if(operation==='decrypt'&&!/^[A-Z\s.,!?'"’\-:;]+$/i.test(text)){
-      problems.push('CLC ciphertext should contain letters A–Z. Punctuation is okay only when it was preserved during encryption.');
-    }
-  }
-
-  if(family==='CFC'&&operation==='decrypt'){
-    const tokens=[...text.toUpperCase().matchAll(/[CMOS]?\s*(\d{2})/g)].map(m=>m[1]);
-    if(!tokens.length)problems.push('I could not find any CFC two-digit tokens.');
-    else if(tokens.length%5!==0)problems.push(`CFC needs a token count divisible by 5. I counted ${tokens.length}.`);
-    if(/[A-Z]/i.test(text.replace(/[CMOS]/gi,''))){
-      problems.push('CFC ciphertext should use C/M/O/O/S tags and two-digit numbers.');
-    }
-  }
-
-  if(family==='FFC'&&operation==='decrypt'&&!/[A-Z]/i.test(text)){
-    problems.push('FFC ciphertext needs at least one letter.');
-  }
-
-  return problems;
-}
-
-CipherLab.initialize();
-Framework.modules.CipherLab=CipherLab;
 const dossier=document.querySelector('#dossier');
 const dossierBtn=document.querySelector('#dossierBtn');
 const closeDossier=document.querySelector('#closeDossier');
@@ -3295,8 +2657,8 @@ refreshQuickReplies();
 /* =========================================================
    MAINTENANCE NOTES
    - Shared framework: layout, chat, dossier, companion mode.
-   - Jacey-specific systems: aliases, dialogue, Cipher Lab.
-   - Cipher commands are intentionally unavailable in normal chat.
+   - Character data is loaded from character.js.
+   - The optional special module is loaded from special_module.js.
    - Notion input uses explicit click and key handlers.
    ========================================================= */
 
@@ -3807,7 +3169,7 @@ function abandonEpisode(showMessage=true){
 }
 
 /* ---------------------------------------------------------
-   8. CHAT AND CIPHER ROUTING
+   8. CHAT ROUTING
    --------------------------------------------------------- */
 send=function(text){
   text=text.trim();

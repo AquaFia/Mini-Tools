@@ -74,6 +74,14 @@
       "accent": "#79efb4",
       "description": "Interactive Map 3D Test.",
       "tags": ["map", "student handbook"]
+    },
+    {
+      "title": "Funeral Meme Generator",
+      "file": "tools/apps/funeral_meme_generator.html",
+      "icon": "▧",
+      "accent": "#FF0000",
+      "description": "The Funeral Meme Post Maker.",
+      "tags": ["memes", "generator"]
     }
   ]
 }

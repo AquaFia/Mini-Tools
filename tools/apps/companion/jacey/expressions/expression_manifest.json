@@ -22,7 +22,9 @@
           "id": "clue",
           "displayName": "Clue",
           "statusLabel": "CLUE_FOUND",
-          "file": "J_Clue.webp"
+          "file": "J_Clue.webp",
+          "contexts": {
+            "halloween": "J_Clue_Halloween.webp",
         },
         {
           "id": "deadpan",

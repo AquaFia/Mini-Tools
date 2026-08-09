@@ -1,110 +1,229 @@
 /* =========================================================
-   HALLOWEEN VISUAL CONTEXT
-   Loaded automatically when visual context = "halloween".
-   Presentation only. No layout, routing, identity, music, or portrait logic.
+   DRAMATIC HALLOWEEN VISUAL CONTEXT
+   Loaded automatically for visual context "halloween".
+   Presentation only: no layout, routing, identity, music, portrait,
+   episode, or message logic is changed.
    ========================================================= */
 
 :root[data-visual-contexts~="halloween"] {
-  --bg:#080507;
-  --panel:#120b16;
-  --panel2:#1a1020;
-  --ink:#fff2df;
-  --muted:#b9a2bd;
+  --bg:#050206;
+  --panel:#120713;
+  --panel2:#1b0b1d;
+  --ink:#fff4e6;
+  --muted:#c4a9c6;
 
-  --violet:#bc66ff;
-  --blue:#8b5cff;
-  --red:#ff4f64;
-  --cyan:#ff9a3d;
-  --line:#5f315f;
+  --violet:#c15cff;
+  --blue:#7b4dff;
+  --red:#ff3e5f;
+  --cyan:#ff9b38;
+  --line:#6c2e69;
 
-  --glow:0 0 30px rgba(255,122,42,.22);
+  --glow:
+    0 0 18px rgba(255,126,39,.28),
+    0 0 42px rgba(156,63,255,.20);
 }
 
-/* Overall atmosphere */
+/* Full-screen Halloween atmosphere */
 :root[data-visual-contexts~="halloween"] body {
   background:
-    radial-gradient(circle at 18% 12%,rgba(255,119,35,.16),transparent 31%),
-    radial-gradient(circle at 82% 82%,rgba(142,63,204,.18),transparent 33%),
-    radial-gradient(circle at 52% 34%,rgba(94,34,99,.10),transparent 42%),
-    linear-gradient(135deg,#060407,#100714 55%,#050408);
+    radial-gradient(circle at 15% 12%,rgba(255,126,39,.28),transparent 24%),
+    radial-gradient(circle at 82% 16%,rgba(143,53,255,.24),transparent 25%),
+    radial-gradient(circle at 72% 82%,rgba(71,255,107,.09),transparent 24%),
+    linear-gradient(135deg,#050206 0%,#120516 48%,#050206 100%);
 }
 
-/* Fine grid gets a warmer orange-violet tint without changing its geometry. */
+/* Stronger seasonal grid */
 :root[data-visual-contexts~="halloween"] body:before {
+  opacity:.85;
   background-image:
-    linear-gradient(rgba(255,145,70,.025) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(180,93,255,.025) 1px,transparent 1px);
+    linear-gradient(rgba(255,140,63,.055) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(186,81,255,.055) 1px,transparent 1px);
+  background-size:28px 28px;
+  filter:drop-shadow(0 0 4px rgba(255,128,36,.08));
 }
 
-/* Existing buttons retain their size/placement; only palette changes. */
-:root[data-visual-contexts~="halloween"] .icon-btn {
-  border-color:#6a385f;
-  background:#1b101c;
-  color:#ead8e8;
-}
-
-:root[data-visual-contexts~="halloween"] .icon-btn:hover {
-  border-color:#ff963f;
-  color:#fff8ef;
-  box-shadow:0 0 14px rgba(255,132,48,.18);
-}
-
-:root[data-visual-contexts~="halloween"] .icon-btn.toggle-on {
-  border-color:#ff963f;
-  background:#26151d;
-  box-shadow:0 0 15px rgba(255,132,48,.25);
-}
-
-:root[data-visual-contexts~="halloween"] .icon-btn.toggle-on:after {
-  background:#c67aff;
-  box-shadow:0 0 8px #c67aff;
-}
-
-/* Composer and quick-response controls */
-:root[data-visual-contexts~="halloween"] .composer {
-  border-top-color:#55304f;
-  background:rgba(12,7,13,.88);
-}
-
-:root[data-visual-contexts~="halloween"] .chip {
-  border-color:#683a61;
-  background:#1c111d;
-  color:#d7c2d7;
-}
-
-:root[data-visual-contexts~="halloween"] .chip:hover {
-  border-color:#ff963f;
-  color:#fff7ed;
-  box-shadow:0 0 12px rgba(255,137,51,.14);
-}
-
-/* Text inputs inherit the event palette without changing dimensions. */
-:root[data-visual-contexts~="halloween"] .input-row input {
-  border-color:#5b3659;
-  background:#120b14;
-  color:#fff3e5;
-}
-
-:root[data-visual-contexts~="halloween"] .input-row input:focus {
-  border-color:#ff963f;
-  box-shadow:0 0 0 2px rgba(255,150,63,.10),0 0 16px rgba(181,95,255,.10);
-}
-
-/* Scrollbars, where supported, pick up the seasonal accent. */
-:root[data-visual-contexts~="halloween"] * {
-  scrollbar-color:#7d476f #140c16;
-}
-
-/* Very subtle event glow over the interface; pointer-events keeps it decorative only. */
+/* Decorative event veil: moon glow, poison-green haze, orange flare */
 :root[data-visual-contexts~="halloween"] body:after {
   content:"";
   position:fixed;
   inset:0;
   pointer-events:none;
   z-index:9999;
-  opacity:.22;
   background:
-    radial-gradient(circle at 8% 92%,rgba(255,132,42,.22),transparent 15%),
-    radial-gradient(circle at 92% 8%,rgba(174,84,255,.20),transparent 16%);
+    radial-gradient(circle at 78% 12%,rgba(255,205,111,.22) 0 5%,rgba(255,139,54,.08) 11%,transparent 20%),
+    radial-gradient(circle at 8% 88%,rgba(122,255,88,.10),transparent 20%),
+    radial-gradient(circle at 94% 72%,rgba(196,74,255,.12),transparent 24%);
   mix-blend-mode:screen;
+}
+
+/* Main visible panels become noticeably Halloween-themed */
+:root[data-visual-contexts~="halloween"] .panel,
+:root[data-visual-contexts~="halloween"] .chat,
+:root[data-visual-contexts~="halloween"] .episode,
+:root[data-visual-contexts~="halloween"] .cipher {
+  background:
+    linear-gradient(180deg,rgba(30,11,31,.96),rgba(10,5,12,.96));
+  border-color:#8b3f76 !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,142,52,.08),
+    0 0 18px rgba(255,122,36,.13),
+    0 0 42px rgba(135,52,255,.11);
+}
+
+/* Header/brand gets a bold event accent */
+:root[data-visual-contexts~="halloween"] .brand {
+  color:#fff2db;
+  text-shadow:
+    0 0 8px rgba(255,133,42,.72),
+    0 0 18px rgba(189,77,255,.45);
+}
+
+/* Portrait frame becomes a dramatic seasonal focal point */
+:root[data-visual-contexts~="halloween"] .portrait-frame {
+  border-color:#ff8b36 !important;
+  box-shadow:
+    0 0 0 2px rgba(147,62,189,.45),
+    0 0 18px rgba(255,129,36,.42),
+    0 0 42px rgba(179,60,255,.28),
+    inset 0 0 22px rgba(255,122,36,.10);
+  background:
+    radial-gradient(circle at 50% 20%,rgba(255,142,56,.18),transparent 42%),
+    linear-gradient(180deg,#1e0c20,#09050c);
+}
+
+/* Message bubbles get orange/purple contrast */
+:root[data-visual-contexts~="halloween"] .bubble {
+  border-color:#713262 !important;
+  background:
+    linear-gradient(135deg,rgba(31,14,34,.96),rgba(18,8,21,.96));
+  box-shadow:0 0 12px rgba(181,71,255,.08);
+}
+
+/* User/alternate bubbles become warmer */
+:root[data-visual-contexts~="halloween"] .message.user .bubble,
+:root[data-visual-contexts~="halloween"] .message.me .bubble {
+  border-color:#9c4b35 !important;
+  background:
+    linear-gradient(135deg,rgba(47,20,15,.96),rgba(25,10,17,.96));
+  box-shadow:0 0 13px rgba(255,125,42,.11);
+}
+
+/* Toolbar buttons */
+:root[data-visual-contexts~="halloween"] .icon-btn {
+  border-color:#7b3a70;
+  background:
+    linear-gradient(180deg,#241025,#120914);
+  color:#eedbef;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.015);
+}
+
+:root[data-visual-contexts~="halloween"] .icon-btn:hover {
+  border-color:#ff933d;
+  color:#fff6e9;
+  background:
+    linear-gradient(180deg,#351629,#1a0c17);
+  box-shadow:
+    0 0 12px rgba(255,132,46,.28),
+    0 0 20px rgba(171,69,255,.16);
+}
+
+:root[data-visual-contexts~="halloween"] .icon-btn.toggle-on {
+  border-color:#ff933d;
+  color:#fff2df;
+  background:
+    linear-gradient(180deg,#351728,#1c0c17);
+  box-shadow:
+    0 0 14px rgba(255,132,46,.30),
+    0 0 24px rgba(174,69,255,.18);
+}
+
+:root[data-visual-contexts~="halloween"] .icon-btn.toggle-on:after {
+  background:#a8ff70;
+  box-shadow:0 0 9px #a8ff70;
+}
+
+/* Quick response chips */
+:root[data-visual-contexts~="halloween"] .chip {
+  border-color:#724063;
+  background:#1f0f20;
+  color:#e5d4e5;
+}
+
+:root[data-visual-contexts~="halloween"] .chip:hover {
+  border-color:#ff943d;
+  color:#fff8ec;
+  background:#2b1221;
+  box-shadow:
+    0 0 12px rgba(255,136,43,.23),
+    inset 0 0 10px rgba(183,75,255,.08);
+}
+
+/* Composer becomes distinctly themed */
+:root[data-visual-contexts~="halloween"] .composer {
+  border-top-color:#7c3c69 !important;
+  background:
+    linear-gradient(180deg,rgba(22,9,24,.94),rgba(9,5,11,.97));
+  box-shadow:0 -8px 26px rgba(179,67,255,.07);
+}
+
+:root[data-visual-contexts~="halloween"] .input-row input {
+  border-color:#744064;
+  background:#120914;
+  color:#fff1df;
+  box-shadow:inset 0 0 18px rgba(140,50,163,.05);
+}
+
+:root[data-visual-contexts~="halloween"] .input-row input:focus {
+  border-color:#ff943d;
+  box-shadow:
+    0 0 0 2px rgba(255,148,61,.10),
+    0 0 18px rgba(181,69,255,.16);
+}
+
+/* Expression buttons inherit the event palette */
+:root[data-visual-contexts~="halloween"] .expr,
+:root[data-visual-contexts~="halloween"] .expression {
+  border-color:#6f3a68 !important;
+  background:#1a0d1c;
+  color:#dbc7dc;
+}
+
+:root[data-visual-contexts~="halloween"] .expr:hover,
+:root[data-visual-contexts~="halloween"] .expression:hover,
+:root[data-visual-contexts~="halloween"] .expr.active {
+  border-color:#ff933d !important;
+  color:#fff7ea;
+  box-shadow:0 0 11px rgba(255,130,39,.22);
+}
+
+/* Seasonal status treatment */
+:root[data-visual-contexts~="halloween"] .status {
+  color:#d5b9d6;
+  text-shadow:0 0 8px rgba(180,70,255,.16);
+}
+
+/* Strong orange edge highlights without altering box dimensions */
+:root[data-visual-contexts~="halloween"] .panel,
+:root[data-visual-contexts~="halloween"] .portrait-frame,
+:root[data-visual-contexts~="halloween"] .composer {
+  outline:1px solid rgba(255,137,43,.10);
+  outline-offset:-1px;
+}
+
+/* Halloween scrollbar */
+:root[data-visual-contexts~="halloween"] * {
+  scrollbar-color:#a24b73 #160a17;
+}
+
+/* A small decorative bat-like silhouette effect using text-shadow only.
+   This remains presentation-only and doesn't consume layout space. */
+:root[data-visual-contexts~="halloween"] .brand:after {
+  content:"  ✦  ☾  ✦";
+  font-size:.78em;
+  letter-spacing:.18em;
+  color:#ff9a45;
+  opacity:.9;
+  text-shadow:
+    0 0 7px rgba(255,132,43,.62),
+    0 0 13px rgba(178,74,255,.42);
 }

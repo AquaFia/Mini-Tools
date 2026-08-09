@@ -1,0 +1,110 @@
+/* =========================================================
+   HALLOWEEN VISUAL CONTEXT
+   Loaded automatically when visual context = "halloween".
+   Presentation only. No layout, routing, identity, music, or portrait logic.
+   ========================================================= */
+
+:root[data-visual-contexts~="halloween"] {
+  --bg:#080507;
+  --panel:#120b16;
+  --panel2:#1a1020;
+  --ink:#fff2df;
+  --muted:#b9a2bd;
+
+  --violet:#bc66ff;
+  --blue:#8b5cff;
+  --red:#ff4f64;
+  --cyan:#ff9a3d;
+  --line:#5f315f;
+
+  --glow:0 0 30px rgba(255,122,42,.22);
+}
+
+/* Overall atmosphere */
+:root[data-visual-contexts~="halloween"] body {
+  background:
+    radial-gradient(circle at 18% 12%,rgba(255,119,35,.16),transparent 31%),
+    radial-gradient(circle at 82% 82%,rgba(142,63,204,.18),transparent 33%),
+    radial-gradient(circle at 52% 34%,rgba(94,34,99,.10),transparent 42%),
+    linear-gradient(135deg,#060407,#100714 55%,#050408);
+}
+
+/* Fine grid gets a warmer orange-violet tint without changing its geometry. */
+:root[data-visual-contexts~="halloween"] body:before {
+  background-image:
+    linear-gradient(rgba(255,145,70,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(180,93,255,.025) 1px,transparent 1px);
+}
+
+/* Existing buttons retain their size/placement; only palette changes. */
+:root[data-visual-contexts~="halloween"] .icon-btn {
+  border-color:#6a385f;
+  background:#1b101c;
+  color:#ead8e8;
+}
+
+:root[data-visual-contexts~="halloween"] .icon-btn:hover {
+  border-color:#ff963f;
+  color:#fff8ef;
+  box-shadow:0 0 14px rgba(255,132,48,.18);
+}
+
+:root[data-visual-contexts~="halloween"] .icon-btn.toggle-on {
+  border-color:#ff963f;
+  background:#26151d;
+  box-shadow:0 0 15px rgba(255,132,48,.25);
+}
+
+:root[data-visual-contexts~="halloween"] .icon-btn.toggle-on:after {
+  background:#c67aff;
+  box-shadow:0 0 8px #c67aff;
+}
+
+/* Composer and quick-response controls */
+:root[data-visual-contexts~="halloween"] .composer {
+  border-top-color:#55304f;
+  background:rgba(12,7,13,.88);
+}
+
+:root[data-visual-contexts~="halloween"] .chip {
+  border-color:#683a61;
+  background:#1c111d;
+  color:#d7c2d7;
+}
+
+:root[data-visual-contexts~="halloween"] .chip:hover {
+  border-color:#ff963f;
+  color:#fff7ed;
+  box-shadow:0 0 12px rgba(255,137,51,.14);
+}
+
+/* Text inputs inherit the event palette without changing dimensions. */
+:root[data-visual-contexts~="halloween"] .input-row input {
+  border-color:#5b3659;
+  background:#120b14;
+  color:#fff3e5;
+}
+
+:root[data-visual-contexts~="halloween"] .input-row input:focus {
+  border-color:#ff963f;
+  box-shadow:0 0 0 2px rgba(255,150,63,.10),0 0 16px rgba(181,95,255,.10);
+}
+
+/* Scrollbars, where supported, pick up the seasonal accent. */
+:root[data-visual-contexts~="halloween"] * {
+  scrollbar-color:#7d476f #140c16;
+}
+
+/* Very subtle event glow over the interface; pointer-events keeps it decorative only. */
+:root[data-visual-contexts~="halloween"] body:after {
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:9999;
+  opacity:.22;
+  background:
+    radial-gradient(circle at 8% 92%,rgba(255,132,42,.22),transparent 15%),
+    radial-gradient(circle at 92% 8%,rgba(174,84,255,.20),transparent 16%);
+  mix-blend-mode:screen;
+}

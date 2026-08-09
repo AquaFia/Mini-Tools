@@ -2458,32 +2458,6 @@ function getContextEventStartupBank(identityId='jace'){
   return null;
 }
 
-function getStartupContextPriority(){
-  const state=window.CompanionContext?.get?.();
-  if(!state)return [];
-
-  const priority=[];
-  const add=value=>{
-    const key=normalizeContextBankKey(value);
-    if(key&&!priority.includes(key))priority.push(key);
-  };
-
-  for(const event of state.eventsToday||[]){
-    add(event.name);
-    add(event.visualContext);
-  }
-  for(const birthday of state.birthdaysToday||[]){
-    add('birthday');
-    add(birthday.visualContext);
-  }
-
-  add(state.timeOfDay);
-  add(state.weekday);
-  add(state.month);
-  add(state.season);
-  return priority;
-}
-
 function normalizeStartupResponse(item){
   if(Array.isArray(item)){
     const [expression,response,contextEvent]=item;
@@ -2497,10 +2471,65 @@ function normalizeStartupResponse(item){
     return {
       expression:String(item.expression||item.exp||'curious'),
       response:String(item.response||item.text||item.message||''),
-      contextEvent:String(item.contextEvent||item.context_event||item.context||item.event||item['Context/Event']||'')
+      contextEvent:String(
+        item.contextEvent||
+        item.context_event||
+        item['Context/Event']||
+        item.context||
+        item.event||
+        ''
+      )
     };
   }
   return null;
+}
+
+function getContextEventStartupRows(identityId='jace'){
+  const bank=getContextEventStartupBank(identityId);
+  if(!bank)return [];
+
+  const source=
+    Array.isArray(bank.responses)?bank.responses:
+    Array.isArray(bank.rows)?bank.rows:
+    Array.isArray(bank.entries)?bank.entries:
+    Array.isArray(bank.messages)?bank.messages:
+    [];
+
+  return source
+    .map(normalizeStartupResponse)
+    .filter(row=>row?.response&&normalizeContextBankKey(row.contextEvent));
+}
+
+function getActiveStartupEventKeys(state){
+  const keys=[];
+  const add=value=>{
+    const key=normalizeContextBankKey(value);
+    if(key&&!keys.includes(key))keys.push(key);
+  };
+
+  for(const event of state?.eventsToday||[]){
+    add(event.name);
+    add(event.visualContext);
+    add(event.id);
+  }
+
+  for(const birthday of state?.birthdaysToday||[]){
+    add('birthday');
+    add(birthday.visualContext);
+  }
+
+  return keys;
+}
+
+function pickStartupRow(rows,key){
+  const normalizedKey=normalizeContextBankKey(key);
+  if(!normalizedKey)return null;
+  const matches=rows.filter(row=>
+    normalizeContextBankKey(row.contextEvent)===normalizedKey
+  );
+  return matches.length
+    ?matches[Math.floor(Math.random()*matches.length)]
+    :null;
 }
 
 function resolveStartupMessage(){
@@ -2508,14 +2537,27 @@ function resolveStartupMessage(){
     return {expression:'happy',response:CHARACTER.welcome};
   }
 
-  const bank=getContextEventStartupBank('jace');
-  const responses=Array.isArray(bank?.responses)?bank.responses:[];
-  const rows=responses.map(normalizeStartupResponse).filter(row=>row?.response&&row.contextEvent);
-
-  for(const contextKey of getStartupContextPriority()){
-    const matches=rows.filter(row=>normalizeContextBankKey(row.contextEvent)===contextKey);
-    if(matches.length)return matches[Math.floor(Math.random()*matches.length)];
+  const rows=getContextEventStartupRows('jace');
+  if(!rows.length){
+    return {expression:'happy',response:CHARACTER.welcome};
   }
+
+  const state=window.CompanionContext?.get?.();
+  if(!state){
+    return {expression:'happy',response:CHARACTER.welcome};
+  }
+
+  // Startup priority is intentionally narrow:
+  // 1. Active event/birthday line.
+  // 2. Current time-of-day line only.
+  // 3. Default startup line.
+  for(const eventKey of getActiveStartupEventKeys(state)){
+    const eventRow=pickStartupRow(rows,eventKey);
+    if(eventRow)return eventRow;
+  }
+
+  const timeRow=pickStartupRow(rows,state.timeOfDay);
+  if(timeRow)return timeRow;
 
   return {expression:'happy',response:CHARACTER.welcome};
 }

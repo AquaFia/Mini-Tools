@@ -24,7 +24,8 @@
           "statusLabel": "CLUE_FOUND",
           "file": "J_Clue.webp",
           "contexts": {
-            "halloween": "J_Clue_Halloween.webp",
+            "halloween": "J_Clue_Halloween.webp"
+          }
         },
         {
           "id": "deadpan",

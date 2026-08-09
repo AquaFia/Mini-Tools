@@ -32,6 +32,14 @@
       maxMs: 90000
     },
 
+    episode: {
+      selectionPrompt:
+        "Oh! I have lots of ideas about that. Which one should we talk about?",
+
+      offerPromptTemplate:
+        "Oh! I have more thoughts about {trigger}. Do you want the long version?"
+    },
+
     identities: {
       jace: {
         keyphrase: "the present is safe.",
@@ -52,6 +60,14 @@
         dossierTitle: "CLASSIFIED // JACE",
 
         status: "DEFAULT_HAPPY",
+
+        responseMode: "expression",
+        fallbackExpression: "curious",
+
+        episodeAbandon: {
+          expression: "happy",
+          message: "Okay! We can leave that conversation there."
+        },
 
         switchMessage:
           "Identity restored. Present-time profile verified. Hi again! :D",
@@ -110,6 +126,11 @@
 
         status: "WOLF_SIGNAL_ACTIVE",
 
+        responseMode: "text",
+        fallbackExpression: "deadpan",
+
+        episodeAbandon: null,
+
         switchMessage:
           "The listening post is active. Choose your words carefully.",
 
@@ -166,6 +187,11 @@
         dossierTitle: "SEALED // NAOYA TAKAHOSHI",
 
         status: "CONSTELLATION_LOCK",
+
+        responseMode: "text",
+        fallbackExpression: "curious",
+
+        episodeAbandon: null,
 
         switchMessage:
           "Alias accepted. The pattern is visible now. Ask your question.",

@@ -6,7 +6,7 @@
 <title>Companion Terminal</title>
 <style>
 /* =========================================================
-   JACEY COMPANION FRAMEWORK v5.6 — EPISODE ENGINE CLEANUP
+   COMPANION FRAMEWORK v7.0.7 — GENERIC RUNTIME
    SECTION 1 — VISUAL SYSTEM / LAYOUT / THEMES
    ========================================================= */
 :root{
@@ -80,7 +80,7 @@ repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 5px)
 }
 .profile{margin-top:12px;display:flex;justify-content:space-between;align-items:end}.profile strong{font-size:18px}.profile span{display:block;color:var(--muted);font-size:11px}.online{font:700 9px ui-monospace,monospace;color:#7ef7c1}.online:before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#7ef7c1;margin-right:6px;box-shadow:0 0 10px #7ef7c1}
 .chat{display:grid;grid-template-rows:auto minmax(0,1fr) auto;min-height:0;overflow:hidden;background:linear-gradient(180deg,rgba(16,14,28,.95),rgba(9,9,16,.98));min-width:0}.chat-head{height:clamp(64px,5vw,76px);padding:0 clamp(18px,1.6vw,28px);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #2e203d}.chat-head b{letter-spacing:.08em;font-size:13px}.chat-head small{display:block;color:var(--muted);font-family:ui-monospace,monospace;font-size:9px;margin-top:3px}.head-actions{display:flex;gap:8px}.icon-btn{border:1px solid #3b2850;background:#151020;color:#cfc3e9;width:34px;height:34px;border-radius:10px;cursor:pointer}.icon-btn:hover{border-color:var(--violet);color:#fff}.icon-btn.toggle-on{border-color:var(--cyan);color:#fff;box-shadow:0 0 14px rgba(102,232,255,.22);background:#13212b}.icon-btn.toggle-on:after{content:"";position:absolute;width:6px;height:6px;border-radius:50%;background:#7ef7c1;box-shadow:0 0 8px #7ef7c1;transform:translate(4px,-10px)}.icon-btn{position:relative}
-.log{padding:clamp(18px,1.7vw,30px);min-height:0;overflow-y:auto;overflow-x:hidden;scroll-behavior:smooth;overscroll-behavior:contain;scrollbar-gutter:stable}.message{display:flex;gap:10px;margin:0 0 17px;animation:rise .28s ease both}@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}.message.user{justify-content:flex-end}.bubble{max-width:min(78%,760px);padding:clamp(12px,.9vw,16px) clamp(14px,1vw,18px);border-radius:16px;font-size:clamp(14px,.8vw,16px);line-height:1.5;white-space:pre-wrap}.jace .bubble{background:linear-gradient(135deg,#201431,#15152a);border:1px solid #4a2b68;border-top-left-radius:5px}.user .bubble{background:linear-gradient(135deg,#263b78,#34235f);border:1px solid #5267ad;border-top-right-radius:5px}.name{font:800 9px ui-monospace,monospace;letter-spacing:.12em;color:#bd9cff;margin:0 0 5px}.stamp{font:8px ui-monospace,monospace;color:#716b82;margin-top:6px}.typing{display:inline-flex;gap:4px;align-items:center}.typing i{width:5px;height:5px;border-radius:50%;background:#b990ff;animation:dot 1s infinite}.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}@keyframes dot{50%{transform:translateY(-4px);opacity:.45}}
+.log{padding:clamp(18px,1.7vw,30px);min-height:0;overflow-y:auto;overflow-x:hidden;scroll-behavior:smooth;overscroll-behavior:contain;scrollbar-gutter:stable}.message{display:flex;gap:10px;margin:0 0 17px;animation:rise .28s ease both}@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}.message.user{justify-content:flex-end}.bubble{max-width:min(78%,760px);padding:clamp(12px,.9vw,16px) clamp(14px,1vw,18px);border-radius:16px;font-size:clamp(14px,.8vw,16px);line-height:1.5;white-space:pre-wrap}.assistant .bubble{background:linear-gradient(135deg,#201431,#15152a);border:1px solid #4a2b68;border-top-left-radius:5px}.user .bubble{background:linear-gradient(135deg,#263b78,#34235f);border:1px solid #5267ad;border-top-right-radius:5px}.name{font:800 9px ui-monospace,monospace;letter-spacing:.12em;color:#bd9cff;margin:0 0 5px}.stamp{font:8px ui-monospace,monospace;color:#716b82;margin-top:6px}.typing{display:inline-flex;gap:4px;align-items:center}.typing i{width:5px;height:5px;border-radius:50%;background:#b990ff;animation:dot 1s infinite}.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}@keyframes dot{50%{transform:translateY(-4px);opacity:.45}}
 .composer{padding:clamp(14px,1.15vw,20px) clamp(18px,1.5vw,26px) clamp(18px,1.5vw,26px);border-top:1px solid #2d203a;background:rgba(8,8,15,.82)}.quick{display:flex;gap:7px;overflow:auto;padding-bottom:10px}.chip{
   white-space:nowrap;
   border:1px solid #3c2851;
@@ -161,7 +161,7 @@ body:before{
   background:color-mix(in srgb,var(--panel2) 72%,var(--cyan));
   box-shadow:0 0 15px color-mix(in srgb,var(--cyan) 26%,transparent);
 }
-.jace .bubble{
+.assistant .bubble{
   background:linear-gradient(135deg,color-mix(in srgb,var(--panel2) 72%,var(--violet)),var(--panel2));
   border-color:color-mix(in srgb,var(--violet) 50%,var(--line));
 }
@@ -1336,7 +1336,7 @@ const CHARACTER={
    ========================================================= */
 const Framework=window.Framework||{};
 window.Framework=Framework;
-Framework.version='7.0.6';
+Framework.version='7.0.7';
 Framework.modules=Framework.modules||{};
 /* v6.1.2 response-owned expressions:
    - Every dialogue bank owns its own keywords, expression, and responses.
@@ -1346,11 +1346,9 @@ Framework.modules=Framework.modules||{};
 
 /* v5.9.4 missing-bank quick-reply guidance restore:
    - Restored four distinct no-message-bank responses for each identity's quick replies.
-   - Added Mao and Naoya guidance so their no-bank replies no longer render as empty bubbles.
    - Preserved the companion-chat dialogue boundary: these are framework upload instructions, not normal dialogue.
 
    Previous v5.9.3 companion-chat dialogue purge:
-   - Removed hardcoded Jacey prefaces and follow-up prompts from normal chat.
    - Moved companion-mode idle dialogue into the external message bank.
    - Preserved special-module automatic responses, episode dialogue, and the no-bank upload instruction.
 
@@ -2112,8 +2110,8 @@ function formatMarkdownText(value){
     .replace(/\*([\s\S]+?)\*/g,'<em>$1</em>');
 }
 function time(){return new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}
-function add(text,who='jace'){const m=document.createElement('div');m.className='message '+who;const b=document.createElement('div');b.className='bubble';if(who==='jace'){const n=document.createElement('div');n.className='name';n.textContent=CHARACTER.speakerLabel;b.append(n)}const t=document.createElement('div');t.innerHTML=formatMarkdownText(text);b.append(t);const s=document.createElement('div');s.className='stamp';s.textContent=time()+' · '+(who==='jace'?CHARACTER.botStamp:'delivered');b.append(s);m.append(b);log.append(m);log.scrollTop=log.scrollHeight;return m}
-function typing(){const m=document.createElement('div');m.className='message jace';m.innerHTML='<div class="bubble"><div class="name">'+CHARACTER.typingLabel+'</div><span class="typing"><i></i><i></i><i></i></span></div>';log.append(m);log.scrollTop=log.scrollHeight;return m}
+function add(text,who='assistant'){const m=document.createElement('div');m.className='message '+who;const b=document.createElement('div');b.className='bubble';if(who==='assistant'){const n=document.createElement('div');n.className='name';n.textContent=CHARACTER.speakerLabel;b.append(n)}const t=document.createElement('div');t.innerHTML=formatMarkdownText(text);b.append(t);const s=document.createElement('div');s.className='stamp';s.textContent=time()+' · '+(who==='assistant'?CHARACTER.botStamp:'delivered');b.append(s);m.append(b);log.append(m);log.scrollTop=log.scrollHeight;return m}
+function typing(){const m=document.createElement('div');m.className='message assistant';m.innerHTML='<div class="bubble"><div class="name">'+CHARACTER.typingLabel+'</div><span class="typing"><i></i><i></i><i></i></span></div>';log.append(m);log.scrollTop=log.scrollHeight;return m}
 /* =========================================================
    SECTION 4 — DIALOGUE BANKS
    ========================================================= */
@@ -2458,25 +2456,37 @@ const EpisodeOverlayController={
 
 function showToast(text){const el=document.querySelector('#toast');el.innerHTML=formatMarkdownText(text);el.classList.add('show');clearTimeout(showToast.t);showToast.t=setTimeout(()=>el.classList.remove('show'),2200)}
 
+function getIdentityDialogueProfile(identityId=activeIdentity){
+  const profile=IDENTITIES[identityId]||{};
+  return {
+    responseMode:profile.responseMode||'text',
+    fallbackExpression:profile.fallbackExpression||'curious'
+  };
+}
+
+function identityUsesResponseExpressions(identityId=activeIdentity){
+  return getIdentityDialogueProfile(identityId).responseMode==='expression';
+}
+
 function respond(text){
   const route=routeMessage(text);
   const bank=route.bank;
-  let exp='deadpan',msg;
+  const dialogueProfile=getIdentityDialogueProfile();
+  let exp=dialogueProfile.fallbackExpression,msg;
 
   if(!messageBankLoaded){
     [exp,msg]=missingBankGuidance(text,bank);
-  }else if(activeIdentity==='jace'){
+  }else if(identityUsesResponseExpressions()){
     [exp,msg]=pick(bank);
-    if(typeof exp!=='string'||!exp.trim())exp='curious';
+    if(typeof exp!=='string'||!exp.trim())exp=dialogueProfile.fallbackExpression;
   }else{
     msg=pickAlias(bank)||pickAlias('generic');
-    exp=activeIdentity==='mao'?'deadpan':'curious';
   }
   busy=true;
   const wait=typing();
   setTimeout(()=>{
     wait.remove();
-    if(activeIdentity==='jace' && CHARACTER.portrait!==false)setExpression(exp);
+    if(identityUsesResponseExpressions() && CHARACTER.portrait!==false)setExpression(exp);
     add(msg);
     busy=false;
     resetIdleTimer();
@@ -2489,15 +2499,15 @@ function resetIdleTimer(){clearTimeout(idleTimer);if(!companionMode)return;idleT
 function runIdle(){
   if(!companionMode||busy){resetIdleTimer();return}
 
-  let exp='deadpan',msg;
-  if(activeIdentity==='jace'){
+  const dialogueProfile=getIdentityDialogueProfile();
+  let exp=dialogueProfile.fallbackExpression,msg;
+  if(identityUsesResponseExpressions()){
     [exp,msg]=pick('idle');
   }else{
     msg=pickAlias('idle')||pickAlias('generic');
-    exp=activeIdentity==='mao'?'deadpan':'curious';
   }
 
-  if(activeIdentity==='jace' && CHARACTER.portrait!==false){
+  if(identityUsesResponseExpressions() && CHARACTER.portrait!==false){
     setExpression(exp);
   }
   add(msg);
@@ -3019,7 +3029,7 @@ function offerEpisodeSelection(matches,originalText){
   setTimeout(()=>{
     wait.remove();
     if(CHARACTER.portrait!==false)setExpression('overshare');
-    add('Oh! I have lots of ideas about that. Which one should we talk about?');
+    add(CompanionCharacter.episode.selectionPrompt);
     renderEpisodeSelectionOptions(matches,originalText);
     busy=false;
     resetIdleTimer();
@@ -3036,7 +3046,7 @@ function offerEpisode(episode,originalText,matchedTrigger){
   renderEpisodeOfferOptions(episode);
 
   const prompt=episode.offerPrompt ||
-    `Oh! I have more thoughts about ${matchedTrigger}. Do you want the long version?`;
+    CompanionCharacter.episode.offerPromptTemplate.replace('{trigger}',matchedTrigger);
 
   busy=true;
   const wait=typing();
@@ -3162,9 +3172,10 @@ function showEpisodeNode(nodeId){
 function abandonEpisode(showMessage=true){
   const wasActive=episodeState.mode!==EpisodeMode.IDLE;
   closeEpisodeOverlay();
-  if(wasActive && showMessage && activeIdentity==='jace'){
-    if(CHARACTER.portrait!==false)setExpression('happy');
-    add('Okay! We can leave that conversation there.');
+  const abandon=IDENTITIES[activeIdentity]?.episodeAbandon;
+  if(wasActive && showMessage && abandon?.message){
+    if(abandon.expression && CHARACTER.portrait!==false)setExpression(abandon.expression);
+    add(abandon.message);
   }
 }
 

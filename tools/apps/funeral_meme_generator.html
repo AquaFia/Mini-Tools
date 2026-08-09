@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Funeral Meme Generator</title>
+<style>
+  :root{
+    --bg:#0c0d10;
+    --panel:#15171c;
+    --panel2:#1d2027;
+    --text:#f5f5f7;
+    --muted:#a8acb7;
+    --accent:#e9e2c8;
+    --line:#30343d;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    min-height:100vh;
+    background:radial-gradient(circle at top,#20232b 0,#101216 38%,#090a0d 100%);
+    color:var(--text);
+    font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  }
+  .app{
+    width:min(1400px,96vw);
+    margin:0 auto;
+    padding:24px 0 40px;
+    display:grid;
+    grid-template-columns:minmax(300px,430px) minmax(0,1fr);
+    gap:22px;
+  }
+  .panel,.preview-wrap{
+    background:rgba(21,23,28,.94);
+    border:1px solid var(--line);
+    border-radius:22px;
+    box-shadow:0 18px 60px rgba(0,0,0,.34);
+  }
+  .panel{padding:22px;align-self:start;position:sticky;top:18px}
+  h1{font-size:1.55rem;margin:0 0 6px}
+  .sub{color:var(--muted);font-size:.93rem;line-height:1.45;margin-bottom:20px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  label{display:block;font-size:.82rem;color:#d9dbe1;margin:0 0 6px}
+  .field{margin-bottom:12px}
+  input,textarea,select{
+    width:100%;border:1px solid #393e48;background:#0f1115;color:#fff;border-radius:12px;
+    padding:11px 12px;font:inherit;outline:none;transition:.15s;border-color:#343842;
+  }
+  textarea{resize:vertical;min-height:76px}
+  input:focus,textarea:focus,select:focus{border-color:#777f8d;box-shadow:0 0 0 3px rgba(255,255,255,.05)}
+  .buttons{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+  button{
+    appearance:none;border:1px solid #4b515d;background:#242830;color:#fff;border-radius:12px;
+    padding:10px 14px;font-weight:700;cursor:pointer;transition:.15s;
+  }
+  button:hover{transform:translateY(-1px);background:#2d323b}
+  button.primary{background:#efe9d5;color:#191919;border-color:#efe9d5}
+  button.danger{background:#201719;border-color:#553039;color:#f2c8ce}
+  .preview-wrap{padding:18px;min-height:70vh;display:flex;align-items:center;justify-content:center;overflow:auto}
+  canvas{max-width:100%;height:auto;border-radius:14px;background:#000;box-shadow:0 18px 60px rgba(0,0,0,.4)}
+  .small{font-size:.78rem;color:var(--muted);margin-top:10px;line-height:1.4}
+  .range-row{display:grid;grid-template-columns:1fr 68px;gap:10px;align-items:center}
+  input[type="range"]{padding:0;height:34px;background:transparent;border:none}
+  input[type="color"]{height:43px;padding:4px}
+  .section-title{font-size:.76rem;text-transform:uppercase;letter-spacing:.14em;color:#989eaa;margin:18px 0 10px}
+  .filebox{position:relative}
+  .filebox input{padding:9px}
+  @media(max-width:900px){
+    .app{grid-template-columns:1fr;padding:14px 0 26px}
+    .panel{position:static}
+    .preview-wrap{min-height:auto}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="panel">
+    <h1>Funeral Meme Generator</h1>
+    <div class="sub">Make melodramatic “in loving memory” memes for fictional, joking, or consensual use. Everything stays in your browser.</div>
+
+    <div class="field">
+      <label for="name">Name</label>
+      <input id="name" value="Jacey “Jace” Cosmo" placeholder="Name here" />
+    </div>
+
+    <div class="grid">
+      <div class="field">
+        <label for="birth">Born</label>
+        <input id="birth" value="2007" placeholder="2007" />
+      </div>
+      <div class="field">
+        <label for="death">Died</label>
+        <input id="death" value="2026" placeholder="2026" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="cause">Cause of death</label>
+      <textarea id="cause" placeholder="e.g. Tried to decrypt the school Wi‑Fi password one time too many">Tried to decrypt the school Wi‑Fi password one time too many</textarea>
+    </div>
+
+    <div class="field">
+      <label for="caption">Closing line</label>
+      <textarea id="caption" placeholder="Gone but never forgotten...">Gone but never forgotten. The password was “admin123”.</textarea>
+    </div>
+
+    <div class="section-title">Portrait</div>
+    <div class="field filebox">
+      <label for="photo">Upload photo (optional)</label>
+      <input id="photo" type="file" accept="image/*" />
+    </div>
+
+    <div class="section-title">Style</div>
+    <div class="grid">
+      <div class="field">
+        <label for="theme">Theme</label>
+        <select id="theme">
+          <option value="classic">Classic Memorial</option>
+          <option value="heaven">Heavenly Clouds</option>
+          <option value="goth">Gothic Black</option>
+          <option value="cheap">Cheap Funeral Flyer</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="accent">Accent</label>
+        <input id="accent" type="color" value="#e9e2c8" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="size">Canvas size</label>
+      <select id="size">
+        <option value="1080x1350">Portrait 4:5 — 1080×1350</option>
+        <option value="1080x1080">Square — 1080×1080</option>
+        <option value="1200x630">Landscape — 1200×630</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="darkness">Photo darkness</label>
+      <div class="range-row">
+        <input id="darkness" type="range" min="0" max="80" value="28" />
+        <input id="darknessVal" value="28%" readonly />
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button class="primary" id="download">Download PNG</button>
+      <button id="random">Random silly cause</button>
+      <button class="danger" id="clearPhoto">Clear photo</button>
+    </div>
+    <div class="small">Tip: the generator wraps long text automatically. Uploaded images are not sent anywhere.</div>
+  </aside>
+
+  <main class="preview-wrap">
+    <canvas id="canvas" width="1080" height="1350"></canvas>
+  </main>
+</div>
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const els = Object.fromEntries([...document.querySelectorAll('input,textarea,select')].map(el=>[el.id,el]));
+let portrait = null;
+
+const sillyCauses = [
+  'Said “I can fix it” and immediately made it worse',
+  'Opened 47 browser tabs and achieved transcendence',
+  'Failed the vibe check at terminal velocity',
+  'Tried to microwave something that clearly said “do not microwave”',
+  'Clicked “remind me tomorrow” for the final time',
+  'Investigated a suspicious noise instead of minding their business',
+  'Attempted one last side quest',
+  'Lost an argument with a folding chair',
+  'Asked “what could possibly go wrong?”',
+  'Was defeated by a software update'
+];
+
+function parseSize(){
+  const [w,h]=els.size.value.split('x').map(Number);
+  canvas.width=w; canvas.height=h;
+}
+
+function roundedRect(x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();
+}
+
+function wrapText(text,maxWidth,font){
+  ctx.font=font;
+  const paragraphs = String(text||'').split(/\n/);
+  const lines=[];
+  for(const p of paragraphs){
+    const words=p.split(/\s+/).filter(Boolean);
+    if(!words.length){lines.push('');continue;}
+    let line=words.shift();
+    for(const word of words){
+      const test=line+' '+word;
+      if(ctx.measureText(test).width>maxWidth){lines.push(line);line=word;} else line=test;
+    }
+    lines.push(line);
+  }
+  return lines;
+}
+
+function fitText(text,maxWidth,startSize,minSize,weight='700',family='Georgia'){
+  let size=startSize;
+  while(size>minSize){
+    ctx.font=`${weight} ${size}px ${family}`;
+    if(ctx.measureText(text).width<=maxWidth) break;
+    size-=2;
+  }
+  return size;
+}
+
+function drawCover(img,x,y,w,h){
+  const ir=img.width/img.height, r=w/h;
+  let sx=0,sy=0,sw=img.width,sh=img.height;
+  if(ir>r){sw=img.height*r;sx=(img.width-sw)/2}else{sh=img.width/r;sy=(img.height-sh)/2}
+  ctx.drawImage(img,sx,sy,sw,sh,x,y,w,h);
+}
+
+function drawPlaceholder(x,y,w,h){
+  const g=ctx.createLinearGradient(x,y,x+w,y+h);
+  g.addColorStop(0,'#2a2d36');g.addColorStop(1,'#0e1014');
+  ctx.fillStyle=g;ctx.fillRect(x,y,w,h);
+  ctx.save();ctx.translate(x+w/2,y+h/2);
+  ctx.strokeStyle='rgba(255,255,255,.15)';ctx.lineWidth=Math.max(2,w*.004);
+  ctx.beginPath();ctx.arc(0,-h*.08,w*.11,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.arc(0,h*.17,w*.22,Math.PI,0);ctx.stroke();
+  ctx.restore();
+}
+
+function drawBackground(theme,w,h,accent){
+  if(theme==='heaven'){
+    const g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#7995b7');g.addColorStop(.5,'#bac8d8');g.addColorStop(1,'#efe6d4');
+    ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+    ctx.globalAlpha=.4;
+    for(let i=0;i<16;i++){
+      const x=(i*173)%w,y=h*.12+((i*97)%(h*.38)),r=w*(.06+(i%3)*.025);
+      ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
+    }
+    ctx.globalAlpha=1;
+  }else if(theme==='goth'){
+    const g=ctx.createRadialGradient(w/2,h*.38,10,w/2,h*.45,h*.8);g.addColorStop(0,'#2b2630');g.addColorStop(.5,'#111015');g.addColorStop(1,'#030405');
+    ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+  }else if(theme==='cheap'){
+    const g=ctx.createLinearGradient(0,0,w,h);g.addColorStop(0,'#6a2f83');g.addColorStop(.45,'#141428');g.addColorStop(1,'#be8c28');
+    ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+    ctx.globalAlpha=.16;ctx.fillStyle='#fff';
+    for(let i=0;i<50;i++)ctx.fillRect((i*211)%w,(i*127)%h,2+(i%5),2+(i%5));
+    ctx.globalAlpha=1;
+  }else{
+    const g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#111318');g.addColorStop(.55,'#090b0e');g.addColorStop(1,'#17130f');
+    ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+  }
+
+  const vign=ctx.createRadialGradient(w/2,h/2,Math.min(w,h)*.15,w/2,h/2,Math.max(w,h)*.72);
+  vign.addColorStop(0,'rgba(0,0,0,0)');vign.addColorStop(1,'rgba(0,0,0,.62)');
+  ctx.fillStyle=vign;ctx.fillRect(0,0,w,h);
+
+  ctx.strokeStyle=accent;ctx.globalAlpha=.5;ctx.lineWidth=Math.max(2,w*.0035);
+  ctx.strokeRect(w*.035,h*.028,w*.93,h*.944);ctx.globalAlpha=1;
+}
+
+function draw(){
+  parseSize();
+  const w=canvas.width,h=canvas.height;
+  const accent=els.accent.value;
+  const theme=els.theme.value;
+  drawBackground(theme,w,h,accent);
+
+  const pad=w*.085;
+  ctx.textAlign='center';
+  ctx.fillStyle=accent;
+  ctx.font=`600 ${Math.round(w*.034)}px Georgia`;
+  ctx.fillText(theme==='cheap'?'CELEBRATING THE LIFE OF':'IN LOVING MEMORY',w/2,h*.09);
+
+  const name=els.name.value.trim()||'Unnamed Legend';
+  const nameSize=fitText(name,w-pad*2,w*.075,w*.045,'700','Georgia');
+  ctx.font=`700 ${nameSize}px Georgia`;
+  ctx.fillStyle='#fff';
+  ctx.fillText(name,w/2,h*.155);
+
+  ctx.font=`500 ${Math.round(w*.031)}px Georgia`;
+  ctx.fillStyle=accent;
+  const dates=[els.birth.value.trim(),els.death.value.trim()].filter(Boolean).join(' — ');
+  if(dates)ctx.fillText(dates,w/2,h*.198);
+
+  const imageW=w*.56;
+  const imageH=Math.min(h*.43,w*.62);
+  const imageX=(w-imageW)/2;
+  const imageY=h*.235;
+  ctx.save();roundedRect(imageX,imageY,imageW,imageH,w*.018);ctx.clip();
+  portrait?drawCover(portrait,imageX,imageY,imageW,imageH):drawPlaceholder(imageX,imageY,imageW,imageH);
+  const dark=Number(els.darkness.value)/100;
+  ctx.fillStyle=`rgba(0,0,0,${dark})`;ctx.fillRect(imageX,imageY,imageW,imageH);
+  ctx.restore();
+  ctx.strokeStyle=accent;ctx.lineWidth=Math.max(2,w*.004);roundedRect(imageX,imageY,imageW,imageH,w*.018);ctx.stroke();
+
+  let y=imageY+imageH+h*.065;
+  ctx.fillStyle=accent;ctx.font=`italic 600 ${Math.round(w*.03)}px Georgia`;ctx.fillText('CAUSE OF DEATH',w/2,y);y+=h*.035;
+  const cause=els.cause.value.trim()||'Cause unknown, but probably embarrassing.';
+  const causeFont=`700 ${Math.round(w*.037)}px Georgia`;
+  const causeLines=wrapText(cause,w*.78,causeFont).slice(0,4);
+  ctx.font=causeFont;ctx.fillStyle='#fff';
+  const lh=w*.048;
+  causeLines.forEach(line=>{ctx.fillText(line,w/2,y);y+=lh});
+
+  y+=h*.025;
+  ctx.strokeStyle=accent;ctx.globalAlpha=.55;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(w*.22,y);ctx.lineTo(w*.78,y);ctx.stroke();ctx.globalAlpha=1;
+  y+=h*.045;
+  const cap=els.caption.value.trim();
+  if(cap){
+    const capFont=`italic 500 ${Math.round(w*.029)}px Georgia`;
+    ctx.font=capFont;ctx.fillStyle=accent;
+    const capLines=wrapText(cap,w*.72,capFont).slice(0,4);
+    capLines.forEach(line=>{ctx.fillText(line,w/2,y);y+=w*.041});
+  }
+
+  ctx.font=`600 ${Math.round(w*.018)}px system-ui`;
+  ctx.fillStyle='rgba(255,255,255,.42)';
+  ctx.fillText('REST IN MEMES',w/2,h*.952);
+}
+
+['name','birth','death','cause','caption','theme','accent','size','darkness'].forEach(id=>els[id].addEventListener('input',()=>{
+  if(id==='darkness')els.darknessVal.value=els.darkness.value+'%';
+  draw();
+}));
+
+els.photo.addEventListener('change',e=>{
+  const file=e.target.files?.[0]; if(!file)return;
+  const img=new Image(); img.onload=()=>{portrait=img;draw();URL.revokeObjectURL(img.src)};img.src=URL.createObjectURL(file);
+});
+
+document.getElementById('clearPhoto').onclick=()=>{portrait=null;els.photo.value='';draw()};
+document.getElementById('random').onclick=()=>{els.cause.value=sillyCauses[Math.floor(Math.random()*sillyCauses.length)];draw()};
+document.getElementById('download').onclick=()=>{
+  draw();
+  const a=document.createElement('a');
+  const clean=(els.name.value||'funeral-meme').replace(/[^a-z0-9]+/gi,'_').replace(/^_+|_+$/g,'');
+  a.download=`${clean||'funeral_meme'}_memorial.png`;
+  a.href=canvas.toDataURL('image/png');a.click();
+};
+
+els.darknessVal.value=els.darkness.value+'%';
+draw();
+</script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Jacey Cosmo — Companion Terminal v6.3.35 Contextual Interface Themes</title>
+<title>Companion Terminal</title>
 <style>
 /* =========================================================
    JACEY COMPANION FRAMEWORK v5.6 — EPISODE ENGINE CLEANUP
@@ -1353,18 +1353,19 @@ body:before{
 }
 </style>
 
+<script src="character.js"></script>
 <script src="shared/context_awareness.js"></script>
 <script src="shared/visual_context.js"></script>
 <script>
 window.addEventListener('DOMContentLoaded',()=>{
   window.CompanionContext?.initialize({
-    companionId:'jacey',
+    companionId:window.CompanionCharacter.services.awarenessCompanionId,
     endpoint:'https://awareness.aquafia1247.workers.dev/context'
   });
 });
 window.addEventListener('DOMContentLoaded',()=>{
   window.VisualContextManager?.initialize({
-    companionId:'jacey'
+    companionId:window.CompanionCharacter.services.visualContextCompanionId
   });
 });
 </script>
@@ -1372,14 +1373,14 @@ window.addEventListener('DOMContentLoaded',()=>{
 <body>
 <main class="terminal" id="terminal">
   <aside class="sidebar">
-    <div class="brand"><div class="sigil" id="sigil">JC</div><div><h1 id="brandTitle">COSMO//LINK</h1><small id="brandSubtitle">COMPANION TERMINAL</small></div></div>
+    <div class="brand"><div class="sigil" id="sigil">--</div><div><h1 id="brandTitle">COMPANION//LINK</h1><small id="brandSubtitle">COMPANION TERMINAL</small></div></div>
     <span id="portraitHome" hidden aria-hidden="true"></span>
-    <div class="portrait-frame"><img id="portrait" class="portrait" alt="Jacey Cosmo expression"><div id="statusTag" class="status-tag">DEFAULT_HAPPY</div></div>
+    <div class="portrait-frame"><img id="portrait" class="portrait" alt="Companion expression"><div id="statusTag" class="status-tag">PORTRAIT</div></div>
     <div class="expressions" id="expressions"></div>
-    <div class="profile"><div><strong id="characterName">Jacey “Jace” Cosmo</strong><span id="characterTalent">Ultimate Cryptologist</span></div><div class="online">ONLINE</div></div>
+    <div class="profile"><div><strong id="characterName">Companion</strong><span id="characterTalent">Loading…</span></div><div class="online">ONLINE</div></div>
   </aside>
   <section class="chat">
-    <header class="chat-head"><div class="channel-info"><div class="mobile-avatar-slot" id="mobileAvatarSlot" aria-label="Active companion portrait"></div><div class="channel-copy"><b id="channelTitle">ENCRYPTED COMPANION CHANNEL</b><small id="channel">channel: jace.private // integrity verified</small></div></div><div class="mode-tabs" aria-label="Interface mode">
+    <header class="chat-head"><div class="channel-info"><div class="mobile-avatar-slot" id="mobileAvatarSlot" aria-label="Active companion portrait"></div><div class="channel-copy"><b id="channelTitle">COMPANION CHANNEL</b><small id="channel">channel: loading // initializing</small></div></div><div class="mode-tabs" aria-label="Interface mode">
   <button class="mode-tab active" id="chatModeBtn" type="button">CHAT</button>
   <button class="mode-tab" id="cipherModeBtn" type="button">CIPHER LAB</button>
 </div>
@@ -1396,7 +1397,7 @@ window.addEventListener('DOMContentLoaded',()=>{
       <button id="closeEpisodeOverlayBtn" type="button">LEAVE EPISODE</button>
     </div>
   </div>
-  <div class="quick" id="quick"></div><form class="input-row" id="form" novalidate><input id="input" type="text" inputmode="text" enterkeyhint="send" autocomplete="off" autocapitalize="sentences" spellcheck="true" maxlength="1800" placeholder="Message Jace…" aria-label="Message Jace"><button class="send" id="sendBtn" type="button" aria-label="Send message">➤</button></form></div>
+  <div class="quick" id="quick"></div><form class="input-row" id="form" novalidate><input id="input" type="text" inputmode="text" enterkeyhint="send" autocomplete="off" autocapitalize="sentences" spellcheck="true" maxlength="1800" placeholder="Message companion…" aria-label="Message companion"><button class="send" id="sendBtn" type="button" aria-label="Send message">➤</button></form></div>
   </section>
   <div class="identity-overlay" id="identityOverlay" aria-hidden="true"><div class="identity-card"><div class="identity-kicker" id="identityKicker">AUTHENTICATION PHRASE RECOGNIZED</div><div class="identity-name" id="identityName">PROFILE</div><div class="identity-step" id="identityStep">Verifying…</div><div class="identity-bar"><i id="identityProgress"></i></div><div class="identity-belief" id="identityBelief"></div></div></div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -1406,7 +1407,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     <section class="library-section"><h3>EPISODES</h3><div id="libraryEpisodes"></div></section>
     <section class="library-section"><h3>MESSAGE BANKS</h3><div id="libraryMessageBanks"></div></section>
   </aside>
-  <aside class="dossier" id="dossier"><button class="icon-btn close" id="closeDossier">×</button><h2 id="dossierTitle">CLASSIFIED // JACE</h2><div class="codebox" id="dossierBody">SUBJECT: JACEY COSMO<br>TALENT: ULTIMATE CRYPTOLOGIST<br>THREAT MODEL: <span class="warning">ACCIDENTAL DATA BREACH</span><br>INTEGRITY SCORE: 99.8%<br>FILTER BETWEEN THOUGHT & SPEECH: <span class="warning">NOT FOUND</span><br><br>ORIGIN RECORD: <span class="redacted">REDACTED REDACTED</span><br>KNOWN ALIASES: <span class="redacted">REDACTED</span><br><br>NOTE: Subject will decode restricted material if presented as a puzzle. Do not label anything “secret.”</div></aside>
+  <aside class="dossier" id="dossier"><button class="icon-btn close" id="closeDossier">×</button><h2 id="dossierTitle">CLASSIFIED</h2><div class="codebox" id="dossierBody"></div></aside>
 
 <section class="cipher-mode" id="cipherMode" aria-label="Cipher Lab">
   <div class="cipher-shell">
@@ -1494,83 +1495,27 @@ const FRAMEWORK_TIMING={
   dossierSlide:420
 };
 
+const CompanionCharacter=window.CompanionCharacter;
+if(!CompanionCharacter)throw new Error("character.js did not define window.CompanionCharacter.");
+const IDENTITIES=CompanionCharacter.identities;
+const DEFAULT_IDENTITY=CompanionCharacter.defaultIdentity;
+const defaultIdentityProfile=IDENTITIES[DEFAULT_IDENTITY];
+if(!defaultIdentityProfile)throw new Error(`Unknown default companion identity: ${DEFAULT_IDENTITY}`);
+
+/* Mutable presentation state derived from character.js.
+   IdentityManager is the sole writer during identity switches. */
 const CHARACTER={
-  key:'jace',
-  name:'Jacey “Jace” Cosmo',
-  shortName:'Jace',
-  talent:'Ultimate Cryptologist',
-  initials:'JC',
-  brand:'COSMO//LINK',
-  brandSubtitle:'COMPANION TERMINAL',
-  channelTitle:'ENCRYPTED COMPANION CHANNEL',
-  channelLine:'channel: jace.private // integrity verified',
-  speakerLabel:'JACE // VERIFIED',
-  typingLabel:'JACE // DECRYPTING',
-  botStamp:'AES-256-ish',
-  placeholder:'Message Jace…',
-  dossierTitle:'CLASSIFIED // JACE',
-  welcome:'Connection established! I checked the handshake, the checksum, and one thing I was apparently not supposed to check. Everything looks great! :D',
-  quickReplies:['Can you decode this?','Tell me about yourself','This is private.','Did you find a contradiction?'],
-  companionModeLabel:'COMPANION MODE',
-  idleMinMs:45000,
-  idleMaxMs:90000,
-  coreBelief:'Every mystery deserves to be solved, even the one wearing my name.',
-  colors:{
-    bg:'#08070d', panel:'#10101a', panel2:'#151426', ink:'#f4efff', muted:'#9b95b5',
-    accent:'#a970ff', secondary:'#477cff', danger:'#d62952', cyan:'#66e8ff', line:'#38244f'
-  }
+  key:DEFAULT_IDENTITY,
+  ...defaultIdentityProfile,
+  welcome:CompanionCharacter.startup.fallbackMessage,
+  companionModeLabel:CompanionCharacter.companionModeLabel,
+  idleMinMs:CompanionCharacter.idle.minMs,
+  idleMaxMs:CompanionCharacter.idle.maxMs
 };
 
 /* =========================================================
    SECTION 3 — IDENTITY ENGINE
    ========================================================= */
-const IDENTITIES={
-  jace:{
-    keyphrase:'the present is safe.',
-    name:'Jacey “Jace” Cosmo', shortName:'Jace', talent:'Ultimate Cryptologist',
-    initials:'JC', brand:'COSMO//LINK', brandSubtitle:'COMPANION TERMINAL',
-    channelTitle:'ENCRYPTED COMPANION CHANNEL',
-    channelLine:'channel: jace.private // integrity verified',
-    speakerLabel:'JACE // VERIFIED', typingLabel:'JACE // DECRYPTING',
-    botStamp:'AES-256-ish', placeholder:'Message Jace…',
-    dossierTitle:'CLASSIFIED // JACE',
-    status:'DEFAULT_HAPPY',
-    switchMessage:'Identity restored. Present-time profile verified. Hi again! :D',
-    quickReplies:['Can you decode this?','Tell me about yourself','This is private.','Did you find a contradiction?'],
-    dossier:'SUBJECT: JACEY COSMO<br>TALENT: ULTIMATE CRYPTOLOGIST<br>ACTIVE IDENTITY: JACE<br>STATUS: <span class="ok">PRESENT-TIME PROFILE VERIFIED</span><br>THREAT MODEL: <span class="warning">ACCIDENTAL DATA BREACH</span><br>FILTER BETWEEN THOUGHT & SPEECH: <span class="warning">NOT FOUND</span>',
-    coreBelief:'Every mystery deserves to be solved, even the one wearing my name.',transitionLabel:'PRESENT-TIME PROFILE VERIFIED',colors:{bg:'#08070d',panel:'#10101a',panel2:'#151426',ink:'#f4efff',muted:'#9b95b5',accent:'#a970ff',secondary:'#6d4aff',danger:'#d62952',cyan:'#c39cff',line:'#38244f'}
-  },
-  mao:{
-    keyphrase:'the wolf is listening.',
-    name:'Mao Fushimi', shortName:'Mao', talent:'Fenrir Operative',
-    initials:'MF', brand:'FENRIR//ECHO', brandSubtitle:'LISTENING NODE',
-    channelTitle:'COVERT OBSERVATION CHANNEL',
-    channelLine:'channel: mao.black // passive surveillance active',
-    speakerLabel:'MAO // MASK VERIFIED', typingLabel:'MAO // ASSESSING',
-    botStamp:'FENRIR-OBSCURA', placeholder:'Speak carefully…',
-    dossierTitle:'RESTRICTED // MAO FUSHIMI',
-    status:'WOLF_SIGNAL_ACTIVE',
-    switchMessage:'The listening post is active. Choose your words carefully.',
-    quickReplies:['Who is listening?','What did you notice?','Assess the situation.','This stays off-record.'],
-    dossier:'SUBJECT: MAO FUSHIMI<br>AFFILIATION: FENRIR<br>ACTIVE IDENTITY: MAO<br>ACCESS: <span class="warning">COMPARTMENTALIZED</span><br>OBSERVATION MODE: PASSIVE<br>DISCLOSURE POLICY: MINIMUM NECESSARY',
-    coreBelief:'Truth is only useful if you survive long enough to protect it.',transitionLabel:'FENRIR NODE ONLINE',colors:{bg:'#090304',panel:'#160708',panel2:'#210a0c',ink:'#fff0f0',muted:'#b18b8e',accent:'#8f1d27',secondary:'#4e0d13',danger:'#d94a57',cyan:'#e07a83',line:'#512027'}
-  },
-  naoya:{
-    keyphrase:'the stars demand an answer.',
-    name:'Naoya Takahoshi', shortName:'Naoya', talent:'Cryptologist Alias',
-    initials:'NT', brand:'NOVA//ARCHIVE', brandSubtitle:'ANALYTICAL INTERFACE',
-    channelTitle:'CELESTIAL ANALYSIS CHANNEL',
-    channelLine:'channel: naoya.signal // pattern lock acquired',
-    speakerLabel:'NAOYA // ALIAS VERIFIED', typingLabel:'NAOYA // CALCULATING',
-    botStamp:'STAR-MAP-09', placeholder:'Submit a question…',
-    dossierTitle:'SEALED // NAOYA TAKAHOSHI',
-    status:'CONSTELLATION_LOCK',
-    switchMessage:'Alias accepted. The pattern is visible now. Ask your question.',
-    quickReplies:['Analyze this pattern.','What is inconsistent?','Trace the signal.','Give me the precise answer.'],
-    dossier:'SUBJECT: NAOYA TAKAHOSHI<br>ROLE: ANALYTICAL ALIAS<br>ACTIVE IDENTITY: NAOYA<br>PATTERN STATE: <span class="ok">LOCKED</span><br>OBSERVATION BIAS: DETAIL-FIRST<br>EMOTIONAL DISCLOSURE: RESTRICTED',
-    coreBelief:'A secret that can survive being revealed was always worth testing.',transitionLabel:'CELESTIAL PROFILE LOCATED',colors:{bg:'#031011',panel:'#071b1c',panel2:'#0b2729',ink:'#eaffff',muted:'#86aeb0',accent:'#20a6a3',secondary:'#126568',danger:'#c34c70',cyan:'#73e6df',line:'#1f5558'}
-  }
-};
 const Framework=window.Framework||{};
 window.Framework=Framework;
 Framework.version='6.1.2';
@@ -1609,17 +1554,13 @@ Framework.resume=function(context={}){
 
 /* Compatibility read used by the current chat, episode, achievement, and Cipher
    code. IdentityManager is the sole writer. */
-let activeIdentity='jace';
+let activeIdentity=DEFAULT_IDENTITY;
 
 const IdentityManager={
   registry:IDENTITIES,
-  _activeId:'jace',
+  _activeId:DEFAULT_IDENTITY,
   _switching:false,
-  awareness:{
-    jace:{mao:'...Mao was here, wasn’t he? He leaves the interface much quieter than I do.',naoya:'Naoya left very tidy notes. Suspiciously tidy.'},
-    mao:{jace:'The present profile has been suspended.',naoya:'The analyst yielded the channel.'},
-    naoya:{jace:'Jace left more context than necessary. It remains useful.',mao:'The observation profile has released control.'}
-  },
+  awareness:CompanionCharacter.identityAwareness,
   exists(id){return Object.prototype.hasOwnProperty.call(this.registry,id)},
   get(id){return this.exists(id)?this.registry[id]:null},
   getCurrentId(){return this._activeId},
@@ -1716,7 +1657,7 @@ const MusicManager={
   manifest:null,
   ready:false,
   enabled:false,
-  currentIdentity:'jace',
+  currentIdentity:DEFAULT_IDENTITY,
   playlistIndex:0,
   button:document.querySelector('#musicToggle'),
   channels:[
@@ -2451,7 +2392,7 @@ function routeMessage(text){
   return {bank:chooseRandomBank(matches)||'generic'};
 }
 
-function getContextEventStartupBank(identityId='jace'){
+function getContextEventStartupBank(identityId=DEFAULT_IDENTITY){
   for(const [bank,definition] of Object.entries(getIdentityBanks(identityId))){
     if(normalizeContextBankKey(bank)==='context-event')return definition;
   }
@@ -2484,7 +2425,7 @@ function normalizeStartupResponse(item){
   return null;
 }
 
-function getContextEventStartupRows(identityId='jace'){
+function getContextEventStartupRows(identityId=DEFAULT_IDENTITY){
   const bank=getContextEventStartupBank(identityId);
   if(!bank)return [];
 
@@ -2533,11 +2474,11 @@ function pickStartupRow(rows,key){
 }
 
 function resolveStartupMessage(){
-  if(activeIdentity!=='jace'||!messageBankLoaded){
+  if(activeIdentity!==DEFAULT_IDENTITY||!messageBankLoaded){
     return {expression:'happy',response:CHARACTER.welcome};
   }
 
-  const rows=getContextEventStartupRows('jace');
+  const rows=getContextEventStartupRows(DEFAULT_IDENTITY);
   if(!rows.length){
     return {expression:'happy',response:CHARACTER.welcome};
   }
@@ -2569,7 +2510,7 @@ function showStartupMessage(){
 }
 let lastResponse='';
 function pick(bank){
-  const options=getBankResponses(bank,'jace').length?getBankResponses(bank,'jace'):getBankResponses('generic','jace');
+  const options=getBankResponses(bank,DEFAULT_IDENTITY).length?getBankResponses(bank,DEFAULT_IDENTITY):getBankResponses('generic',DEFAULT_IDENTITY);
   if(!options.length)return ['curious','No dialogue is available for this topic yet.'];
   const filtered=options.filter(item=>Array.isArray(item)?item[1]!==lastResponse:item!==lastResponse);
   const pool=filtered.length?filtered:options;
@@ -2601,38 +2542,18 @@ function pickAlias(bank){
 
 /* Framework-owned guidance shown only when the external message bank is absent.
    These lines are tied to initialization/error recovery, not normal chat content. */
-const MISSING_BANK_QUICK_REPLY_GUIDANCE={
-  jace:[
-    ['clue','The cipher tools are ready, but my Notion dialogue archive did not load. Refresh after checking the companions Worker.'],
-    ['happy','I can tell you everything the message bank knows about me once the Notion dialogue archive finishes loading.'],
-    ['overshare','Private channel confirmed! My Notion dialogue archive is unavailable right now. Refresh after checking the companions Worker.'],
-    ['deadpan','Contradiction found: you asked me a question before my Notion dialogue data loaded. Refresh after checking the companions Worker.']
-  ],
-  mao:[
-    ['deadpan','Listener records are unavailable because the Notion dialogue archive did not load. Refresh after checking the companions Worker.'],
-    ['clue','Observation archive missing. Refresh after checking the companions Worker.'],
-    ['panic','Assessment cannot proceed because the Notion dialogue archive is unavailable. Refresh after checking the companions Worker.'],
-    ['deadpan','Off-record protocol acknowledged. The Notion dialogue archive is unavailable. Refresh after checking the companions Worker.']
-  ],
-  naoya:[
-    ['clue','Pattern analysis requires the Notion dialogue archive. Refresh after checking the companions Worker.'],
-    ['deadpan','The inconsistency is the unavailable Notion message bank. Refresh after checking the companions Worker.'],
-    ['curious','The signal trace ends at the unavailable Notion dialogue archive. Refresh after checking the companions Worker.'],
-    ['deadpan','Precise answer: the Notion dialogue archive is unavailable. Refresh after checking the companions Worker.']
-  ]
-};
-
 function missingBankGuidance(text,bank){
   const replies=IDENTITIES[activeIdentity]?.quickReplies||[];
   const quickIndex=replies.findIndex(reply=>reply===text);
-  const identityGuidance=MISSING_BANK_QUICK_REPLY_GUIDANCE[activeIdentity]||MISSING_BANK_QUICK_REPLY_GUIDANCE.jace;
-  if(quickIndex>=0 && identityGuidance[quickIndex])return identityGuidance[quickIndex];
+  const guidance=CompanionCharacter.missingBankGuidance;
+  const identityGuidance=guidance[activeIdentity]||guidance[DEFAULT_IDENTITY]||[];
+  if(quickIndex>=0&&identityGuidance[quickIndex])return identityGuidance[quickIndex];
 
-  const fallbackExpression=activeIdentity==='jace'
-    ? ({cryptology:'clue',identity:'happy',secrecy:'overshare',contradiction:'deadpan'}[bank]||'curious')
-    : activeIdentity==='mao'?'deadpan':'curious';
+  const expressionMap=CompanionCharacter.missingBankFallbackExpressions[activeIdentity]||CompanionCharacter.missingBankFallbackExpressions[DEFAULT_IDENTITY]||{default:'curious'};
+  const fallbackExpression=expressionMap[bank]||expressionMap.default||'curious';
   return [fallbackExpression,'The Notion message banks are unavailable. Refresh after checking the companions Worker.'];
 }
+
 
 /* =========================================================
    SECTION 5.8 — EPISODE OVERLAY CONTROLLER
@@ -3592,7 +3513,7 @@ function findTriggeredEpisodes(text){
     const episode=record.data;
     if(!record.enabled || episode.__enabled===false)continue;
 
-    const episodeIdentity=episode.identity||'jace';
+    const episodeIdentity=episode.identity||DEFAULT_IDENTITY;
     if(episodeIdentity!==activeIdentity)continue;
     if(!episodeIsEligible(episode))continue;
 
@@ -3990,9 +3911,9 @@ registerEpisode({
    ========================================================= */
 
 const COMPANION_APP_CONFIG=Object.freeze({
-  characterId:'jace',
-  characterName:'Jacey “Jace” Cosmo',
-  memoryFileName:'jacey_memory.json',
+  characterId:CompanionCharacter.id,
+  characterName:IDENTITIES[DEFAULT_IDENTITY].name,
+  memoryFileName:CompanionCharacter.memory.fileName,
   messageSchema:'companion-message-bank',
   episodeSchema:'companion-episode-v1',
   memorySchema:'companion-memory-v1'
@@ -4006,7 +3927,8 @@ const BUILTIN_LISTS=Object.freeze({
 });
 
 const COMPANION_MESSAGE_BANK_ENDPOINT=
-  'https://companions.aquafia1247.workers.dev/message-banks/Jacey';
+  'https://companions.aquafia1247.workers.dev/message-banks/'+
+  encodeURIComponent(CompanionCharacter.services.messageBankCompanion);
 
 const dataLoadBtn=document.querySelector('#dataLoadBtn');
 const memorySaveBtn=document.querySelector('#memorySaveBtn');
@@ -4034,7 +3956,7 @@ const EpisodeManager={
     episode.__enabled=enabled;
     registerEpisode(episode);
     if(achievement){
-      EXTERNAL_ACHIEVEMENTS[achievement.id]={...achievement,id:achievement.id,episodeId:episode.id,identity:achievement.identity||episode.identity||'jace'};
+      EXTERNAL_ACHIEVEMENTS[achievement.id]={...achievement,id:achievement.id,episodeId:episode.id,identity:achievement.identity||episode.identity||DEFAULT_IDENTITY};
     }
     this.records.set(key,{title,type:'episode',source,fileName,enabled,data:episode,raw:data});
     refreshContentUI();

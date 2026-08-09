@@ -2409,55 +2409,6 @@ function normalizeContextBankKey(value){
     .replace(/^-+|-+$/g,'');
 }
 
-function getActiveMessageContexts(){
-  const state=window.CompanionContext?.get?.();
-  if(!state)return {contexts:new Set(),events:new Set()};
-
-  const contexts=new Set(
-    [state.timeOfDay,state.weekday,state.month,state.season]
-      .map(normalizeContextBankKey)
-      .filter(Boolean)
-  );
-
-  const events=new Set();
-
-  for(const event of state.eventsToday||[]){
-    [event.visualContext,event.name]
-      .map(normalizeContextBankKey)
-      .filter(Boolean)
-      .forEach(key=>events.add(key));
-  }
-
-  for(const birthday of state.birthdaysToday||[]){
-    [birthday.visualContext,'birthday']
-      .map(normalizeContextBankKey)
-      .filter(Boolean)
-      .forEach(key=>events.add(key));
-  }
-
-  for(const visualContext of state.visualContexts||[]){
-    const key=normalizeContextBankKey(visualContext);
-    if(key)events.add(key);
-  }
-
-  return {contexts,events};
-}
-
-function getBankContext(definition){
-  const type=String(definition?.contextType||'').toLowerCase();
-  const key=normalizeContextBankKey(definition?.contextKey);
-  if((type!=='context'&&type!=='event')||!key)return null;
-  return {type,key};
-}
-
-function contextBankIsActive(definition,activeContexts){
-  const context=getBankContext(definition);
-  if(!context)return true;
-  return context.type==='event'
-    ?activeContexts.events.has(context.key)
-    :activeContexts.contexts.has(context.key);
-}
-
 function bankInputMatches(text,definition){
   const questionMatch=
     Boolean(definition.questionMark)&&/\?\s*$/.test(String(text));
@@ -2479,13 +2430,7 @@ function bankInputMatches(text,definition){
     catch{return false}
   });
 
-  return {
-    matched:questionMatch||keywordMatch||patternMatch,
-    hasAuthoredMatcher:
-      Boolean(definition.questionMark)||
-      keywords.length>0||
-      patterns.length>0
-  };
+  return questionMatch||keywordMatch||patternMatch;
 }
 
 function chooseRandomBank(banks){
@@ -2495,61 +2440,90 @@ function chooseRandomBank(banks){
 }
 
 function routeMessage(text){
-  const activeContexts=getActiveMessageContexts();
-  const normalMatches=[];
-  const activeContextMatches=[];
-  const activeEventMatches=[];
-  const contextGreetingBanks=[];
-  const eventGreetingBanks=[];
+  const matches=[];
 
   for(const [bank,definition] of Object.entries(getIdentityBanks())){
-    if(bank==='generic'||bank==='idle')continue;
+    if(bank==='generic'||bank==='idle'||normalizeContextBankKey(bank)==='context-event')continue;
     if(!definition||typeof definition!=='object'||Array.isArray(definition))continue;
-
-    const context=getBankContext(definition);
-    const inputMatch=bankInputMatches(text,definition);
-
-    if(!context){
-      if(inputMatch.matched)normalMatches.push(bank);
-      continue;
-    }
-
-    if(!contextBankIsActive(definition,activeContexts))continue;
-
-    if(inputMatch.matched){
-      if(context.type==='event')activeEventMatches.push(bank);
-      else activeContextMatches.push(bank);
-      continue;
-    }
-
-    // A context/event bank with blank Keywords is a contextual greeting bank.
-    if(!inputMatch.hasAuthoredMatcher){
-      if(context.type==='event')eventGreetingBanks.push(bank);
-      else contextGreetingBanks.push(bank);
-    }
+    if(bankInputMatches(text,definition))matches.push(bank);
   }
 
-  // Authored event/context keyword matches outrank ordinary banks while active.
-  const explicitEvent=chooseRandomBank(activeEventMatches);
-  if(explicitEvent)return {bank:explicitEvent};
+  return {bank:chooseRandomBank(matches)||'generic'};
+}
 
-  const explicitContext=chooseRandomBank(activeContextMatches);
-  if(explicitContext)return {bank:explicitContext};
+function getContextEventStartupBank(identityId='jace'){
+  for(const [bank,definition] of Object.entries(getIdentityBanks(identityId))){
+    if(normalizeContextBankKey(bank)==='context-event')return definition;
+  }
+  return null;
+}
 
-  // Blank-keyword contextual banks only replace a normal Greetings response.
-  // Events take priority over time-of-day context; normal Greetings is fallback.
-  const greetingMatched=normalMatches.includes('greetings');
+function getStartupContextPriority(){
+  const state=window.CompanionContext?.get?.();
+  if(!state)return [];
 
-  if(greetingMatched){
-    const eventGreeting=chooseRandomBank(eventGreetingBanks);
-    if(eventGreeting)return {bank:eventGreeting};
+  const priority=[];
+  const add=value=>{
+    const key=normalizeContextBankKey(value);
+    if(key&&!priority.includes(key))priority.push(key);
+  };
 
-    const contextGreeting=chooseRandomBank(contextGreetingBanks);
-    if(contextGreeting)return {bank:contextGreeting};
+  for(const event of state.eventsToday||[]){
+    add(event.name);
+    add(event.visualContext);
+  }
+  for(const birthday of state.birthdaysToday||[]){
+    add('birthday');
+    add(birthday.visualContext);
   }
 
-  if(!normalMatches.length)return {bank:'generic'};
-  return {bank:chooseRandomBank(normalMatches)};
+  add(state.timeOfDay);
+  add(state.weekday);
+  add(state.month);
+  add(state.season);
+  return priority;
+}
+
+function normalizeStartupResponse(item){
+  if(Array.isArray(item)){
+    const [expression,response,contextEvent]=item;
+    return {
+      expression:String(expression||'curious'),
+      response:String(response||''),
+      contextEvent:String(contextEvent||'')
+    };
+  }
+  if(item&&typeof item==='object'){
+    return {
+      expression:String(item.expression||item.exp||'curious'),
+      response:String(item.response||item.text||item.message||''),
+      contextEvent:String(item.contextEvent||item.context_event||item.context||item.event||item['Context/Event']||'')
+    };
+  }
+  return null;
+}
+
+function resolveStartupMessage(){
+  if(activeIdentity!=='jace'||!messageBankLoaded){
+    return {expression:'happy',response:CHARACTER.welcome};
+  }
+
+  const bank=getContextEventStartupBank('jace');
+  const responses=Array.isArray(bank?.responses)?bank.responses:[];
+  const rows=responses.map(normalizeStartupResponse).filter(row=>row?.response&&row.contextEvent);
+
+  for(const contextKey of getStartupContextPriority()){
+    const matches=rows.filter(row=>normalizeContextBankKey(row.contextEvent)===contextKey);
+    if(matches.length)return matches[Math.floor(Math.random()*matches.length)];
+  }
+
+  return {expression:'happy',response:CHARACTER.welcome};
+}
+
+function showStartupMessage(){
+  const startup=resolveStartupMessage();
+  if(CHARACTER.portrait!==false)setExpression(startup.expression||'happy');
+  add(startup.response||CHARACTER.welcome);
 }
 let lastResponse='';
 function pick(bank){
@@ -3354,7 +3328,6 @@ closeDossier.onclick=()=>setDossierOpen(false);
 document.querySelector('#glitchBtn').onclick=()=>{document.querySelector('#terminal').classList.add('glitch');setTimeout(()=>document.querySelector('#terminal').classList.remove('glitch'),500);setExpression('clue')};
 portraitFrame.dataset.alias=CHARACTER.initials;
 refreshQuickReplies();
-add(CHARACTER.welcome);
 
 /* =========================================================
    MAINTENANCE NOTES
@@ -4269,7 +4242,14 @@ dataFileInput.addEventListener('change',async()=>{
 });
 
 loadBuiltinEpisodes();
-loadNotionMessageBanks();
+const messageBankLoadPromise=loadNotionMessageBanks();
+window.addEventListener('DOMContentLoaded',async()=>{
+  await Promise.allSettled([
+    messageBankLoadPromise,
+    window.CompanionContext?.loadPromise||Promise.resolve()
+  ]);
+  showStartupMessage();
+},{once:true});
 
 memorySaveBtn.addEventListener('click',event=>{
   event.preventDefault();

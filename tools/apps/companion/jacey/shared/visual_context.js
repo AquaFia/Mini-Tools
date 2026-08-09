@@ -1,5 +1,5 @@
 /* =========================================================
-   SHARED VISUAL CONTEXT MANAGER v1
+   SHARED VISUAL CONTEXT MANAGER v1.1
    Phase 4A foundation.
    - Observes CompanionContext only.
    - Loads/unloads optional context theme stylesheets.
@@ -84,12 +84,16 @@
         this.themeLinks.delete(context);
       }
 
-      for(const context of wanted){
-        if(this.themeLinks.has(context))continue;
+      for(const [index,context] of this.activeContexts.entries()){
+        if(this.themeLinks.has(context)){
+          this.themeLinks.get(context).dataset.visualPriority=String(index);
+          continue;
+        }
 
         const link=document.createElement('link');
         link.rel='stylesheet';
         link.dataset.visualContext=context;
+        link.dataset.visualPriority=String(index);
         link.href=
           `${this.config.themesBasePath}${encodeURIComponent(context)}${this.config.themeExtension}`;
 
@@ -108,6 +112,12 @@
         this.themeLinks.set(context,link);
       }
 
+      // Preserve active-context order so later stylesheets can add accents.
+      for(const context of this.activeContexts){
+        const link=this.themeLinks.get(context);
+        if(link)document.head.appendChild(link);
+      }
+
       document.documentElement.dataset.visualContexts=
         this.activeContexts.join(' ');
     },
@@ -115,7 +125,7 @@
     getPortraitContextCandidates(){
       /*
         Order is intentional:
-        1. Combined context, e.g. "birthday+halloween"
+        1. Combined active context
         2. Individual active contexts in repository order
         3. "normal" fallback
 

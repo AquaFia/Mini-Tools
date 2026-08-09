@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Jacey Cosmo — Companion Terminal v6.3.33 Visual Context Foundation</title>
+<title>Jacey Cosmo — Companion Terminal v6.3.34 Contextual Portrait Integration</title>
 <style>
 /* =========================================================
    JACEY COMPANION FRAMEWORK v5.6 — EPISODE ENGINE CLEANUP
@@ -2091,6 +2091,7 @@ const PortraitManager={
   ready:false,
   loadPromise:null,
   pendingExpression:null,
+  visualContextBound:false,
 
   async load(){
     if(this.loadPromise)return this.loadPromise;
@@ -2110,6 +2111,7 @@ const PortraitManager={
 
       this.manifest=manifest;
       this.ready=true;
+      this.bindVisualContext();
       this.preload();
       this.renderIdentity(activeIdentity);
 
@@ -2156,16 +2158,70 @@ const PortraitManager={
     return this.getExpressions(identityId).length>0;
   },
 
+  getPortraitFile(expression){
+    if(!expression||typeof expression!=='object')return null;
+
+    const variants=
+      expression.contexts&&typeof expression.contexts==='object'
+        ?expression.contexts
+        :null;
+
+    if(variants && window.VisualContextManager){
+      const resolved=window.VisualContextManager.resolvePortraitVariant(variants);
+      const value=resolved?.value;
+
+      if(typeof value==='string' && value.trim())return value.trim();
+
+      if(value && typeof value==='object'){
+        const contextualFile=
+          value.file||value.src||value.path||value.filename||null;
+        if(contextualFile)return contextualFile;
+      }
+    }
+
+    return expression.file||null;
+  },
+
   imageUrl(expression){
-    return new URL(expression.file,this.manifestBaseUrl).href;
+    const file=this.getPortraitFile(expression);
+    return file?new URL(file,this.manifestBaseUrl).href:'';
+  },
+
+  bindVisualContext(){
+    if(this.visualContextBound)return;
+    this.visualContextBound=true;
+
+    window.addEventListener('companionvisualcontextchange',()=>{
+      if(!this.ready)return;
+      const current=
+        exprWrap.querySelector('.expr.active')?.dataset.e ||
+        this.getDefaultExpression(activeIdentity);
+      if(current)this.setExpression(current,activeIdentity);
+    });
   },
 
   preload(){
     for(const identity of Object.values(this.manifest?.identities||{})){
       for(const expression of identity?.expressions||[]){
-        if(!expression?.file)continue;
-        const image=new Image();
-        image.src=this.imageUrl(expression);
+        const files=new Set();
+
+        if(expression?.file)files.add(expression.file);
+
+        if(expression?.contexts && typeof expression.contexts==='object'){
+          for(const value of Object.values(expression.contexts)){
+            if(typeof value==='string' && value.trim()){
+              files.add(value.trim());
+            }else if(value && typeof value==='object'){
+              const file=value.file||value.src||value.path||value.filename||null;
+              if(file)files.add(file);
+            }
+          }
+        }
+
+        for(const file of files){
+          const image=new Image();
+          image.src=new URL(file,this.manifestBaseUrl).href;
+        }
       }
     }
   },
@@ -2241,7 +2297,12 @@ const PortraitManager={
         portrait.classList.remove('switching');
         return;
       }
-      portrait.src=this.imageUrl(expression);
+      const imageUrl=this.imageUrl(expression);
+      if(!imageUrl){
+        portrait.classList.remove('switching');
+        return;
+      }
+      portrait.src=imageUrl;
       portrait.alt=`${IDENTITIES[identityId]?.shortName||identityId} — ${
         expression.displayName||expression.id
       }`;

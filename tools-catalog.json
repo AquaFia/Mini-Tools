@@ -45,7 +45,7 @@
     },
     {
       "title": "Dummy Companion Chat Box",
-      "file": "tools/apps/companion/TEST_COMPANION/companion",
+      "file": "tools/apps/companion/TEST_COMPANION/test_companion",
       "icon": "▧",
       "accent": "#4cc9f0",
       "description": "The Dummy Companion Test. Little Miss Probe, Echo and Signal.",

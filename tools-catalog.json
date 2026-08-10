@@ -77,7 +77,7 @@
     },
     {
       "title": "Memories - List View",
-      "file": "tools/apps/Library List View",
+      "file": "tools/apps/Library List View/index",
       "icon": "▧",
       "accent": "#79efb4",
       "description": "Library Test.",
@@ -85,7 +85,7 @@
     },
     {
       "title": "Memories - Book View",
-      "file": "tools/apps/Library Book View",
+      "file": "tools/apps/Library Book View/index",
       "icon": "▧",
       "accent": "#79efb4",
       "description": "Library Test.",

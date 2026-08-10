@@ -3,7 +3,7 @@ MINIMAL TEST COMPANION / FUTURE JACEY-BASE TEMPLATE
 
 PURPOSE
 -------
-This synthetic companion is the v7.0.9 duplicate-character acceptance test.
+This synthetic companion is the certified duplicate-character acceptance template.
 It is intentionally not a detailed character. It exists to verify the generic
 Jacey-base shell and to serve as a clean starting folder for future companions.
 
@@ -27,7 +27,7 @@ Student Handbook/
     expressions/
     episodes/
 
-The template companion.html already points to ../shared/ and ../themes/.
+The included companion.html is the exact certified portable-base shell. Keep its runtime code unchanged when duplicating this template.
 
 WHAT THIS PACKAGE TESTS
 -----------------------

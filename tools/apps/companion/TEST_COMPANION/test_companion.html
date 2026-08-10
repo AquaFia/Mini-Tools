@@ -6,7 +6,7 @@
 <title>Companion Terminal</title>
 <style>
 /* =========================================================
-   COMPANION FRAMEWORK v7.0.8 — GENERIC RUNTIME
+   COMPANION FRAMEWORK — GENERIC RUNTIME
    SECTION 1 — VISUAL SYSTEM / LAYOUT / THEMES
    ========================================================= */
 :root{
@@ -1336,7 +1336,7 @@ const CHARACTER={
    ========================================================= */
 const Framework=window.Framework||{};
 window.Framework=Framework;
-Framework.version='7.0.8';
+Framework.version='portable-base';
 Framework.modules=Framework.modules||{};
 /* Shared return-to-chat lifecycle. Each module restores only its own UI. */
 Framework.resume=function(context={}){
@@ -1435,7 +1435,7 @@ const IdentityManager={
 Framework.modules.IdentityManager=IdentityManager;
 
 /* =========================================================
-   IDENTITY MUSIC v6.3.26
+   IDENTITY MUSIC
    Canonical playlist arrays only.
    One track: loops that track.
    Multiple tracks: play in order, then loop the playlist.
@@ -1825,6 +1825,10 @@ const PortraitManager={
   loadPromise:null,
   pendingExpression:null,
   visualContextBound:false,
+  currentIdentity:null,
+  currentExpressionId:null,
+  currentImageUrl:'',
+  transitionToken:0,
 
   async load(){
     if(this.loadPromise)return this.loadPromise;
@@ -1998,6 +2002,10 @@ const PortraitManager={
 
   showUnavailable(identityId=activeIdentity){
     const profile=IDENTITIES[identityId]||CHARACTER;
+    this.transitionToken++;
+    this.currentIdentity=null;
+    this.currentExpressionId=null;
+    this.currentImageUrl='';
     portrait.removeAttribute('src');
     portrait.alt=(profile?.shortName||identityId)+' portrait unavailable';
     statusTag.textContent=profile?.status||'PORTRAIT_UNAVAILABLE';
@@ -2023,32 +2031,45 @@ const PortraitManager={
 
     if(!expression)return false;
 
-    portrait.classList.add('switching');
+    const imageUrl=this.imageUrl(expression);
+    if(!imageUrl)return false;
 
-    setTimeout(()=>{
-      if(identityId!==activeIdentity){
-        portrait.classList.remove('switching');
-        return;
-      }
-      const imageUrl=this.imageUrl(expression);
-      if(!imageUrl){
-        portrait.classList.remove('switching');
-        return;
-      }
-      portrait.src=imageUrl;
-      portrait.alt=`${IDENTITIES[identityId]?.shortName||identityId} — ${
-        expression.displayName||expression.id
-      }`;
-      statusTag.textContent=expression.statusLabel||expression.id.toUpperCase();
-      portrait.classList.remove('switching');
-    },120);
+    const alreadyCurrent=
+      this.currentIdentity===identityId &&
+      this.currentExpressionId===expression.id &&
+      this.currentImageUrl===imageUrl &&
+      portrait.src===imageUrl;
 
     exprWrap.querySelectorAll('.expr').forEach(button=>{
       button.classList.toggle('active',button.dataset.e===expression.id);
     });
 
+    if(alreadyCurrent)return true;
+
+    const token=++this.transitionToken;
+    portrait.classList.add('switching');
+
+    setTimeout(()=>{
+      if(token!==this.transitionToken || identityId!==activeIdentity){
+        if(token===this.transitionToken)portrait.classList.remove('switching');
+        return;
+      }
+
+      if(portrait.src!==imageUrl)portrait.src=imageUrl;
+      portrait.alt=`${IDENTITIES[identityId]?.shortName||identityId} — ${
+        expression.displayName||expression.id
+      }`;
+      statusTag.textContent=expression.statusLabel||expression.id.toUpperCase();
+
+      this.currentIdentity=identityId;
+      this.currentExpressionId=expression.id;
+      this.currentImageUrl=imageUrl;
+      portrait.classList.remove('switching');
+    },120);
+
     return true;
   }
+
 };
 
 Framework.modules.PortraitManager=PortraitManager;
@@ -3383,10 +3404,17 @@ async function loadBuiltinEpisodes(){
     const files=Array.isArray(list)?list:list.files;
     if(!Array.isArray(files))throw new Error('Episode list must contain a files array.');
     const base=listUrl.slice(0,listUrl.lastIndexOf('/')+1);
-    for(const name of files){
-      const data=await fetchJSON(base+name);
-      installEpisode(data,name,'builtin',true);
-    }
+    const results=await Promise.allSettled(
+      files.map(name=>fetchJSON(base+name))
+    );
+    results.forEach((result,index)=>{
+      const name=files[index];
+      if(result.status==='fulfilled'){
+        installEpisode(result.value,name,'builtin',true);
+      }else{
+        console.warn(`Could not load ${base+name}.`,result.reason);
+      }
+    });
   }catch(error){
     console.warn(`Could not load ${listUrl}.`,error);
   }

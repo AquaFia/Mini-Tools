@@ -1253,8 +1253,8 @@ body:before{
 
 <script src="character.js"></script>
 <script src="special_module.js"></script>
-<script src="shared/context_awareness.js"></script>
-<script src="shared/visual_context.js"></script>
+<script src="../shared/context_awareness.js"></script>
+<script src="../shared/visual_context.js"></script>
 <script>
 window.addEventListener('DOMContentLoaded',()=>{
   window.CompanionContext?.initialize({
@@ -1264,7 +1264,8 @@ window.addEventListener('DOMContentLoaded',()=>{
 });
 window.addEventListener('DOMContentLoaded',()=>{
   window.VisualContextManager?.initialize({
-    companionId:window.CompanionCharacter.services.visualContextCompanionId
+    companionId:window.CompanionCharacter.services.visualContextCompanionId,
+    themesBasePath:"../themes/"
   });
 });
 </script>

@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Memory Library</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --gold: #d8a24a;
+      --gold-soft: rgba(216,162,74,.28);
+      --panel: rgba(11,8,7,.96);
+      --paper: #17110e;
+      --text: #f7eee1;
+      --muted: #c8b8a5;
+      --danger: #ffb4a9;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: #090605; color: var(--text); font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    .scene { position: relative; width: 100%; min-height: 100vh; overflow: hidden; background: #090605; }
+    .scene > img { display: block; width: 100%; height: 100vh; object-fit: contain; object-position: center; user-select: none; -webkit-user-drag: none; }
+    .hotspot { position: absolute; left: 76.5%; top: 23%; width: 20%; height: 55%; border: 2px solid transparent; border-radius: 18px; background: transparent; cursor: pointer; transition: .2s ease; }
+    .hotspot:hover, .hotspot:focus-visible { outline: none; border-color: rgba(255,206,116,.9); background: rgba(216,162,74,.08); box-shadow: 0 0 0 8px rgba(216,162,74,.08), inset 0 0 45px rgba(216,162,74,.1); }
+    .hint { position: absolute; right: 2rem; bottom: 1.4rem; padding: .75rem 1rem; border: 1px solid var(--gold-soft); border-radius: 999px; background: rgba(10,7,6,.74); backdrop-filter: blur(10px); color: #f3d9a7; pointer-events: none; }
+    .drawer { position: fixed; inset: 0 0 0 auto; width: min(540px, 100vw); z-index: 20; background: var(--panel); border-left: 1px solid var(--gold-soft); box-shadow: -24px 0 60px rgba(0,0,0,.45); transform: translateX(102%); transition: transform .25s ease; display: flex; flex-direction: column; backdrop-filter: blur(18px); }
+    .drawer.open { transform: translateX(0); }
+    .drawer-head { display: flex; align-items: center; gap: .75rem; padding: 1rem; border-bottom: 1px solid var(--gold-soft); }
+    .drawer-head h1 { margin: 0; font-size: 1.15rem; flex: 1; }
+    .icon-btn, .primary { border: 1px solid var(--gold-soft); background: rgba(216,162,74,.08); border-radius: 10px; padding: .65rem .85rem; cursor: pointer; }
+    .icon-btn:hover, .primary:hover { background: rgba(216,162,74,.16); }
+    .controls { display: grid; gap: .7rem; padding: 1rem; border-bottom: 1px solid var(--gold-soft); }
+    .controls input { width: 100%; border: 1px solid var(--gold-soft); border-radius: 10px; padding: .8rem .9rem; color: var(--text); background: rgba(255,255,255,.045); }
+    .status { color: var(--muted); font-size: .9rem; }
+    .status.error { color: var(--danger); }
+    .list { overflow: auto; padding: 1rem; display: grid; gap: .75rem; }
+    .card { width: 100%; text-align: left; color: inherit; border: 1px solid rgba(216,162,74,.2); border-radius: 14px; background: rgba(255,255,255,.035); padding: .9rem; cursor: pointer; transition: transform .15s ease, background .15s ease; }
+    .card:hover { transform: translateY(-1px); background: rgba(216,162,74,.08); }
+    .title { font-weight: 750; line-height: 1.25; }
+    .meta { margin-top: .35rem; color: var(--muted); font-size: .82rem; }
+    .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .65rem; }
+    .tag { border-radius: 999px; border: 1px solid rgba(216,162,74,.28); background: rgba(216,162,74,.08); padding: .25rem .55rem; font-size: .75rem; color: #f3d9a7; }
+    .empty { padding: 2rem 1rem; color: var(--muted); text-align: center; }
+
+    .reader-shell { position: fixed; inset: 0; z-index: 40; display: none; background: rgba(3,2,2,.78); backdrop-filter: blur(12px); padding: clamp(.4rem, 2vw, 1.5rem); }
+    .reader-shell.open { display: grid; place-items: center; }
+    .reader { width: min(980px, 100%); height: min(94vh, 1100px); display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--gold-soft); border-radius: 18px; background: var(--paper); box-shadow: 0 30px 90px rgba(0,0,0,.6); }
+    .reader-top { display: flex; align-items: center; gap: .7rem; padding: .8rem 1rem; border-bottom: 1px solid var(--gold-soft); background: rgba(8,6,5,.78); }
+    .reader-top .spacer { flex: 1; }
+    .reader-open-link { color: #f3d9a7; text-decoration: none; }
+    .reader-open-link:hover { text-decoration: underline; }
+    .reader-scroll { overflow: auto; padding: 0 clamp(1rem, 5vw, 4.5rem) 4rem; }
+    .cover { width: calc(100% + clamp(2rem, 10vw, 9rem)); margin-left: calc(-1 * clamp(1rem, 5vw, 4.5rem)); max-height: 310px; object-fit: cover; display: block; }
+    .page-head { padding: 2.5rem 0 1.5rem; }
+    .page-icon { font-size: 3.5rem; line-height: 1; margin-bottom: .7rem; }
+    .page-icon img { width: 64px; height: 64px; object-fit: contain; }
+    .page-title { font-family: Georgia, serif; font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1.04; margin: 0; }
+    .page-meta { color: var(--muted); margin-top: .8rem; font-size: .9rem; }
+    .reader-loading { padding: 5rem 1rem; text-align: center; color: var(--muted); }
+    .notion-content { font-family: Georgia, 'Times New Roman', serif; font-size: 1.08rem; line-height: 1.72; }
+    .notion-content p { margin: .45rem 0; min-height: 1em; }
+    .notion-content h1 { font-size: 2rem; margin: 2rem 0 .6rem; line-height: 1.2; }
+    .notion-content h2 { font-size: 1.55rem; margin: 1.7rem 0 .5rem; line-height: 1.25; }
+    .notion-content h3 { font-size: 1.25rem; margin: 1.4rem 0 .4rem; line-height: 1.3; }
+    .notion-content ul, .notion-content ol { margin: .35rem 0 .7rem; padding-left: 1.7rem; }
+    .notion-content li { margin: .18rem 0; }
+    .notion-content blockquote { margin: 1rem 0; padding: .2rem 0 .2rem 1rem; border-left: 3px solid var(--gold); color: #eadcc8; }
+    .notion-content hr { border: 0; border-top: 1px solid rgba(216,162,74,.28); margin: 1.6rem 0; }
+    .rt-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; background: rgba(255,255,255,.08); padding: .1em .28em; border-radius: 4px; }
+    .rt-gray, .rt-gray_background { color: #b6aa9d; }
+    .rt-red, .rt-red_background { color: #ff9a8f; }
+    .rt-orange, .rt-orange_background { color: #ffc07a; }
+    .rt-yellow, .rt-yellow_background { color: #f3d985; }
+    .rt-green, .rt-green_background { color: #9ed7ae; }
+    .rt-blue, .rt-blue_background { color: #9fc9ff; }
+    .rt-purple, .rt-purple_background { color: #c9adff; }
+    .rt-pink, .rt-pink_background { color: #f3acd5; }
+    .callout { display: flex; gap: .8rem; margin: 1rem 0; padding: 1rem; border: 1px solid rgba(216,162,74,.2); border-radius: 10px; background: rgba(255,255,255,.04); }
+    .callout-icon { flex: 0 0 auto; }
+    .todo { display: flex; align-items: flex-start; gap: .55rem; margin: .35rem 0; }
+    .todo input { margin-top: .45rem; pointer-events: none; }
+    details { margin: .45rem 0; }
+    summary { cursor: pointer; font-weight: 650; }
+    pre { overflow: auto; border: 1px solid rgba(216,162,74,.2); border-radius: 10px; background: #0d0a09; padding: 1rem; }
+    pre code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .9rem; }
+    .media { margin: 1.1rem 0; }
+    .media img, .media video { display: block; max-width: 100%; max-height: 75vh; margin: auto; border-radius: 8px; }
+    .caption { color: var(--muted); text-align: center; font-size: .86rem; margin-top: .4rem; }
+    .bookmark { display: block; margin: .8rem 0; padding: .85rem 1rem; border: 1px solid rgba(216,162,74,.24); border-radius: 9px; color: #f3d9a7; text-decoration: none; overflow-wrap: anywhere; }
+    .bookmark:hover { background: rgba(216,162,74,.08); }
+    .table-wrap { overflow-x: auto; margin: 1rem 0; }
+    table { border-collapse: collapse; width: 100%; font-family: Inter, sans-serif; font-size: .92rem; }
+    td, th { border: 1px solid rgba(216,162,74,.26); padding: .55rem .65rem; vertical-align: top; }
+    .columns { display: flex; gap: 1.3rem; align-items: flex-start; }
+    .column { flex: 1 1 0; min-width: 0; }
+    .child-page { margin: .5rem 0; padding: .65rem .8rem; border: 1px solid rgba(216,162,74,.18); border-radius: 8px; }
+    .unsupported { color: var(--muted); font-family: Inter, sans-serif; font-size: .85rem; margin: .5rem 0; }
+    .truncate-note { margin: 2rem 0; padding: .8rem 1rem; border: 1px solid rgba(255,180,169,.3); border-radius: 9px; color: var(--danger); }
+    @media (max-width: 700px) {
+      .hint { font-size: .8rem; right: .7rem; bottom: .7rem; }
+      .hotspot { left: 70%; top: 20%; width: 28%; height: 58%; }
+      .reader-shell { padding: 0; }
+      .reader { height: 100vh; border-radius: 0; }
+      .reader-top { padding: .65rem; }
+      .columns { display: block; }
+    }
+  </style>
+</head>
+<body>
+  <main class="scene">
+    <img src="library.png" alt="A dark library with floor-to-ceiling bookshelves" />
+    <button class="hotspot" id="bookshelfHotspot" aria-label="Open memory archive"></button>
+    <div class="hint">Click the right bookshelf to open the memory archive</div>
+  </main>
+
+  <aside class="drawer" id="drawer" aria-hidden="true">
+    <div class="drawer-head">
+      <h1>Memory Archive</h1>
+      <button class="icon-btn" id="refreshBtn" type="button">Refresh</button>
+      <button class="icon-btn" id="closeBtn" type="button" aria-label="Close">✕</button>
+    </div>
+    <div class="controls">
+      <input id="searchInput" type="search" placeholder="Search scenes or characters…" />
+      <div class="status" id="status">Waiting to load.</div>
+    </div>
+    <div class="list" id="memoryList"></div>
+  </aside>
+
+  <div class="reader-shell" id="readerShell" aria-hidden="true">
+    <article class="reader" role="dialog" aria-modal="true" aria-labelledby="readerTitle">
+      <div class="reader-top">
+        <button class="icon-btn" id="readerBackBtn" type="button">← Archive</button>
+        <div class="spacer"></div>
+        <a class="reader-open-link" id="notionLink" href="#" target="_blank" rel="noopener noreferrer">Open in Notion ↗</a>
+        <button class="icon-btn" id="readerCloseBtn" type="button" aria-label="Close reader">✕</button>
+      </div>
+      <div class="reader-scroll" id="readerScroll">
+        <div class="reader-loading">Choose a memory from the archive.</div>
+      </div>
+    </article>
+  </div>
+
+  <script>
+    const API_ENDPOINT = "https://memory-scenes.aquafia1247.workers.dev/api/memories";
+
+    const drawer = document.getElementById("drawer");
+    const hotspot = document.getElementById("bookshelfHotspot");
+    const closeBtn = document.getElementById("closeBtn");
+    const refreshBtn = document.getElementById("refreshBtn");
+    const searchInput = document.getElementById("searchInput");
+    const statusEl = document.getElementById("status");
+    const listEl = document.getElementById("memoryList");
+    const readerShell = document.getElementById("readerShell");
+    const readerScroll = document.getElementById("readerScroll");
+    const readerCloseBtn = document.getElementById("readerCloseBtn");
+    const readerBackBtn = document.getElementById("readerBackBtn");
+    const notionLink = document.getElementById("notionLink");
+
+    let memories = [];
+    let loadedOnce = false;
+    let activeRequest = 0;
+
+    function openDrawer() {
+      drawer.classList.add("open");
+      drawer.setAttribute("aria-hidden", "false");
+      if (!loadedOnce) loadMemories();
+    }
+
+    function closeDrawer() {
+      drawer.classList.remove("open");
+      drawer.setAttribute("aria-hidden", "true");
+    }
+
+    function openReader() {
+      readerShell.classList.add("open");
+      readerShell.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeReader() {
+      activeRequest += 1;
+      readerShell.classList.remove("open");
+      readerShell.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    }
+
+    function escapeHtml(value = "") {
+      return String(value).replace(/[&<>"']/g, c => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+      })[c]);
+    }
+
+    function safeUrl(value = "") {
+      try {
+        const url = new URL(value, window.location.href);
+        return ["http:", "https:", "mailto:"].includes(url.protocol) ? url.href : "#";
+      } catch { return "#"; }
+    }
+
+    function render(items) {
+      if (!items.length) {
+        listEl.innerHTML = '<div class="empty">No matching memories found.</div>';
+        return;
+      }
+
+      listEl.innerHTML = items.map(memory => {
+        const tags = Array.isArray(memory.characters) ? memory.characters : [];
+        const edited = memory.lastEdited ? new Date(memory.lastEdited).toLocaleString() : "";
+        return `
+          <button class="card" type="button" data-memory-id="${escapeHtml(memory.id)}">
+            <div class="title">${escapeHtml(memory.title || "Untitled memory")}</div>
+            <div class="meta">${[memory.status, edited ? `Updated ${edited}` : ""].filter(Boolean).map(escapeHtml).join(" · ")}</div>
+            <div class="tags">${tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}</div>
+          </button>`;
+      }).join("");
+    }
+
+    function applySearch() {
+      const q = searchInput.value.trim().toLowerCase();
+      if (!q) return render(memories);
+      render(memories.filter(memory => [memory.title || "", memory.status || "", ...(memory.characters || [])].join(" ").toLowerCase().includes(q)));
+    }
+
+    async function loadMemories() {
+      statusEl.classList.remove("error");
+      statusEl.textContent = "Loading memories…";
+      refreshBtn.disabled = true;
+
+      try {
+        const response = await fetch(API_ENDPOINT, { cache: "no-store" });
+        if (!response.ok) throw new Error(`Request failed with ${response.status}`);
+        const data = await response.json();
+        memories = Array.isArray(data) ? data : data.memories || [];
+        loadedOnce = true;
+        statusEl.textContent = `${memories.length} memories loaded.`;
+        applySearch();
+      } catch (error) {
+        console.error(error);
+        statusEl.classList.add("error");
+        statusEl.textContent = `Could not load memories: ${error.message}`;
+        listEl.innerHTML = '<div class="empty">The archive is unavailable right now.</div>';
+      } finally {
+        refreshBtn.disabled = false;
+      }
+    }
+
+    async function loadMemory(id) {
+      const requestId = ++activeRequest;
+      openReader();
+      notionLink.style.visibility = "hidden";
+      readerScroll.innerHTML = '<div class="reader-loading">Opening memory…</div>';
+
+      try {
+        const response = await fetch(`${API_ENDPOINT}/${encodeURIComponent(id)}`, { cache: "no-store" });
+        if (!response.ok) {
+          const payload = await response.json().catch(() => ({}));
+          throw new Error(payload.detail || payload.error || `Request failed with ${response.status}`);
+        }
+        const data = await response.json();
+        if (requestId !== activeRequest) return;
+        renderMemory(data);
+      } catch (error) {
+        if (requestId !== activeRequest) return;
+        console.error(error);
+        readerScroll.innerHTML = `<div class="reader-loading" style="color:var(--danger)">Could not open this memory.<br><small>${escapeHtml(error.message)}</small></div>`;
+      }
+    }
+
+    function renderMemory(data) {
+      const memory = data.memory || {};
+      notionLink.href = safeUrl(memory.url || "#");
+      notionLink.style.visibility = "visible";
+
+      const icon = memory.icon?.type === "emoji"
+        ? `<div class="page-icon">${escapeHtml(memory.icon.value)}</div>`
+        : memory.icon?.type === "image"
+          ? `<div class="page-icon"><img src="${escapeHtml(safeUrl(memory.icon.value))}" alt="" /></div>`
+          : "";
+      const cover = memory.cover?.url ? `<img class="cover" src="${escapeHtml(safeUrl(memory.cover.url))}" alt="" />` : "";
+      const meta = [memory.status, memory.date ? `Date: ${memory.date}` : "", memory.lastEdited ? `Updated ${new Date(memory.lastEdited).toLocaleString()}` : ""].filter(Boolean).map(escapeHtml).join(" · ");
+
+      readerScroll.innerHTML = `
+        ${cover}
+        <header class="page-head">
+          ${icon}
+          <h1 class="page-title" id="readerTitle">${escapeHtml(memory.title || "Untitled memory")}</h1>
+          <div class="page-meta">${meta}</div>
+        </header>
+        <div class="notion-content">${renderBlocks(data.blocks || [])}</div>
+        ${data.truncated ? '<div class="truncate-note">This page was extremely large, so the reader stopped after its safety limit. Use “Open in Notion” for the remainder.</div>' : ""}`;
+      readerScroll.scrollTop = 0;
+    }
+
+    function renderRichText(items = []) {
+      return items.map(item => {
+        let text = item.type === "equation" ? (item.equation || item.plainText || "") : (item.plainText || "");
+        let html = escapeHtml(text).replace(/\n/g, "<br>");
+        const a = item.annotations || {};
+        if (a.code) html = `<code class="rt-code">${html}</code>`;
+        if (a.bold) html = `<strong>${html}</strong>`;
+        if (a.italic) html = `<em>${html}</em>`;
+        if (a.strikethrough) html = `<s>${html}</s>`;
+        if (a.underline) html = `<u>${html}</u>`;
+        if (a.color && a.color !== "default") html = `<span class="rt-${escapeHtml(a.color)}">${html}</span>`;
+        if (item.href) html = `<a href="${escapeHtml(safeUrl(item.href))}" target="_blank" rel="noopener noreferrer">${html}</a>`;
+        return html;
+      }).join("");
+    }
+
+    function renderBlocks(blocks = []) {
+      let html = "";
+      for (let i = 0; i < blocks.length; i++) {
+        const block = blocks[i];
+        if (block.type === "bulleted_list_item" || block.type === "numbered_list_item") {
+          const type = block.type;
+          const tag = type === "bulleted_list_item" ? "ul" : "ol";
+          let items = "";
+          while (i < blocks.length && blocks[i].type === type) {
+            const current = blocks[i];
+            items += `<li>${renderRichText(current.richText)}${current.children?.length ? renderBlocks(current.children) : ""}</li>`;
+            i++;
+          }
+          i--;
+          html += `<${tag}>${items}</${tag}>`;
+          continue;
+        }
+        html += renderBlock(block);
+      }
+      return html;
+    }
+
+    function renderBlock(block) {
+      const text = renderRichText(block.richText || []);
+      const children = block.children?.length ? renderBlocks(block.children) : "";
+      switch (block.type) {
+        case "paragraph": return `<p>${text || "&nbsp;"}</p>${children}`;
+        case "heading_1": return `<h1>${text}</h1>${children}`;
+        case "heading_2": return `<h2>${text}</h2>${children}`;
+        case "heading_3": return `<h3>${text}</h3>${children}`;
+        case "quote": return `<blockquote>${text}${children}</blockquote>`;
+        case "divider": return "<hr>";
+        case "to_do": return `<div class="todo"><input type="checkbox" ${block.checked ? "checked" : ""} tabindex="-1"><div>${text}${children}</div></div>`;
+        case "toggle": return `<details><summary>${text || "Toggle"}</summary>${children}</details>`;
+        case "callout": return `<div class="callout"><div class="callout-icon">${renderIcon(block.icon)}</div><div>${text}${children}</div></div>`;
+        case "code": return `<pre><code>${escapeHtml((block.richText || []).map(x => x.plainText || "").join(""))}</code></pre>${block.caption?.length ? `<div class="caption">${renderRichText(block.caption)}</div>` : ""}`;
+        case "equation": return `<p class="equation">${escapeHtml(block.expression || "")}</p>`;
+        case "image": return renderImage(block);
+        case "video": return renderVideo(block);
+        case "audio": return block.source?.url ? `<div class="media"><audio controls src="${escapeHtml(safeUrl(block.source.url))}"></audio>${renderCaption(block)}</div>` : "";
+        case "file": case "pdf": return block.source?.url ? `<a class="bookmark" href="${escapeHtml(safeUrl(block.source.url))}" target="_blank" rel="noopener noreferrer">${escapeHtml(block.name || (block.type === "pdf" ? "Open PDF" : "Open file"))}</a>${renderCaption(block)}` : "";
+        case "bookmark": case "embed": case "link_preview": return block.url ? `<a class="bookmark" href="${escapeHtml(safeUrl(block.url))}" target="_blank" rel="noopener noreferrer">${renderRichText(block.caption) || escapeHtml(block.url)}</a>` : "";
+        case "table": return renderTable(block);
+        case "table_row": return "";
+        case "column_list": return `<div class="columns">${(block.children || []).map(child => `<div class="column">${renderBlocks(child.children || [])}</div>`).join("")}</div>`;
+        case "column": return children;
+        case "synced_block": return children;
+        case "child_page": case "child_database": return `<div class="child-page">📄 ${escapeHtml(block.title || "Nested page")}</div>${children}`;
+        case "table_of_contents": return '<div class="unsupported">Table of contents</div>';
+        case "breadcrumb": return "";
+        default: return children || `<div class="unsupported">Unsupported block: ${escapeHtml(block.rawLabel || block.type || "unknown")}</div>`;
+      }
+    }
+
+    function renderIcon(icon) {
+      if (!icon) return "💡";
+      if (icon.type === "emoji") return escapeHtml(icon.value || "💡");
+      if (icon.type === "image") return `<img src="${escapeHtml(safeUrl(icon.value))}" alt="" width="24" height="24">`;
+      return "💡";
+    }
+
+    function renderCaption(block) {
+      return block.caption?.length ? `<div class="caption">${renderRichText(block.caption)}</div>` : "";
+    }
+
+    function renderImage(block) {
+      if (!block.source?.url) return "";
+      return `<figure class="media"><img loading="lazy" src="${escapeHtml(safeUrl(block.source.url))}" alt="${escapeHtml((block.caption || []).map(x => x.plainText || "").join(" "))}">${renderCaption(block)}</figure>`;
+    }
+
+    function renderVideo(block) {
+      if (!block.source?.url) return "";
+      return `<div class="media"><video controls preload="metadata" src="${escapeHtml(safeUrl(block.source.url))}"></video>${renderCaption(block)}</div>`;
+    }
+
+    function renderTable(block) {
+      const rows = (block.children || []).filter(child => child.type === "table_row");
+      if (!rows.length) return "";
+      const body = rows.map((row, rowIndex) => {
+        const cellTag = block.hasColumnHeader && rowIndex === 0 ? "th" : "td";
+        return `<tr>${(row.cells || []).map((cell, cellIndex) => {
+          const tag = block.hasRowHeader && cellIndex === 0 ? "th" : cellTag;
+          return `<${tag}>${renderRichText(cell)}</${tag}>`;
+        }).join("")}</tr>`;
+      }).join("");
+      return `<div class="table-wrap"><table><tbody>${body}</tbody></table></div>`;
+    }
+
+    hotspot.addEventListener("click", openDrawer);
+    closeBtn.addEventListener("click", closeDrawer);
+    refreshBtn.addEventListener("click", loadMemories);
+    searchInput.addEventListener("input", applySearch);
+    listEl.addEventListener("click", event => {
+      const card = event.target.closest("[data-memory-id]");
+      if (card) loadMemory(card.dataset.memoryId);
+    });
+    readerCloseBtn.addEventListener("click", closeReader);
+    readerBackBtn.addEventListener("click", closeReader);
+    readerShell.addEventListener("click", event => { if (event.target === readerShell) closeReader(); });
+    document.addEventListener("keydown", event => {
+      if (event.key !== "Escape") return;
+      if (readerShell.classList.contains("open")) closeReader();
+      else closeDrawer();
+    });
+  </script>
+</body>
+</html>

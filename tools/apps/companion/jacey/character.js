@@ -1,6 +1,5 @@
 /* =========================================================
    JACEY COMPANION — CHARACTER DEFINITION
-   v7.0.8a Expression Hardcoding Extraction
    ========================================================= */
 
 (function () {

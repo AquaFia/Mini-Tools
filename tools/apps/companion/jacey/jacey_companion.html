@@ -6,7 +6,7 @@
 <title>Companion Terminal</title>
 <style>
 /* =========================================================
-   COMPANION FRAMEWORK v7.0.8 — GENERIC RUNTIME
+   COMPANION FRAMEWORK — GENERIC RUNTIME
    SECTION 1 — VISUAL SYSTEM / LAYOUT / THEMES
    ========================================================= */
 :root{
@@ -1336,7 +1336,7 @@ const CHARACTER={
    ========================================================= */
 const Framework=window.Framework||{};
 window.Framework=Framework;
-Framework.version='7.0.8';
+Framework.version='portable-base';
 Framework.modules=Framework.modules||{};
 /* Shared return-to-chat lifecycle. Each module restores only its own UI. */
 Framework.resume=function(context={}){
@@ -1435,7 +1435,7 @@ const IdentityManager={
 Framework.modules.IdentityManager=IdentityManager;
 
 /* =========================================================
-   IDENTITY MUSIC v6.3.26
+   IDENTITY MUSIC
    Canonical playlist arrays only.
    One track: loops that track.
    Multiple tracks: play in order, then loop the playlist.

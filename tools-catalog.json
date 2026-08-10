@@ -53,7 +53,7 @@
     },
     {
       "title": "Companion Chat Box Template",
-      "file": "tools/apps/companion/TEST_COMPANION/companion",
+      "file": "tools/apps/companion/COMPANION_TEMPLATE/companion",
       "icon": "▧",
       "accent": "#4cc9f0",
       "description": "Aqua's Companion Chat Box Template Base.",

@@ -6,7 +6,7 @@
 <title>Companion Terminal</title>
 <style>
 /* =========================================================
-   COMPANION FRAMEWORK v7.0.7 — GENERIC RUNTIME
+   COMPANION FRAMEWORK v7.0.8 — GENERIC RUNTIME
    SECTION 1 — VISUAL SYSTEM / LAYOUT / THEMES
    ========================================================= */
 :root{
@@ -1336,28 +1336,8 @@ const CHARACTER={
    ========================================================= */
 const Framework=window.Framework||{};
 window.Framework=Framework;
-Framework.version='7.0.7';
+Framework.version='7.0.8';
 Framework.modules=Framework.modules||{};
-/* v6.1.2 response-owned expressions:
-   - Every dialogue bank owns its own keywords, expression, and responses.
-   - All matching banks have an equal chance of being selected.
-   - Character routing uses the same bank matcher as every other topic.
-   - The separate character registry, ordered tie-breaking, and obsolete format branches were removed. */
-
-/* v5.9.4 missing-bank quick-reply guidance restore:
-   - Restored four distinct no-message-bank responses for each identity's quick replies.
-   - Preserved the companion-chat dialogue boundary: these are framework upload instructions, not normal dialogue.
-
-   Previous v5.9.3 companion-chat dialogue purge:
-   - Moved companion-mode idle dialogue into the external message bank.
-   - Preserved special-module automatic responses, episode dialogue, and the no-bank upload instruction.
-
-   Previous v5.9.2 dead-code sweep:
-   - removed an unreferenced legacy transformation helper
-   - removed the obsolete mode-hidden interface class and CSS
-   - removed a duplicate startup quick-reply render
-   Compatibility wrappers and public globals remain intentionally preserved. */
-
 /* Shared return-to-chat lifecycle. Each module restores only its own UI. */
 Framework.resume=function(context={}){
   const episodeEngine=Framework.modules.EpisodeEngine;
@@ -1368,8 +1348,7 @@ Framework.resume=function(context={}){
   return true;
 };
 
-/* Compatibility read used by the current chat, episode, achievement, and optional
-   special-module bridge. IdentityManager is the sole writer. */
+/* Shared current-identity read. IdentityManager is the sole writer. */
 let activeIdentity=DEFAULT_IDENTITY;
 
 const IdentityManager={
@@ -2362,8 +2341,7 @@ function missingBankGuidance(text,bank){
   const identityGuidance=guidance[activeIdentity]||guidance[DEFAULT_IDENTITY]||[];
   if(quickIndex>=0&&identityGuidance[quickIndex])return identityGuidance[quickIndex];
 
-  const expressionMap=CompanionCharacter.missingBankFallbackExpressions[activeIdentity]||CompanionCharacter.missingBankFallbackExpressions[DEFAULT_IDENTITY]||{default:'curious'};
-  const fallbackExpression=expressionMap[bank]||expressionMap.default||'curious';
+  const fallbackExpression=identityGuidance[0]?.[0]||'curious';
   return [fallbackExpression,'The Notion message banks are unavailable. Refresh after checking the companions Worker.'];
 }
 
@@ -2682,7 +2660,7 @@ window.addEventListener('error',()=>{
 
 <script id="episode-engine">
 /* =========================================================
-   COMPANION ENGINE v5.6 — EPISODE ENGINE
+   COMPANION EPISODE ENGINE
    Engine only. Episode content is registered separately.
    ========================================================= */
 

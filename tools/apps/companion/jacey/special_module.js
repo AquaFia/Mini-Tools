@@ -1,7 +1,7 @@
 /* =========================================================
    JACEY COMPANION — SPECIAL MODULE
    Cipher Lab
-   v7.0.6 Special Module Extraction
+   v7.0.8 Special Module
    ========================================================= */
 
 (function(){
@@ -34,8 +34,6 @@ let cipherResult=null;
 let cipherResultTitle=null;
 let cipherResultExpression=null;
 let cipherResultText=null;
-
-const FRAMEWORK_TIMING={unknownCipherReset:UNKNOWN_CIPHER_RESET_MS};
 
 function syncIdentityState(){
   activeIdentity=runtime.getActiveIdentity();
@@ -250,7 +248,7 @@ function reactToUnknownCipher(family){
   window.setTimeout(()=>{
     cipherFamily.value=fallback;
     updateCipherForm();
-  },FRAMEWORK_TIMING.unknownCipherReset);
+  },UNKNOWN_CIPHER_RESET_MS);
 
   return true;
 }

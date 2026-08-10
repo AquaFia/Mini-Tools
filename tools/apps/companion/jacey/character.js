@@ -1,6 +1,6 @@
 /* =========================================================
    JACEY COMPANION — CHARACTER DEFINITION
-   v7.0.4 Character Extraction
+   v7.0.8 Character Definition
    ========================================================= */
 
 (function () {
@@ -311,25 +311,8 @@
           "Precise answer: the Notion dialogue archive is unavailable. Refresh after checking the companions Worker."
         ]
       ]
-    },
-
-    missingBankFallbackExpressions: {
-      jace: {
-        cryptology: "clue",
-        identity: "happy",
-        secrecy: "overshare",
-        contradiction: "deadpan",
-        default: "curious"
-      },
-
-      mao: {
-        default: "deadpan"
-      },
-
-      naoya: {
-        default: "curious"
-      }
     }
+
   };
 
   function deepFreeze(value) {

@@ -94,6 +94,21 @@ repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 5px)
 }.chip:hover{border-color:#8e61cc;color:#fff}.input-row{display:grid;grid-template-columns:1fr 46px;gap:10px}.input-row input{min-width:0;padding:13px 15px;border-radius:14px;border:1px solid #3b2850;outline:none;background:#0e0c17;color:white;font:14px inherit}.input-row input:focus{border-color:var(--violet);box-shadow:0 0 0 3px rgba(169,112,255,.12)}.send{border:0;border-radius:14px;color:white;font-size:18px;cursor:pointer;background:linear-gradient(135deg,var(--violet),var(--blue));box-shadow:0 8px 24px rgba(88,82,255,.25)}
 .toast{position:absolute;right:18px;top:76px;z-index:12;max-width:min(320px,calc(100% - 36px));padding:10px 13px;border:1px solid #4f3970;border-radius:12px;background:rgba(15,12,25,.94);box-shadow:0 12px 35px rgba(0,0,0,.35),0 0 18px rgba(169,112,255,.18);font:700 10px/1.35 ui-monospace,monospace;letter-spacing:.08em;color:#e9ddff;opacity:0;transform:translateY(-8px);pointer-events:none;transition:.25s}.toast.show{opacity:1;transform:none}.dossier{position:absolute;inset:0 0 0 auto;width:min(430px,100%);z-index:9;background:rgba(10,8,17,.97);border-left:1px solid #59306e;backdrop-filter:blur(16px);padding:24px;transform:translateX(101%);transition:.35s;overflow:auto}.dossier.open{transform:none}.dossier h2{font-size:16px;letter-spacing:.12em}.codebox{padding:14px;border:1px solid #3c2850;border-radius:13px;background:#0c0b13;font:11px/1.7 ui-monospace,monospace;color:#a99bc3}.redacted{background:#e7dff4;color:#e7dff4;border-radius:2px;padding:0 3px}.warning{color:#ff6b8c}.close{float:right}
 .glitch{animation:glitch .22s linear 2}@keyframes glitch{25%{transform:translateX(2px);text-shadow:-2px 0 #5eeaff,2px 0 #ff3a69}50%{transform:translateX(-2px)}75%{transform:none;text-shadow:2px 0 #5eeaff,-2px 0 #ff3a69}}
+@keyframes portraitGlitchBounce{
+  0%{transform:translate3d(0,0,0) scale(1)}
+  22%{transform:translate3d(0,-10px,0) scale(1.035)}
+  45%{transform:translate3d(0,5px,0) scale(.985)}
+  68%{transform:translate3d(0,-4px,0) scale(1.015)}
+  100%{transform:translate3d(0,0,0) scale(1)}
+}
+.portrait-frame.glitch-bounce{
+  animation:portraitGlitchBounce .42s cubic-bezier(.2,.8,.25,1);
+  will-change:transform;
+}
+@media (prefers-reduced-motion: reduce){
+  .portrait-frame.glitch-bounce{animation:none}
+}
+
 
 .identity-overlay{position:absolute;inset:0;z-index:30;display:grid;place-items:center;background:rgba(4,5,9,.94);backdrop-filter:blur(12px);opacity:0;pointer-events:none;transition:opacity .35s}.identity-overlay.active{opacity:1;pointer-events:auto}.identity-card{width:min(520px,82%);padding:28px;border:1px solid var(--violet);border-radius:18px;background:linear-gradient(180deg,var(--panel2),var(--panel));box-shadow:0 0 45px color-mix(in srgb,var(--violet) 28%,transparent);font-family:ui-monospace,SFMono-Regular,Consolas,monospace}.identity-kicker{font-size:10px;letter-spacing:.2em;color:var(--muted)}.identity-name{margin:14px 0 8px;font-size:26px;letter-spacing:.12em;color:var(--ink)}.identity-step{min-height:22px;color:var(--cyan);font-size:12px}.identity-bar{height:7px;margin:18px 0;border:1px solid var(--line);border-radius:999px;overflow:hidden}.identity-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--violet),var(--cyan));transition:width .3s}.identity-belief{font:italic 12px/1.55 system-ui;color:var(--muted);opacity:0;transition:opacity .3s}.identity-belief.show{opacity:1}.terminal{transition:background .8s,border-color .8s,box-shadow .8s}.sidebar,.chat,.chat-head,.composer,.portrait-frame,.bubble,.chip,.icon-btn,.input-row input,.dossier,.toast{transition:background .8s,border-color .8s,color .5s,box-shadow .8s}.terminal.switching-identity{filter:saturate(.75) brightness(.8)}
 
@@ -2659,7 +2674,22 @@ function setDossierOpen(open){
 dossierBtn.setAttribute('aria-pressed','false');
 dossierBtn.onclick=()=>setDossierOpen(!dossier.classList.contains('open'));
 closeDossier.onclick=()=>setDossierOpen(false);
-document.querySelector('#glitchBtn').onclick=()=>{document.querySelector('#terminal').classList.add('glitch');setTimeout(()=>document.querySelector('#terminal').classList.remove('glitch'),500);setExpression(CompanionCharacter.expressions.glitch)};
+document.querySelector('#glitchBtn').onclick=()=>{
+  const terminal=document.querySelector('#terminal');
+  terminal.classList.add('glitch');
+  setTimeout(()=>terminal.classList.remove('glitch'),500);
+
+  portraitFrame.classList.remove('glitch-bounce');
+  void portraitFrame.offsetWidth;
+  portraitFrame.classList.add('glitch-bounce');
+
+  setExpression(CompanionCharacter.expressions.glitch);
+};
+portraitFrame.addEventListener('animationend',event=>{
+  if(event.animationName==='portraitGlitchBounce'){
+    portraitFrame.classList.remove('glitch-bounce');
+  }
+});
 portraitFrame.dataset.alias=CHARACTER.initials;
 refreshQuickReplies();
 

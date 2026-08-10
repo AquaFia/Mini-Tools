@@ -2302,7 +2302,7 @@ function showStartupMessage(){
 }
 let lastResponse='';
 function pick(bank){
-  const options=getBankResponses(bank,DEFAULT_IDENTITY).length?getBankResponses(bank,DEFAULT_IDENTITY):getBankResponses('generic',DEFAULT_IDENTITY);
+  const options=getBankResponses(bank,activeIdentity).length?getBankResponses(bank,activeIdentity):getBankResponses('generic',activeIdentity);
   if(!options.length)return [CompanionCharacter.expressions.genericFallback,'No dialogue is available for this topic yet.'];
   const filtered=options.filter(item=>Array.isArray(item)?item[1]!==lastResponse:item!==lastResponse);
   const pool=filtered.length?filtered:options;

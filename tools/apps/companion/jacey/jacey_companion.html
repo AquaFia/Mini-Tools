@@ -2195,14 +2195,14 @@ function normalizeStartupResponse(item){
   if(Array.isArray(item)){
     const [expression,response,contextEvent]=item;
     return {
-      expression:String(expression||'curious'),
+      expression:String(expression||CompanionCharacter.expressions.genericFallback),
       response:String(response||''),
       contextEvent:String(contextEvent||'')
     };
   }
   if(item&&typeof item==='object'){
     return {
-      expression:String(item.expression||item.exp||'curious'),
+      expression:String(item.expression||item.exp||CompanionCharacter.expressions.genericFallback),
       response:String(item.response||item.text||item.message||''),
       contextEvent:String(
         item.contextEvent||
@@ -2267,17 +2267,17 @@ function pickStartupRow(rows,key){
 
 function resolveStartupMessage(){
   if(activeIdentity!==DEFAULT_IDENTITY||!messageBankLoaded){
-    return {expression:'happy',response:CHARACTER.welcome};
+    return {expression:CompanionCharacter.startup.fallbackExpression,response:CHARACTER.welcome};
   }
 
   const rows=getContextEventStartupRows(DEFAULT_IDENTITY);
   if(!rows.length){
-    return {expression:'happy',response:CHARACTER.welcome};
+    return {expression:CompanionCharacter.startup.fallbackExpression,response:CHARACTER.welcome};
   }
 
   const state=window.CompanionContext?.get?.();
   if(!state){
-    return {expression:'happy',response:CHARACTER.welcome};
+    return {expression:CompanionCharacter.startup.fallbackExpression,response:CHARACTER.welcome};
   }
 
   // Startup priority is intentionally narrow:
@@ -2292,22 +2292,22 @@ function resolveStartupMessage(){
   const timeRow=pickStartupRow(rows,state.timeOfDay);
   if(timeRow)return timeRow;
 
-  return {expression:'happy',response:CHARACTER.welcome};
+  return {expression:CompanionCharacter.startup.fallbackExpression,response:CHARACTER.welcome};
 }
 
 function showStartupMessage(){
   const startup=resolveStartupMessage();
-  if(CHARACTER.portrait!==false)setExpression(startup.expression||'happy');
+  if(CHARACTER.portrait!==false)setExpression(startup.expression||CompanionCharacter.startup.fallbackExpression);
   add(startup.response||CHARACTER.welcome);
 }
 let lastResponse='';
 function pick(bank){
   const options=getBankResponses(bank,DEFAULT_IDENTITY).length?getBankResponses(bank,DEFAULT_IDENTITY):getBankResponses('generic',DEFAULT_IDENTITY);
-  if(!options.length)return ['curious','No dialogue is available for this topic yet.'];
+  if(!options.length)return [CompanionCharacter.expressions.genericFallback,'No dialogue is available for this topic yet.'];
   const filtered=options.filter(item=>Array.isArray(item)?item[1]!==lastResponse:item!==lastResponse);
   const pool=filtered.length?filtered:options;
   const chosen=pool[Math.floor(Math.random()*pool.length)];
-  const normalized=Array.isArray(chosen)?chosen:['curious',String(chosen)];
+  const normalized=Array.isArray(chosen)?chosen:[CompanionCharacter.expressions.genericFallback,String(chosen)];
   lastResponse=normalized[1];
   return normalized;
 }
@@ -2341,7 +2341,7 @@ function missingBankGuidance(text,bank){
   const identityGuidance=guidance[activeIdentity]||guidance[DEFAULT_IDENTITY]||[];
   if(quickIndex>=0&&identityGuidance[quickIndex])return identityGuidance[quickIndex];
 
-  const fallbackExpression=identityGuidance[0]?.[0]||'curious';
+  const fallbackExpression=identityGuidance[0]?.[0]||CompanionCharacter.expressions.genericFallback;
   return [fallbackExpression,'The Notion message banks are unavailable. Refresh after checking the companions Worker.'];
 }
 
@@ -2438,7 +2438,7 @@ function getIdentityDialogueProfile(identityId=activeIdentity){
   const profile=IDENTITIES[identityId]||{};
   return {
     responseMode:profile.responseMode||'text',
-    fallbackExpression:profile.fallbackExpression||'curious'
+    fallbackExpression:profile.fallbackExpression||CompanionCharacter.expressions.genericFallback
   };
 }
 
@@ -2638,7 +2638,7 @@ function setDossierOpen(open){
 dossierBtn.setAttribute('aria-pressed','false');
 dossierBtn.onclick=()=>setDossierOpen(!dossier.classList.contains('open'));
 closeDossier.onclick=()=>setDossierOpen(false);
-document.querySelector('#glitchBtn').onclick=()=>{document.querySelector('#terminal').classList.add('glitch');setTimeout(()=>document.querySelector('#terminal').classList.remove('glitch'),500);setExpression('clue')};
+document.querySelector('#glitchBtn').onclick=()=>{document.querySelector('#terminal').classList.add('glitch');setTimeout(()=>document.querySelector('#terminal').classList.remove('glitch'),500);setExpression(CompanionCharacter.expressions.glitch)};
 portraitFrame.dataset.alias=CHARACTER.initials;
 refreshQuickReplies();
 
@@ -3006,7 +3006,7 @@ function offerEpisodeSelection(matches,originalText){
   const wait=typing();
   setTimeout(()=>{
     wait.remove();
-    if(CHARACTER.portrait!==false)setExpression('overshare');
+    if(CHARACTER.portrait!==false)setExpression(CompanionCharacter.expressions.episodeSelection);
     add(CompanionCharacter.episode.selectionPrompt);
     renderEpisodeSelectionOptions(matches,originalText);
     busy=false;
@@ -3030,7 +3030,7 @@ function offerEpisode(episode,originalText,matchedTrigger){
   const wait=typing();
   setTimeout(()=>{
     wait.remove();
-    if(CHARACTER.portrait!==false)setExpression(episode.offerExpression||'curious');
+    if(CHARACTER.portrait!==false)setExpression(episode.offerExpression||CompanionCharacter.expressions.genericFallback);
     add(prompt);
     busy=false;
     resetIdleTimer();
@@ -3101,7 +3101,7 @@ function showEpisodeNode(nodeId){
 
   setTimeout(()=>{
     wait.remove();
-    if(CHARACTER.portrait!==false)setExpression(node.expression||'curious');
+    if(CHARACTER.portrait!==false)setExpression(node.expression||CompanionCharacter.expressions.genericFallback);
     add(node.dialogue||'');
 
     const ending=node.type==='Ending' || Boolean(node.endingId);
@@ -3244,7 +3244,7 @@ registerEpisode({
   nodes:{
     relationship_01_opening:{
       type:'Conversation',
-      expression:'curious',
+      expression:'<expression-id>',
       dialogue:'...',
       choices:[
         {label:'Choice',nextNode:'relationship_01_next'}
@@ -3575,7 +3575,7 @@ memorySaveBtn.addEventListener('click',event=>{
 const corePick=pick;
 pick=function(bank){
   if(!messageBankLoaded){
-    return ['curious','The Notion message banks are unavailable. Refresh after checking the companions Worker.'];
+    return [CompanionCharacter.expressions.genericFallback,'The Notion message banks are unavailable. Refresh after checking the companions Worker.'];
   }
   return corePick(bank);
 };

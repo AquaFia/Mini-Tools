@@ -1,6 +1,6 @@
 /* =========================================================
    JACEY COMPANION — CHARACTER DEFINITION
-   v7.0.8 Character Definition
+   v7.0.8a Expression Hardcoding Extraction
    ========================================================= */
 
 (function () {
@@ -22,7 +22,15 @@
 
     startup: {
       fallbackMessage:
-        "Connection established! I checked the handshake, the checksum, and one thing I was apparently not supposed to check. Everything looks great! :D"
+        "Connection established! I checked the handshake, the checksum, and one thing I was apparently not supposed to check. Everything looks great! :D",
+
+      fallbackExpression: "happy"
+    },
+
+    expressions: {
+      genericFallback: "curious",
+      glitch: "clue",
+      episodeSelection: "overshare"
     },
 
     companionModeLabel: "COMPANION MODE",

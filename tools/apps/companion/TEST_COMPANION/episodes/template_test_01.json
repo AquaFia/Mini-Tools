@@ -1,0 +1,76 @@
+{
+  "schema": "companion-episode-v1",
+  "id": "template_test_01",
+  "identity": "probe",
+  "title": "Template Runtime Test",
+  "topic": "template test",
+  "coreQuestion": "Can the reusable shell run a branching episode without character-specific HTML edits?",
+  "triggers": [
+    "template test",
+    "run template test",
+    "episode test"
+  ],
+  "openingNode": "template_open",
+  "requires": "None",
+  "nodes": {
+    "template_open": {
+      "type": "Conversation",
+      "expression": "active",
+      "dialogue": "Episode runtime loaded. Choose the open route first; it unlocks the second route for replay.",
+      "choices": [
+        {
+          "label": "Take the open route.",
+          "nextNode": "template_transition",
+          "requires": "None"
+        },
+        {
+          "label": "Take the locked route.",
+          "nextNode": "template_ending_b",
+          "requires": "path_a_complete",
+          "lockedHint": "Complete the open route first."
+        }
+      ]
+    },
+    "template_transition": {
+      "type": "Transition",
+      "expression": "module",
+      "dialogue": "Transition node reached successfully.",
+      "choices": [
+        {
+          "label": "Continue.",
+          "nextNode": "template_ending_a",
+          "requires": "None"
+        }
+      ],
+      "nextNode": "template_ending_a"
+    },
+    "template_ending_a": {
+      "type": "Ending",
+      "expression": "active",
+      "dialogue": "Ending A reached. Replay the episode to test the newly unlocked route.",
+      "endingId": "template_ending_a",
+      "unlocks": [
+        "path_a_complete"
+      ]
+    },
+    "template_ending_b": {
+      "type": "Ending",
+      "expression": "warning",
+      "dialogue": "Ending B reached. Requirement and replay behavior both worked.",
+      "endingId": "template_ending_b",
+      "unlocks": [
+        "path_b_complete"
+      ]
+    }
+  },
+  "achievement": {
+    "id": "template_test_all_endings",
+    "identity": "probe",
+    "title": "TEMPLATE TEST // COMPLETE",
+    "description": "Reached both test endings.",
+    "requiredEndings": [
+      "template_ending_a",
+      "template_ending_b"
+    ]
+  }
+}

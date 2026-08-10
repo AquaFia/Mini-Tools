@@ -1,0 +1,11 @@
+{
+  "probe": [
+    "probe_test.wav"
+  ],
+  "echo": [
+    "echo_test.wav"
+  ],
+  "signal": [
+    "signal_test.wav"
+  ]
+}

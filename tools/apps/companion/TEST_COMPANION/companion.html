@@ -6,7 +6,7 @@
 <title>Companion Terminal</title>
 <style>
 /* =========================================================
-   COMPANION FRAMEWORK v7.0.9 TEST TEMPLATE — GENERIC RUNTIME
+   COMPANION FRAMEWORK v7.0.8 — GENERIC RUNTIME
    SECTION 1 — VISUAL SYSTEM / LAYOUT / THEMES
    ========================================================= */
 :root{
@@ -1238,8 +1238,8 @@ body:before{
 
 <script src="character.js"></script>
 <script src="special_module.js"></script>
-<script src="../shared/context_awareness.js"></script>
-<script src="../shared/visual_context.js"></script>
+<script src="shared/context_awareness.js"></script>
+<script src="shared/visual_context.js"></script>
 <script>
 window.addEventListener('DOMContentLoaded',()=>{
   window.CompanionContext?.initialize({
@@ -1249,8 +1249,7 @@ window.addEventListener('DOMContentLoaded',()=>{
 });
 window.addEventListener('DOMContentLoaded',()=>{
   window.VisualContextManager?.initialize({
-    companionId:window.CompanionCharacter.services.visualContextCompanionId,
-    themesBasePath:"../themes/"
+    companionId:window.CompanionCharacter.services.visualContextCompanionId
   });
 });
 </script>

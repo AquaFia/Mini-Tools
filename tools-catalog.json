@@ -36,6 +36,22 @@
       "tags": ["debug", "testing", "companion"]
     },
     {
+      "title": "Jacey Cosmo Companion Chat Box",
+      "file": "tools/apps/companion/jacey/jacey_companion",
+      "icon": "▧",
+      "accent": "#4cc9f0",
+      "description": "The Jacey Companion Test.",
+      "tags": ["companion", "jacey"]
+    },
+    {
+      "title": "Dummy Companion Chat Box",
+      "file": "tools/apps/companion/TEST_COMPANION/companion",
+      "icon": "▧",
+      "accent": "#4cc9f0",
+      "description": "The Dummy Companion Test.",
+      "tags": ["companion"]
+    },
+    {
       "title": "Image to Base64",
       "file": "tools/apps/converters/image-to-base64.html",
       "icon": "▧",
@@ -50,14 +66,6 @@
       "accent": "#ffb86b",
       "description": "Convert PNG, JPEG, GIF, BMP, SVG, AVIF, WebP, and other browser-supported images in a compressed WebP format.",
       "tags": ["image", "converter"]
-    },
-    {
-      "title": "Jacey Cosmo Companion Chat Box",
-      "file": "tools/apps/companion/jacey/jacey_companion",
-      "icon": "▧",
-      "accent": "#4cc9f0",
-      "description": "The Jacey Companion Test.",
-      "tags": ["companion", "jacey"]
     },
     {
       "title": "Interactive Map",

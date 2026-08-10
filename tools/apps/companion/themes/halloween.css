@@ -38,14 +38,13 @@
     radial-gradient(circle at 87% 82%,rgba(255,46,62,.13),transparent 26%),
     linear-gradient(140deg,#020103 0%,#160515 42%,#07030b 69%,#020103 100%) !important;
   color:#fff1dc;
-  animation:halloweenAmbientPulse 7s ease-in-out infinite alternate;
 }
 
 /* Animated occult-grid / haunted terminal texture. */
 :root[data-visual-contexts~="halloween"] body:before {
   content:"";
   position:fixed;
-  inset:0;
+  inset:-40px;
   pointer-events:none;
   z-index:0;
   opacity:.88;
@@ -57,6 +56,7 @@
       rgba(255,119,24,.028) 79px 80px,
       transparent 81px 156px);
   background-size:30px 30px,30px 30px,320px 320px;
+  will-change:transform;
   animation:halloweenGridDrift 18s linear infinite;
 }
 
@@ -78,6 +78,7 @@
     radial-gradient(circle at center,transparent 55%,rgba(0,0,0,.55) 100%);
   mix-blend-mode:screen;
   opacity:.85;
+  will-change:transform,opacity;
   animation:halloweenFogBreath 9s ease-in-out infinite alternate;
 }
 
@@ -143,6 +144,17 @@
     0 0 80px rgba(255,55,25,.18),
     inset 0 0 30px rgba(255,107,30,.15) !important;
   animation:halloweenPortraitGlow 4s ease-in-out infinite alternate;
+}
+
+/*
+  Preserve the base companion's manual glitch-button portrait bounce while the
+  Halloween glow is active. Both animations affect different properties:
+  Halloween animates box-shadow; the base bounce animates transform.
+*/
+:root[data-visual-contexts~="halloween"] .portrait-frame.glitch-bounce {
+  animation:
+    halloweenPortraitGlow 4s ease-in-out infinite alternate,
+    portraitGlitchBounce .42s cubic-bezier(.2,.8,.25,1) !important;
 }
 
 /* Decorative cobweb corners without new HTML. */
@@ -313,14 +325,9 @@
 
 /* ---------- ANIMATIONS ---------- */
 
-@keyframes halloweenAmbientPulse {
-  0%   { filter:saturate(1) brightness(.98); }
-  100% { filter:saturate(1.11) brightness(1.02); }
-}
-
 @keyframes halloweenGridDrift {
-  from { background-position:0 0,0 0,0 0; }
-  to   { background-position:30px 30px,-30px 30px,160px 80px; }
+  from { transform:translate3d(0,0,0); }
+  to   { transform:translate3d(30px,30px,0); }
 }
 
 @keyframes halloweenFogBreath {
@@ -339,8 +346,8 @@
   to {
     box-shadow:
       0 0 0 2px rgba(255,134,39,.78),
-      0 0 28px rgba(255,125,24,.84),
-      0 0 58px rgba(182,55,255,.55),
+      0 0 24px rgba(255,125,24,.78),
+      0 0 48px rgba(182,55,255,.50),
       inset 0 0 35px rgba(255,107,30,.18);
   }
 }

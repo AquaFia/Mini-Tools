@@ -63,9 +63,28 @@ If a new character appears to require a change inside `companion.html`, first de
 
 ## Project-level folders
 
-The Student Handbook project keeps shared systems and visual themes outside individual companion folders:
+The production Student Handbook layout is expected to be:
 
-- `shared/`
-- `themes/`
+```text
+Student Handbook/
+├── shared/
+├── themes/
+├── Character A/
+│   ├── companion.html
+│   ├── character.js
+│   ├── special_module.js
+│   ├── audio/
+│   ├── expressions/
+│   └── episodes/
+├── Character B/
+│   └── ...
+└── ...
+```
 
-Keep your existing project path arrangement consistent with the working companion base.
+The included `companion.html` is already configured for this layout:
+
+- `../shared/context_awareness.js`
+- `../shared/visual_context.js`
+- `../themes/`
+
+Do not move `shared/` or `themes/` inside individual companion folders unless you intentionally change those paths.

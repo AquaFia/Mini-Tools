@@ -2182,7 +2182,11 @@ function refreshQuickReplies(){
   });
 }
 function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
-function switchIdentity(key){return IdentityManager.switch(key)}
+async function switchIdentity(key){
+  const result=await IdentityManager.switch(key);
+  renderEpisodeQuickStarts();
+  return result;
+}
 function detectIdentityPhrase(text){return IdentityManager.detectPhrase(text)}
 
 const log=document.querySelector('#log');
@@ -3488,6 +3492,7 @@ const EpisodeManager={
 function renderEpisodeQuickStarts(){
   const available=EpisodeManager.list().filter(record=>{
     if(!record.enabled)return false;
+    if((record.data?.identity||DEFAULT_IDENTITY)!==activeIdentity)return false;
     const firstTrigger=record.data?.triggers?.[0];
     return typeof firstTrigger==='string' && firstTrigger.trim();
   });

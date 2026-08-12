@@ -9,8 +9,8 @@
     {
       id:"alice_nexus",
       name:"Alice Nexus",
-      subtitle:"ISTJ-A // Logistician",
-      group:"Nexus",
+      subtitle:"",
+      group:"",
       initials:"AN",
       path:"characters/alice_nexus",
       specialModule:false

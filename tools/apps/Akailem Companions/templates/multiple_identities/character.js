@@ -11,7 +11,8 @@
     defaultIdentity:"identity_one",
     services:{
       awarenessCompanionId:"replace-me",
-      messageBankCompanion:"Replace Me"
+      messageBankCompanion:"Replace Me",
+      profileCharacter:"Replace Me"
     },
     memory:{fileName:"replace_me_memory.json"},
     startup:{fallbackMessage:"Connection established."},
@@ -25,7 +26,6 @@
       identity_one:{
         name:"IDENTITY ONE",
         shortName:"Identity One",
-        talent:"ROLE / TALENT",
         initials:"I1",
         brand:"WORLD//LINK",
         brandSubtitle:"COMPANION TERMINAL",
@@ -35,7 +35,6 @@
         typingLabel:"IDENTITY ONE // TYPING",
         botStamp:"IDENTITY ONE",
         placeholder:"Message Identity One…",
-        dossierTitle:"DOSSIER // IDENTITY ONE",
         status:"READY",
         keyphrase:"switch to identity one",
         transitionLabel:"Loading Identity One…",
@@ -52,7 +51,6 @@
       identity_two:{
         name:"IDENTITY TWO",
         shortName:"Identity Two",
-        talent:"ROLE / TALENT",
         initials:"I2",
         brand:"WORLD//LINK",
         brandSubtitle:"COMPANION TERMINAL",
@@ -62,7 +60,6 @@
         typingLabel:"IDENTITY TWO // TYPING",
         botStamp:"IDENTITY TWO",
         placeholder:"Message Identity Two…",
-        dossierTitle:"DOSSIER // IDENTITY TWO",
         status:"READY",
         keyphrase:"switch to identity two",
         transitionLabel:"Loading Identity Two…",

@@ -10,7 +10,8 @@
     defaultIdentity:"template",
     services:{
       awarenessCompanionId:"replace-me",
-      messageBankCompanion:"Replace Me"
+      messageBankCompanion:"Replace Me",
+      profileCharacter:"Replace Me"
     },
     memory:{fileName:"replace_me_memory.json"},
     startup:{fallbackMessage:"Connection established."},
@@ -24,7 +25,6 @@
       template:{
         name:"TEMPLATE CHARACTER",
         shortName:"Template",
-        talent:"ROLE / TALENT",
         initials:"TC",
         brand:"WORLD//LINK",
         brandSubtitle:"COMPANION TERMINAL",
@@ -34,7 +34,6 @@
         typingLabel:"TEMPLATE // TYPING",
         botStamp:"TEMPLATE",
         placeholder:"Message Template…",
-        dossierTitle:"DOSSIER // TEMPLATE CHARACTER",
         status:"READY",
         quickReplies:["Hello","Tell me about yourself","How are you?"],
         dossier:'SUBJECT: TEMPLATE CHARACTER<br>ROLE: ROLE / TALENT<br>STATUS: <span class="ok">READY</span>',

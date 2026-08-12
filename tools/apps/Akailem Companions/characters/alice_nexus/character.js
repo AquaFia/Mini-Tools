@@ -5,13 +5,17 @@
 (function(){
   "use strict";
 
+  const PROFILE_NAME="Alice Nexus";
+  const CHAT_NAME="Alice";
+
   const definition={
     id:"alice_nexus",
     defaultIdentity:"alice",
 
     services:{
       awarenessCompanionId:"alice-nexus",
-      messageBankCompanion:"Alice"
+      messageBankCompanion:CHAT_NAME,
+      profileCharacter:PROFILE_NAME
     },
 
     memory:{
@@ -19,7 +23,7 @@
     },
 
     startup:{
-      fallbackMessage:"Connection established. Alice Nexus is online."
+      fallbackMessage:`Connection established. ${PROFILE_NAME} is online.`
     },
 
     companionModeLabel:"COMPANION MODE",
@@ -36,19 +40,17 @@
 
     identities:{
       alice:{
-                name:"ALICE NEXUS",
-        shortName:"Alice",
-        talent:"ISTJ-A // LOGISTICIAN",
+        name:PROFILE_NAME,
+        shortName:CHAT_NAME,
         initials:"AN",
         brand:"WORLD//LINK",
         brandSubtitle:"COMPANION TERMINAL",
-        channelTitle:"ALICE NEXUS",
+        channelTitle:PROFILE_NAME.toUpperCase(),
         channelLine:"channel: alice_nexus // online",
-        speakerLabel:"ALICE // VERIFIED",
-        typingLabel:"ALICE // TYPING",
-        botStamp:"ALICE",
-        placeholder:"Message Alice…",
-        dossierTitle:"DOSSIER // ALICE NEXUS",
+        speakerLabel:`${CHAT_NAME.toUpperCase()} // VERIFIED`,
+        typingLabel:`${CHAT_NAME.toUpperCase()} // TYPING`,
+        botStamp:CHAT_NAME.toUpperCase(),
+        placeholder:`Message ${CHAT_NAME}…`,
         status:"READY",
         
         quickReplies:[
@@ -57,20 +59,6 @@
           "Tell me about Tyler",
           "How are you?"
         ],
-
-        dossier:[
-          'SUBJECT: ALICE NEXUS',
-          'ALIAS: ALI <span class="muted">// friends & family</span>',
-          'PRONOUNS: SHE/HER',
-          'GENDER: FEMININE',
-          'BIRTHDATE: 1987-06-20',
-          'HANDEDNESS: RIGHT',
-          'MBTI: ISTJ-A <span class="muted">// Logistician</span>',
-          'ANIMAL: FOX',
-          'HOGWARTS HOUSE: SLYTHERIN',
-          '',
-          'HISTORY: <span class="warning">PROFILE INCOMPLETE</span>'
-        ].join('<br>'),
 
         coreBelief:"",
         

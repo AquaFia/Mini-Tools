@@ -535,7 +535,15 @@ body:before{
 .character-card{flex:1;min-height:280px;border:1px solid var(--line);border-radius:18px;padding:22px;display:flex;flex-direction:column;justify-content:center;gap:16px;background:linear-gradient(180deg,var(--panel2),var(--panel));box-shadow:inset 0 0 45px color-mix(in srgb,var(--violet) 12%,transparent)}
 .character-monogram{font:800 clamp(42px,7vw,76px)/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.08em;color:var(--violet);text-shadow:0 0 24px color-mix(in srgb,var(--violet) 55%,transparent)}
 .character-card-copy{display:grid;gap:6px}.character-card-kicker{font:700 9px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.2em;color:var(--muted)}
-.character-card-copy strong{font-size:20px}.character-card-copy span:last-child{color:var(--muted);font-size:12px}
+.character-card-copy strong{font-size:20px}
+.core-profile-meta{display:grid;gap:7px;padding:10px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.core-profile-row{display:grid;grid-template-columns:minmax(76px,.7fr) 1.3fr;gap:10px;align-items:start;font:10px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace}
+.core-profile-label{color:var(--muted);font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.core-profile-value{color:var(--ink);overflow-wrap:anywhere}
+.core-profile-summary{margin:0;color:var(--muted);font:12px/1.55 system-ui;white-space:pre-wrap}
+.core-profile-summary[hidden],.core-profile-meta[hidden]{display:none}
+.profile-loading{color:var(--muted);font:10px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.08em}
+.dossier-group{margin:0 0 20px}.dossier-group:last-child{margin-bottom:0}.dossier-group h3{margin:0 0 10px;color:var(--cyan);font:800 10px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.16em}.dossier-field{display:grid;grid-template-columns:minmax(110px,.9fr) 1.1fr;gap:12px;padding:8px 0;border-bottom:1px solid color-mix(in srgb,var(--line) 65%,transparent);font:11px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace}.dossier-field:last-child{border-bottom:0}.dossier-field-label{color:var(--muted)}.dossier-field-value{color:var(--ink);overflow-wrap:anywhere}
 .character-switch-btn{align-self:flex-start;border:1px solid var(--violet);border-radius:999px;background:transparent;color:var(--ink);padding:10px 14px;font:700 10px/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.12em;cursor:pointer}
 .character-switch-btn:hover{background:color-mix(in srgb,var(--violet) 15%,transparent)}
 .character-card-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:relative}
@@ -1295,10 +1303,12 @@ window.addEventListener('DOMContentLoaded',()=>{
     <div class="character-card" id="characterCard">
       <div class="character-monogram" id="characterMonogram">--</div>
       <div class="character-card-copy">
-        <span class="character-card-kicker">ACTIVE CHARACTER</span>
+        <span class="character-card-kicker">NAME</span>
         <strong id="characterName">Companion</strong>
-        <span id="characterTalent">Loading…</span>
+        <span class="profile-loading" id="characterProfileStatus">Loading Notion profile…</span>
       </div>
+      <div class="core-profile-meta" id="coreProfileMeta" hidden></div>
+      <p class="core-profile-summary" id="coreProfileSummary" hidden></p>
       <div class="character-card-actions">
         <button class="character-switch-btn" id="characterSwitchBtn" type="button">SWITCH CHARACTER</button>
         <div class="topic-picker-wrap" id="topicPickerWrap">
@@ -1335,7 +1345,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   <div class="character-picker" id="characterPicker" aria-hidden="true">
     <div class="character-picker-card" role="dialog" aria-modal="true" aria-labelledby="characterPickerTitle">
       <div class="character-picker-head"><h2 id="characterPickerTitle">SELECT CHARACTER</h2><button class="icon-btn" id="closeCharacterPicker" type="button">×</button></div>
-      <input class="character-search" id="characterSearch" type="search" placeholder="Search name, role, or group…" autocomplete="off">
+      <input class="character-search" id="characterSearch" type="search" placeholder="Search characters…" autocomplete="off">
       <div class="character-results" id="characterResults"></div>
     </div>
   </div>
@@ -1370,6 +1380,21 @@ const IDENTITIES=CompanionCharacter.identities;
 const DEFAULT_IDENTITY=CompanionCharacter.defaultIdentity;
 const defaultIdentityProfile=IDENTITIES[DEFAULT_IDENTITY];
 if(!defaultIdentityProfile)throw new Error(`Unknown default companion identity: ${DEFAULT_IDENTITY}`);
+
+const CHARACTER_PROFILE_LAYOUT=Object.freeze({
+  core:Object.freeze(["Name","Gender","Pronouns","Birthdate","Summary"]),
+  dossierGroups:Object.freeze([
+    Object.freeze({
+      title:"ALIGNMENTS",
+      fields:Object.freeze(["MBTI","Moral Alignment","Temperament","Zodiac Sign","Hogwarts House"])
+    }),
+    Object.freeze({
+      title:"ASSOCIATIONS",
+      fields:Object.freeze(["Animal","Season","Plant","Scent"])
+    })
+  ])
+});
+let notionCharacterProfile=null;
 
 /* Mutable presentation state derived from character.js.
    IdentityManager is the sole writer during identity switches. */
@@ -1495,15 +1520,105 @@ function applyCharacter(c){
   document.querySelector('#brandTitle').textContent=c.brand;
   document.querySelector('#brandSubtitle').textContent=c.brandSubtitle;
   document.querySelector('#characterName').textContent=c.name;
-  document.querySelector('#characterTalent').textContent=c.talent;
   document.querySelector('#channelTitle').textContent=c.channelTitle;
   document.querySelector('#channel').textContent=c.channelLine;
   document.querySelector('#input').placeholder=c.placeholder;
   document.querySelector('#input').setAttribute('aria-label',c.placeholder.replace('…',''));
-  document.querySelector('#dossierTitle').textContent=c.dossierTitle;
-  if(c.dossier)document.querySelector('#dossierBody').innerHTML=c.dossier;
+  if(!notionCharacterProfile){
+    document.querySelector('#dossierTitle').textContent='DOSSIER';
+    document.querySelector('#dossierBody').textContent='Loading Notion profile…';
+  }
 }
 applyCharacter(CHARACTER);
+
+function profileValue(properties,field){
+  const value=properties?.[field];
+  if(value===null||value===undefined)return '';
+  if(Array.isArray(value))return value.filter(Boolean).join(', ');
+  return String(value).trim();
+}
+
+function createProfileRow(label,value,className='core-profile-row'){
+  const row=document.createElement('div');
+  row.className=className;
+  const labelNode=document.createElement('span');
+  labelNode.className=className==='dossier-field'?'dossier-field-label':'core-profile-label';
+  labelNode.textContent=label;
+  const valueNode=document.createElement('span');
+  valueNode.className=className==='dossier-field'?'dossier-field-value':'core-profile-value';
+  valueNode.textContent=value;
+  row.append(labelNode,valueNode);
+  return row;
+}
+
+function renderCharacterProfile(profile){
+  notionCharacterProfile=profile;
+  const properties=profile?.properties&&typeof profile.properties==='object'?profile.properties:{};
+  const resolvedName=profileValue(properties,'Name')||CHARACTER.name||CompanionCharacter.services.profileCharacter||'Companion';
+
+  document.title=resolvedName+' — Companion Terminal';
+  document.querySelector('#characterName').textContent=resolvedName;
+  document.querySelector('#dossierTitle').textContent='DOSSIER // '+resolvedName.toUpperCase();
+
+  const status=document.querySelector('#characterProfileStatus');
+  status.hidden=true;
+
+  const meta=document.querySelector('#coreProfileMeta');
+  meta.replaceChildren();
+  for(const field of ['Gender','Pronouns','Birthdate']){
+    const value=profileValue(properties,field);
+    if(value)meta.append(createProfileRow(field,value));
+  }
+  meta.hidden=!meta.children.length;
+
+  const summary=document.querySelector('#coreProfileSummary');
+  const summaryValue=profileValue(properties,'Summary');
+  summary.textContent=summaryValue;
+  summary.hidden=!summaryValue;
+
+  renderProfileDossier(properties);
+}
+
+function renderProfileDossier(properties){
+  const body=document.querySelector('#dossierBody');
+  body.replaceChildren();
+  let visibleGroups=0;
+
+  for(const group of CHARACTER_PROFILE_LAYOUT.dossierGroups){
+    const fields=group.fields
+      .map(field=>({field,value:profileValue(properties,field)}))
+      .filter(item=>item.value);
+    if(!fields.length)continue;
+
+    visibleGroups++;
+    const section=document.createElement('section');
+    section.className='dossier-group';
+    const heading=document.createElement('h3');
+    heading.textContent=group.title;
+    section.append(heading);
+    for(const item of fields)section.append(createProfileRow(item.field,item.value,'dossier-field'));
+    body.append(section);
+  }
+
+  if(!visibleGroups){
+    const empty=document.createElement('span');
+    empty.className='muted';
+    empty.textContent='No dossier fields are available for this character.';
+    body.append(empty);
+  }
+
+  renderExternalAchievements?.();
+}
+
+function renderCharacterProfileError(){
+  const status=document.querySelector('#characterProfileStatus');
+  status.hidden=false;
+  status.textContent='Notion profile unavailable';
+  document.querySelector('#coreProfileMeta').hidden=true;
+  document.querySelector('#coreProfileSummary').hidden=true;
+  const body=document.querySelector('#dossierBody');
+  body.textContent='Character profile unavailable. Chat, message banks, and episodes can still be used.';
+}
 
 let busy=false;
 
@@ -2679,9 +2794,13 @@ const BUILTIN_LISTS=Object.freeze({
   episodes:(window.CompanionCharacterRoute?.basePath||'characters/template_character')+'/episodes/episode_list.json'
 });
 
+const OG_COMPANIONS_WORKER_BASE='https://og-companions.aquafia1247.workers.dev';
 const COMPANION_MESSAGE_BANK_ENDPOINT=
-  'https://og-companions.aquafia1247.workers.dev/message-banks/'+
+  OG_COMPANIONS_WORKER_BASE+'/message-banks/'+
   encodeURIComponent(CompanionCharacter.services.messageBankCompanion);
+const COMPANION_PROFILE_ENDPOINT=
+  OG_COMPANIONS_WORKER_BASE+'/characters/'+
+  encodeURIComponent(CompanionCharacter.services.profileCharacter);
 
 const dataLoadBtn=document.querySelector('#dataLoadBtn');
 const memorySaveBtn=document.querySelector('#memorySaveBtn');
@@ -2864,6 +2983,21 @@ async function loadBuiltinEpisodes(){
   renderExternalAchievements();
 }
 
+async function loadNotionCharacterProfile(){
+  try{
+    const data=await fetchJSON(COMPANION_PROFILE_ENDPOINT);
+    if(!data||data.schema!=='og-character-profile-v1'||!data.properties){
+      throw new Error('Worker returned an unsupported character-profile document.');
+    }
+    renderCharacterProfile(data);
+    return data;
+  }catch(error){
+    console.error('Could not load Notion character profile.',error);
+    renderCharacterProfileError();
+    return null;
+  }
+}
+
 async function loadNotionMessageBanks(){
   try{
     const data=await fetchJSON(COMPANION_MESSAGE_BANK_ENDPOINT);
@@ -3027,9 +3161,11 @@ dataFileInput.addEventListener('change',async()=>{
 });
 
 loadBuiltinEpisodes();
+const characterProfileLoadPromise=loadNotionCharacterProfile();
 const messageBankLoadPromise=loadNotionMessageBanks();
 window.addEventListener('DOMContentLoaded',async()=>{
   await Promise.allSettled([
+    characterProfileLoadPromise,
     messageBankLoadPromise,
     window.CompanionContext?.loadPromise||Promise.resolve()
   ]);
@@ -3108,7 +3244,7 @@ dossierBtn.onclick=function(event){
   }
   function render(){
     const q=String(search.value||'').trim().toLowerCase();
-    const matches=entries.filter(entry=>[entry.name,entry.subtitle,entry.group,entry.id].some(value=>String(value||'').toLowerCase().includes(q)));
+    const matches=entries.filter(entry=>[entry.name,entry.id].some(value=>String(value||'').toLowerCase().includes(q)));
     results.replaceChildren();
     if(!matches.length){
       const empty=document.createElement('div');empty.className='character-empty';empty.textContent='No matching characters.';results.append(empty);return;

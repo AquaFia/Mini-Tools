@@ -28,7 +28,7 @@ Most characters use one identity. Copy `templates/single_identity/` into `charac
 1. Rename the package `id`.
 2. Rename the single identity key to the character's actual identity/message-bank name in slug form (for example `alice`).
 3. Set `defaultIdentity` to that same key.
-4. Update the character-specific display, dossier, service, memory, and color fields.
+4. Update the character-specific runtime, service, memory, and color fields. Character profile/dossier facts are loaded from Notion.
 5. Add the character to `character_list.js`.
 
 For a normal character, there is no need to mention multiple identities anywhere in the character package.
@@ -62,3 +62,15 @@ Routes:
 - `/context`
 
 The context endpoint currently supplies birthday awareness only; `events` remains an empty array for compatibility with the shared context-awareness script.
+
+## Notion character profiles
+
+The OG Worker exposes `GET /characters/{name}`. Each character package sets `services.profileCharacter` to the exact `Name` used in the OG character database.
+
+The companion currently displays these Notion fields in this order:
+
+- Core profile: Name, Gender, Pronouns, Birthdate, Summary
+- Alignments: MBTI, Moral Alignment, Temperament, Zodiac Sign, Hogwarts House
+- Associations: Animal, Season, Plant, Scent
+
+Empty fields are hidden. Relations, rollups, and formulas are ignored by the Worker. Add future eligible Alignment/Association fields to the layout lists in `companion.html`; the Worker property reader is generic and does not need character-specific code.

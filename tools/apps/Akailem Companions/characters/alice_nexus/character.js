@@ -55,9 +55,9 @@
         
         quickReplies:[
           "Hello",
-          "Tell me about Adair",
-          "Tell me about Tyler",
-          "How are you?"
+          "How are you?",
+          "What have you been up to?",
+          "Tell me something about yourself"
         ],
 
         coreBelief:"",

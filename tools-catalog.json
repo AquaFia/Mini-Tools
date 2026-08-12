@@ -20,6 +20,14 @@
       "tags": ["characters", "writing", "worldbuilding"]
     },
     {
+      "title": "Akailem Companions",
+      "file": "tools/apps/Akailem Companions/companion.html",
+      "icon": "✧",
+      "accent": "#a970ff",
+      "description": "Akailem Characters.",
+      "tags": ["characters", "companion"]
+    },
+    {
       "title": "Companion Episode Studio",
       "file": "tools/apps/companion/Companion Episode Studio.html",
       "icon": "◇",

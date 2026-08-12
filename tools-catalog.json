@@ -52,14 +52,6 @@
       "tags": ["companion", "jacey"]
     },
     {
-      "title": "Dummy Companion Chat Box",
-      "file": "tools/apps/companion/TEST_COMPANION/test_companion",
-      "icon": "▧",
-      "accent": "#4cc9f0",
-      "description": "The Dummy Companion Test. Little Miss Probe, Echo and Signal.",
-      "tags": ["companion"]
-    },
-    {
       "title": "Companion Chat Box Template",
       "file": "tools/apps/companion/COMPANION_TEMPLATE/companion",
       "icon": "▧",

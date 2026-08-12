@@ -1552,6 +1552,18 @@ function applyCharacter(c){
 }
 applyCharacter(CHARACTER);
 
+function monogram(value){
+  const parts=String(value||'')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+
+  if(!parts.length)return '?';
+  if(parts.length===1)return parts[0].slice(0,2).toUpperCase();
+
+  return (parts[0][0]+parts[parts.length-1][0]).toUpperCase();
+}
+
 function profileValue(properties,field){
   const value=properties?.[field];
   if(value===null||value===undefined)return '';

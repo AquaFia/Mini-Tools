@@ -538,6 +538,15 @@ body:before{
 .character-card-copy strong{font-size:20px}.character-card-copy span:last-child{color:var(--muted);font-size:12px}
 .character-switch-btn{align-self:flex-start;border:1px solid var(--violet);border-radius:999px;background:transparent;color:var(--ink);padding:10px 14px;font:700 10px/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.12em;cursor:pointer}
 .character-switch-btn:hover{background:color-mix(in srgb,var(--violet) 15%,transparent)}
+.character-card-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:relative}
+.topic-picker-wrap{position:relative}
+.topic-picker-btn{border-color:var(--cyan)}
+.topic-picker-btn:hover{background:color-mix(in srgb,var(--cyan) 12%,transparent)}
+.topic-picker-btn:disabled{opacity:.45;cursor:not-allowed;background:transparent}
+.topic-picker-menu{position:absolute;left:0;top:calc(100% + 8px);z-index:35;width:min(320px,78vw);display:none;padding:8px;border:1px solid var(--line);border-radius:12px;background:var(--panel);box-shadow:0 18px 44px rgba(0,0,0,.42)}
+.topic-picker-menu.open{display:grid;gap:6px}
+.topic-quick-start{width:100%;border:1px solid var(--line);border-radius:9px;background:var(--panel2);color:var(--ink);padding:10px 12px;text-align:left;font:700 10px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.04em;cursor:pointer}
+.topic-quick-start:hover{border-color:var(--cyan);background:color-mix(in srgb,var(--cyan) 10%,var(--panel2))}
 .character-picker{position:absolute;inset:0;z-index:80;display:none;place-items:center;background:rgba(3,4,8,.82);backdrop-filter:blur(12px);padding:20px}.character-picker.open{display:grid}
 .character-picker-card{width:min(720px,100%);max-height:min(760px,90vh);display:grid;grid-template-rows:auto auto 1fr;border:1px solid var(--violet);border-radius:20px;background:var(--panel);box-shadow:0 24px 80px rgba(0,0,0,.45);overflow:hidden}
 .character-picker-head{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid var(--line)}.character-picker-head h2{margin:0;font:800 14px/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.16em}
@@ -1290,7 +1299,13 @@ window.addEventListener('DOMContentLoaded',()=>{
         <strong id="characterName">Companion</strong>
         <span id="characterTalent">Loading…</span>
       </div>
-      <button class="character-switch-btn" id="characterSwitchBtn" type="button">SWITCH CHARACTER</button>
+      <div class="character-card-actions">
+        <button class="character-switch-btn" id="characterSwitchBtn" type="button">SWITCH CHARACTER</button>
+        <div class="topic-picker-wrap" id="topicPickerWrap">
+          <button class="character-switch-btn topic-picker-btn" id="topicPickerBtn" type="button" aria-haspopup="menu" aria-expanded="false">TOPICS</button>
+          <div class="topic-picker-menu" id="topicPickerMenu" role="menu"></div>
+        </div>
+      </div>
     </div>
     <div class="profile"><div><span id="characterDirectoryLabel">WORLD DIRECTORY</span></div><div class="online">ONLINE</div></div>
   </aside>
@@ -1409,7 +1424,7 @@ const IdentityManager={
 
     refreshQuickReplies();
     if(typeof renderExternalAchievements==='function')renderExternalAchievements();
-
+    window.TopicSelector?.render?.();
 
     if(Framework.specialModule?.onIdentityChange){
       Framework.specialModule.onIdentityChange(this._activeId);
@@ -2674,6 +2689,9 @@ const dataFileInput=document.querySelector('#dataFileInput');
 const libraryBtn=document.querySelector('#libraryBtn');
 const libraryPanel=document.querySelector('#libraryPanel');
 const closeLibraryBtn=document.querySelector('#closeLibraryBtn');
+const topicPickerBtn=document.querySelector('#topicPickerBtn');
+const topicPickerMenu=document.querySelector('#topicPickerMenu');
+const topicPickerWrap=document.querySelector('#topicPickerWrap');
 function normalizeTitle(value){return String(value||'').trim().toLocaleLowerCase();}
 function fileLabel(fileName){return String(fileName||'Message Bank').replace(/\.json$/i,'').replace(/[_-]+/g,' ').replace(/\s+/g,' ').trim();}
 
@@ -2758,7 +2776,65 @@ function renderLibrary(){
   if(!episodes.length){const x=document.createElement('div');x.className='library-empty';x.textContent='No episodes loaded.';ep.append(x);}else episodes.forEach(r=>ep.append(createLibraryItem(r,EpisodeManager)));
   if(!banks.length){const x=document.createElement('div');x.className='library-empty';x.textContent='No message banks loaded.';mb.append(x);}else banks.forEach(r=>mb.append(createLibraryItem(r,MessageBankManager)));
 }
-function refreshContentUI(){renderLibrary();}
+function episodeQuickStartTrigger(record){
+  const episode=record?.data;
+  if(!record?.enabled || episode?.__enabled===false)return '';
+  if((episode?.identity||DEFAULT_IDENTITY)!==activeIdentity)return '';
+  if(!episodeIsEligible(episode))return '';
+  return String(episode?.triggers?.[0]||'').trim();
+}
+
+function closeTopicPicker(){
+  topicPickerMenu?.classList.remove('open');
+  topicPickerBtn?.setAttribute('aria-expanded','false');
+}
+
+function renderTopicSelector(){
+  if(!topicPickerBtn || !topicPickerMenu)return;
+  topicPickerMenu.replaceChildren();
+
+  const topics=EpisodeManager.list()
+    .map(record=>({record,trigger:episodeQuickStartTrigger(record)}))
+    .filter(item=>item.trigger);
+
+  topicPickerBtn.disabled=!topics.length;
+  topicPickerBtn.title=topics.length?'Start a conversation topic':'No episode topics available';
+
+  for(const {trigger} of topics){
+    const button=document.createElement('button');
+    button.type='button';
+    button.className='topic-quick-start';
+    button.role='menuitem';
+    button.textContent=trigger;
+    button.addEventListener('click',()=>{
+      closeTopicPicker();
+      if(episodeState.mode!==EpisodeMode.IDLE){
+        showToast('FINISH OR LEAVE THE CURRENT EPISODE FIRST');
+        return;
+      }
+      send(trigger);
+    });
+    topicPickerMenu.append(button);
+  }
+
+  if(!topics.length)closeTopicPicker();
+}
+
+const TopicSelector=Object.freeze({render:renderTopicSelector,close:closeTopicPicker});
+window.TopicSelector=TopicSelector;
+
+topicPickerBtn?.addEventListener('click',event=>{
+  event.stopPropagation();
+  if(topicPickerBtn.disabled)return;
+  const open=!topicPickerMenu.classList.contains('open');
+  topicPickerMenu.classList.toggle('open',open);
+  topicPickerBtn.setAttribute('aria-expanded',String(open));
+});
+topicPickerMenu?.addEventListener('click',event=>event.stopPropagation());
+document.addEventListener('click',closeTopicPicker);
+document.addEventListener('keydown',event=>{if(event.key==='Escape')closeTopicPicker();});
+
+function refreshContentUI(){renderLibrary();renderTopicSelector();}
 function setLibraryOpen(open){libraryPanel.classList.toggle('open',open);libraryPanel.setAttribute('aria-hidden',String(!open));if(open)dossier.classList.remove('open');}
 libraryBtn.addEventListener('click',()=>setLibraryOpen(!libraryPanel.classList.contains('open')));closeLibraryBtn.addEventListener('click',()=>setLibraryOpen(false));
 

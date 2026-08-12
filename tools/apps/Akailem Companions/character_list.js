@@ -14,15 +14,6 @@
       initials:"AN",
       path:"characters/alice_nexus",
       specialModule:false
-    },
-    {
-      id:"template_character",
-      name:"Template Character",
-      subtitle:"Role / Talent",
-      group:"Example",
-      initials:"TC",
-      path:"characters/template_character",
-      specialModule:true
     }
   ];
 

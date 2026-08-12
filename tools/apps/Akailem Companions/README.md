@@ -1,70 +1,67 @@
-# World Companion Template — Alice Test Build
+# World Companion
 
-This build uses one `companion.html` for the whole cast. Character-specific files live under `characters/`. Portrait/expression and audio runtime systems are not used by the interface.
+This build uses one shared `companion.html` runtime and character packages under `characters/`.
 
-## Structure
+## Runtime structure
 
 ```text
 WORLD_COMPANION_TEMPLATE/
 ├── companion.html
 ├── character_list.js
+├── characters/
+│   └── alice_nexus/
+│       ├── character.js
+│       └── episodes/
 ├── shared/
 │   ├── context_awareness.js
 │   └── visual_context.js
 ├── themes/
 │   └── halloween.css
-└── characters/
-    ├── alice_nexus/
-    │   ├── character.js
-    │   └── episodes/
-    │       ├── episode_list.json
-    │       ├── about_adair.json
-    │       └── about_tyler.json
-    └── template_character/
-        └── character.js
+└── templates/
+    ├── single_identity/
+    └── multiple_identities/
 ```
 
-## Alice test character
+Only folders registered in `character_list.js` can be selected or loaded by the companion runtime. The `templates/` folder is intentionally outside `characters/` and is not registered, so template packages do not appear in the companion selector and cannot be selected through the normal character routing system.
 
-Alice Nexus is included as the first real character package. The template character remains in the directory so character switching can be tested without adding another finished character first.
+## Adding a normal character
 
-Alice currently includes two unfinished built-in episode snippets:
+Most characters use one identity. Copy `templates/single_identity/` into `characters/<character_id>/`, then:
 
-- `About Adair`
-- `About Tyler`
+1. Rename the package `id`.
+2. Rename the single identity key to the character's actual identity/message-bank name in slug form (for example `alice`).
+3. Set `defaultIdentity` to that same key.
+4. Update the character-specific display, dossier, service, memory, and color fields.
+5. Add the character to `character_list.js`.
 
-The episode files deliberately retain empty `expression` fields. The text-only episode runtime ignores those fields, so episodes exported by the existing Episode Creator Studio remain compatible without changing its schema.
+For a normal character, there is no need to mention multiple identities anywhere in the character package.
 
-## Character switching
+## Characters with multiple identities
 
-Use **SWITCH CHARACTER** in the sidebar. The directory is searchable by name, subtitle/role, group, and ID. The chosen character is stored in `localStorage` and written to the URL as `?character=<id>`.
+Use `templates/multiple_identities/` only when a character genuinely has more than one named identity. It demonstrates:
 
-## Adding a character
+- more than one entry under `identities`
+- a matching `defaultIdentity`
+- per-identity `keyphrase`, `transitionLabel`, and `switchMessage`
+- per-identity awareness and missing-bank guidance
 
-1. Copy an existing character package or create `characters/<stable_id>/`.
-2. Add `character.js` and keep `definition.id` identical to the directory ID.
-3. Add the character to `character_list.js`.
-4. Add `episodes/episode_list.json` if the character has episodes.
-5. Add `special_modules/` only when that character needs a special module.
+The identity keys should match the slugs produced from the Notion `Identity` titles.
 
-## Episode compatibility
+## Episodes
 
-The existing `companion-episode-v1` structure is unchanged. `expression` may be populated, empty, or omitted; the current text-only renderer does not read it.
+The existing episode JSON structure is unchanged. `expression` fields may be present, empty, or omitted; the text-only companion runtime ignores them.
 
-## Shared awareness and themes
+## OG Worker
 
-`companion.html` loads the real shared awareness files from `shared/` and context CSS from `themes/`. The Halloween visual context remains available through `themes/halloween.css`.
+This build uses:
 
-## Remote message bank note
+```text
+https://og-companions.aquafia1247.workers.dev
+```
 
-Alice's character configuration currently uses `Alice` as the `messageBankCompanion` service key. If the deployed message-bank Worker uses a different Alice key, change only that value in `characters/alice_nexus/character.js`. Built-in episodes remain local and do not depend on the message bank.
+Routes:
 
+- `/message-banks/{companion}`
+- `/context`
 
-## OG Worker endpoint
-
-This build is configured to use the combined OG companion Worker at `https://og-companions.aquafia1247.workers.dev`. Message banks use `/message-banks/{companion}` and birthday awareness uses `/context`.
-
-
-## Identity convention
-
-Most OG characters use one identity whose key matches the character/message-bank identity slug. Example: Alice uses `defaultIdentity: "alice"` and `identities.alice`. Do not use a generic `primary` identity unless that is intentionally the Notion Identity title. Characters with additional identities can duplicate the main identity block and give each one its actual identity name/key.
+The context endpoint currently supplies birthday awareness only; `events` remains an empty array for compatibility with the shared context-awareness script.

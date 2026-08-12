@@ -52,14 +52,6 @@
       "tags": ["companion", "jacey"]
     },
     {
-      "title": "Companion Chat Box Template",
-      "file": "tools/apps/companion/COMPANION_TEMPLATE/companion",
-      "icon": "▧",
-      "accent": "#4cc9f0",
-      "description": "Aqua's Companion Chat Box Template Base.",
-      "tags": ["companion"]
-    },
-    {
       "title": "Image to Base64",
       "file": "tools/apps/converters/image-to-base64.html",
       "icon": "▧",

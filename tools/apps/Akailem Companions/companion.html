@@ -647,14 +647,11 @@ body:before{
   position:relative;
   z-index:2;
   display:grid;
-  grid-template-columns:72px minmax(0,1fr);
-  gap:14px;
-  align-items:start;
+  gap:7px;
   padding-top:2px
 }
 .core-profile-summary-block[hidden]{display:none}
 .core-profile-summary-label{
-  padding-top:2px;
   color:var(--cyan);
   font:800 8px/1.3 ui-monospace,SFMono-Regular,Consolas,monospace;
   letter-spacing:.16em;
@@ -662,8 +659,7 @@ body:before{
 }
 .core-profile-summary{
   margin:0;
-  padding:0 0 0 14px;
-  border-left:1px solid color-mix(in srgb,var(--violet) 58%,var(--line));
+  padding:0;
   color:color-mix(in srgb,var(--ink) 78%,var(--muted));
   font:12px/1.65 system-ui;
   white-space:pre-wrap
@@ -693,8 +689,6 @@ body:before{
     border-bottom:1px solid color-mix(in srgb,var(--line) 45%,transparent)
   }
   .core-profile-row:last-child{border-bottom:0}
-  .core-profile-summary-block{grid-template-columns:1fr;gap:7px}
-  .core-profile-summary{padding-left:0;border-left:0}
 }
 
 .dossier-group{margin:0 0 20px}.dossier-group:last-child{margin-bottom:0}.dossier-group h3{margin:0 0 10px;color:var(--cyan);font:800 10px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.16em}.dossier-field{display:grid;grid-template-columns:minmax(110px,.9fr) 1.1fr;gap:12px;padding:8px 0;border-bottom:1px solid color-mix(in srgb,var(--line) 65%,transparent);font:11px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace}.dossier-field:last-child{border-bottom:0}.dossier-field-label{color:var(--muted)}.dossier-field-value{color:var(--ink);overflow-wrap:anywhere}

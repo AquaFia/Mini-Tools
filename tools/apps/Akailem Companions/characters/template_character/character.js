@@ -6,7 +6,7 @@
   "use strict";
   const definition={
     id:"template_character",
-    defaultIdentity:"primary",
+    defaultIdentity:"template",
     services:{
       awarenessCompanionId:"replace-me",
       visualContextCompanionId:"replace-me",
@@ -21,8 +21,7 @@
       offerPromptTemplate:"I have more to say about {trigger}. Do you want to continue?"
     },
     identities:{
-      primary:{
-        keyphrase:"activate primary.",
+      template:{
         name:"TEMPLATE CHARACTER",
         shortName:"Template",
         talent:"ROLE / TALENT",
@@ -37,11 +36,9 @@
         placeholder:"Message Template…",
         dossierTitle:"DOSSIER // TEMPLATE",
         status:"READY",
-        switchMessage:"Primary profile activated.",
         quickReplies:["Hello","Tell me about yourself","This is private.","What are you thinking about?"],
         dossier:'SUBJECT: TEMPLATE CHARACTER<br>ROLE: ROLE / TALENT<br>STATUS: <span class="ok">READY</span>',
         coreBelief:"Replace this with the character's central belief.",
-        transitionLabel:"PRIMARY PROFILE ACTIVE",
         episodeAbandon:{message:"Okay. We can leave that conversation there."},
         colors:{
           bg:"#08070d",panel:"#10101a",panel2:"#151426",ink:"#f4efff",muted:"#9b95b5",
@@ -49,9 +46,9 @@
         }
       }
     },
-    identityAwareness:{primary:{}},
+    identityAwareness:{template:{}},
     missingBankGuidance:{
-      primary:[
+      template:[
         "The remote dialogue archive is unavailable. Check the message-bank Worker.",
         "The message bank for this character has not loaded yet.",
         "The dialogue archive is unavailable right now.",

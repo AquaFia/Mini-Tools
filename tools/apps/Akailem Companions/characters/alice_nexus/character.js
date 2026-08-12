@@ -7,7 +7,7 @@
 
   const definition={
     id:"alice_nexus",
-    defaultIdentity:"primary",
+    defaultIdentity:"alice",
 
     services:{
       awarenessCompanionId:"alice-nexus",
@@ -36,9 +36,8 @@
     },
 
     identities:{
-      primary:{
-        keyphrase:"activate alice.",
-        name:"ALICE NEXUS",
+      alice:{
+                name:"ALICE NEXUS",
         shortName:"Alice",
         talent:"ISTJ-A // LOGISTICIAN",
         initials:"AN",
@@ -52,8 +51,7 @@
         placeholder:"Message Alice…",
         dossierTitle:"DOSSIER // ALICE NEXUS",
         status:"READY",
-        switchMessage:"Alice Nexus profile activated.",
-
+        
         quickReplies:[
           "Hello",
           "Tell me about Adair",
@@ -76,8 +74,7 @@
         ].join('<br>'),
 
         coreBelief:"",
-        transitionLabel:"ALICE NEXUS PROFILE ACTIVE",
-
+        
         episodeAbandon:{
           message:"Okay. We can leave that conversation there."
         },
@@ -99,11 +96,11 @@
     },
 
     identityAwareness:{
-      primary:{}
+      alice:{}
     },
 
     missingBankGuidance:{
-      primary:[
+      alice:[
         "The remote dialogue archive is unavailable right now.",
         "I don't have a general response bank loaded for Alice yet.",
         "The dialogue archive didn't load, but built-in episodes are still available.",

@@ -63,3 +63,8 @@ Alice's character configuration currently uses `Alice` as the `messageBankCompan
 ## OG Worker endpoint
 
 This build is configured to use the combined OG companion Worker at `https://og-companions.aquafia1247.workers.dev`. Message banks use `/message-banks/{companion}` and birthday awareness uses `/context`.
+
+
+## Identity convention
+
+Most OG characters use one identity whose key matches the character/message-bank identity slug. Example: Alice uses `defaultIdentity: "alice"` and `identities.alice`. Do not use a generic `primary` identity unless that is intentionally the Notion Identity title. Characters with additional identities can duplicate the main identity block and give each one its actual identity name/key.

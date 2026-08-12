@@ -1,0 +1,34 @@
+{
+  "schema": "companion-episode-v1",
+  "id": "alice_about_adair",
+  "title": "About Adair",
+  "identity": "primary",
+  "triggers": [
+    "Adair",
+    "about Adair"
+  ],
+  "requires": "None",
+  "openingNode": "alice_about_adair_opening",
+  "offerPrompt": "You want to ask me about Adair?",
+  "acceptLabel": "If you could go back in time and tell him to stop, would you do it?",
+  "declineLabel": "Not right now.",
+  "nodes": {
+    "alice_about_adair_opening": {
+      "type": "Conversation",
+      "expression": "",
+      "dialogue": "I’ve been telling him to stop since Day 1. He’s never listened. If you mean an *actual* successful attempt at getting him to stop…\n\nNo.",
+      "choices": [
+        {
+          "label": "No?",
+          "nextNode": "alice_about_adair_end"
+        }
+      ]
+    },
+    "alice_about_adair_end": {
+      "type": "Ending",
+      "expression": "",
+      "dialogue": "…\n\nBecause then we wouldn’t have met Tyler or Jacey. I probably would’ve still met Kamil but I wouldn’t have any reason to introduce him to Adair if I hadn’t already known Ty or Jace by that point.\n\nAt the very least, we wouldn’t have grown as close to any of them like we are now.",
+      "endingId": "alice_about_adair_complete"
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "schema": "companion-episode-v1",
+  "id": "alice_about_tyler",
+  "title": "About Tyler",
+  "identity": "primary",
+  "triggers": [
+    "Tyler",
+    "about Tyler"
+  ],
+  "requires": "None",
+  "openingNode": "alice_about_tyler_opening",
+  "offerPrompt": "You want to ask me about Tyler?",
+  "acceptLabel": "Do you love him?",
+  "declineLabel": "Not right now.",
+  "nodes": {
+    "alice_about_tyler_opening": {
+      "type": "Transition",
+      "expression": "",
+      "dialogue": "…\n\nAbsolutely not.",
+      "nextNode": "alice_about_tyler_end",
+      "delay": 900
+    },
+    "alice_about_tyler_end": {
+      "type": "Ending",
+      "expression": "",
+      "dialogue": "He’s attractive. I’ll give him that. It’s just his personality I find annoying. He’s charming, polite, evasive, a leech, good with words, has no idea when to say no… I’ve had to reject other people’s love confessions to him for him. Do you know how annoying that is?\n\nDon’t tell him I called him a leech by the way. That was a joke. A joke he’d take too seriously. He’d spend the next few days worrying himself sick over it. Then I’d have to take care of him.",
+      "endingId": "alice_about_tyler_complete"
+    }
+  }
+}

@@ -532,35 +532,171 @@ body:before{
 
 
 /* Character directory */
-.character-card{position:relative;isolation:isolate;flex:1;min-height:330px;border:1px solid var(--line);border-radius:18px;padding:24px;display:flex;flex-direction:column;justify-content:center;gap:16px;overflow:hidden;background:
-  radial-gradient(circle at 82% 14%,color-mix(in srgb,var(--violet) 17%,transparent),transparent 34%),
-  linear-gradient(155deg,color-mix(in srgb,var(--panel2) 88%,var(--violet)),var(--panel) 64%);
-  box-shadow:inset 0 0 55px color-mix(in srgb,var(--violet) 14%,transparent),0 0 28px color-mix(in srgb,var(--violet) 7%,transparent)}
-.character-card:before{content:"";position:absolute;inset:12px;z-index:-1;pointer-events:none;border:1px solid color-mix(in srgb,var(--violet) 20%,transparent);border-radius:13px;clip-path:polygon(0 0,38% 0,38% 1px,100% 1px,100% 100%,62% 100%,62% calc(100% - 1px),0 calc(100% - 1px))}
-.character-card:after{content:"PROFILE // COMPANION";position:absolute;right:18px;top:17px;z-index:1;color:color-mix(in srgb,var(--muted) 70%,transparent);font:700 8px/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.18em}
-.character-monogram{position:absolute;right:-.04em;top:.08em;z-index:-1;font:900 clamp(96px,14vw,170px)/.8 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:-.08em;color:color-mix(in srgb,var(--violet) 13%,transparent);text-shadow:0 0 34px color-mix(in srgb,var(--violet) 12%,transparent);user-select:none;pointer-events:none}
-.character-card-copy{display:grid;gap:7px;position:relative;z-index:2;padding-top:18px}
-.character-card-kicker{font:800 9px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.22em;color:var(--cyan)}
-.character-card-copy strong{font:800 clamp(21px,2.4vw,29px)/1.05 system-ui;letter-spacing:.04em;text-transform:uppercase;text-shadow:0 0 18px color-mix(in srgb,var(--violet) 22%,transparent)}
-.core-profile-badges{display:flex;flex-wrap:wrap;gap:7px;padding:10px 0;border-top:1px solid color-mix(in srgb,var(--line) 70%,transparent);border-bottom:1px solid color-mix(in srgb,var(--line) 70%,transparent)}
-.core-profile-row{display:flex;align-items:center;gap:7px;width:max-content;max-width:100%;padding:6px 8px;border:1px solid color-mix(in srgb,var(--line) 78%,transparent);border-radius:999px;background:color-mix(in srgb,var(--panel2) 76%,transparent);font:9px/1.25 ui-monospace,SFMono-Regular,Consolas,monospace}
-.core-profile-label{color:var(--muted);font-weight:800;letter-spacing:.08em;text-transform:uppercase}
-.core-profile-value{color:var(--ink);overflow-wrap:anywhere}
-.core-profile-summary{position:relative;z-index:2;margin:0;padding:12px 13px;border-left:2px solid var(--violet);background:color-mix(in srgb,var(--panel2) 58%,transparent);color:var(--muted);font:12px/1.6 system-ui;white-space:pre-wrap}
-.core-profile-summary[hidden],.core-profile-badges[hidden]{display:none}
-.profile-loading{color:var(--muted);font:10px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.08em}
-.character-card-actions{position:relative;z-index:2}
-.character-online{position:absolute;right:19px;bottom:17px;z-index:2;display:flex;align-items:center;gap:7px;color:var(--muted);font:800 8px/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.15em}
-.character-online:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
-.character-card.birthday-active .character-card-kicker:after{content:"  //  BIRTHDAY";color:var(--violet)}
+.character-card{
+  position:relative;
+  isolation:isolate;
+  flex:1;
+  min-height:330px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:25px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:18px;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 84% 12%,color-mix(in srgb,var(--violet) 16%,transparent),transparent 36%),
+    linear-gradient(155deg,color-mix(in srgb,var(--panel2) 90%,var(--violet)),var(--panel) 66%);
+  box-shadow:
+    inset 0 0 55px color-mix(in srgb,var(--violet) 13%,transparent),
+    0 0 28px color-mix(in srgb,var(--violet) 7%,transparent)
+}
+.character-card:before{
+  content:"";
+  position:absolute;
+  inset:12px;
+  z-index:-1;
+  pointer-events:none;
+  border:1px solid color-mix(in srgb,var(--violet) 20%,transparent);
+  border-radius:13px;
+  clip-path:polygon(0 0,38% 0,38% 1px,100% 1px,100% 100%,62% 100%,62% calc(100% - 1px),0 calc(100% - 1px))
+}
+.character-card:after{
+  content:"PROFILE // COMPANION";
+  position:absolute;
+  right:18px;
+  top:17px;
+  z-index:1;
+  color:color-mix(in srgb,var(--muted) 70%,transparent);
+  font:700 8px/1 ui-monospace,SFMono-Regular,Consolas,monospace;
+  letter-spacing:.18em
+}
+.character-monogram{
+  position:absolute;
+  right:-.04em;
+  top:.08em;
+  z-index:-1;
+  font:900 clamp(96px,14vw,170px)/.8 ui-monospace,SFMono-Regular,Consolas,monospace;
+  letter-spacing:-.08em;
+  color:color-mix(in srgb,var(--violet) 12%,transparent);
+  text-shadow:0 0 34px color-mix(in srgb,var(--violet) 11%,transparent);
+  user-select:none;
+  pointer-events:none
+}
+.character-card-copy{
+  display:grid;
+  gap:7px;
+  position:relative;
+  z-index:2;
+  padding-top:18px
+}
+.character-card-kicker{
+  font:800 9px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;
+  letter-spacing:.22em;
+  color:var(--cyan)
+}
+.character-card-copy strong{
+  max-width:88%;
+  font:800 clamp(22px,2.5vw,30px)/1.08 system-ui;
+  letter-spacing:.035em;
+  text-transform:uppercase;
+  text-shadow:0 0 18px color-mix(in srgb,var(--violet) 22%,transparent)
+}
+.profile-loading{
+  color:var(--muted);
+  font:10px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;
+  letter-spacing:.08em
+}
+.core-profile-facts{
+  position:relative;
+  z-index:2;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  border-top:1px solid color-mix(in srgb,var(--line) 78%,transparent);
+  border-bottom:1px solid color-mix(in srgb,var(--line) 78%,transparent)
+}
+.core-profile-facts[hidden]{display:none}
+.core-profile-row{
+  min-width:0;
+  padding:11px 10px 10px 0;
+  display:grid;
+  gap:4px;
+  align-content:start;
+  border-right:1px solid color-mix(in srgb,var(--line) 55%,transparent);
+  font-family:ui-monospace,SFMono-Regular,Consolas,monospace
+}
+.core-profile-row:not(:first-child){padding-left:10px}
+.core-profile-row:last-child{border-right:0}
+.core-profile-label{
+  color:var(--muted);
+  font-size:8px;
+  font-weight:800;
+  line-height:1.2;
+  letter-spacing:.15em;
+  text-transform:uppercase
+}
+.core-profile-value{
+  min-width:0;
+  color:var(--ink);
+  font-size:11px;
+  line-height:1.4;
+  overflow-wrap:anywhere
+}
+.core-profile-summary-block{
+  position:relative;
+  z-index:2;
+  display:grid;
+  grid-template-columns:72px minmax(0,1fr);
+  gap:14px;
+  align-items:start;
+  padding-top:2px
+}
+.core-profile-summary-block[hidden]{display:none}
+.core-profile-summary-label{
+  padding-top:2px;
+  color:var(--cyan);
+  font:800 8px/1.3 ui-monospace,SFMono-Regular,Consolas,monospace;
+  letter-spacing:.16em;
+  text-transform:uppercase
+}
+.core-profile-summary{
+  margin:0;
+  padding:0 0 0 14px;
+  border-left:1px solid color-mix(in srgb,var(--violet) 58%,var(--line));
+  color:color-mix(in srgb,var(--ink) 78%,var(--muted));
+  font:12px/1.65 system-ui;
+  white-space:pre-wrap
+}
+.character-card-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  position:relative;
+  z-index:2
+}
+.character-card.birthday-active .character-card-kicker:after{
+  content:"  //  BIRTHDAY";
+  color:var(--violet)
+}
 .character-card.birthday-active:after{content:"PROFILE // BIRTHDAY"}
-.core-profile-meta{display:grid;gap:7px;padding:10px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.core-profile-row{display:grid;grid-template-columns:minmax(76px,.7fr) 1.3fr;gap:10px;align-items:start;font:10px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace}
-.core-profile-label{color:var(--muted);font-weight:800;letter-spacing:.1em;text-transform:uppercase}
-.core-profile-value{color:var(--ink);overflow-wrap:anywhere}
-.core-profile-summary{margin:0;color:var(--muted);font:12px/1.55 system-ui;white-space:pre-wrap}
-.core-profile-summary[hidden],.core-profile-meta[hidden]{display:none}
-.profile-loading{color:var(--muted);font:10px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.08em}
+@media(max-width:700px){
+  .character-card{min-height:auto;padding:16px}
+  .character-monogram{font-size:76px}
+  .core-profile-facts{grid-template-columns:1fr}
+  .core-profile-row,.core-profile-row:not(:first-child){
+    padding:9px 0;
+    grid-template-columns:92px minmax(0,1fr);
+    gap:10px;
+    border-right:0;
+    border-bottom:1px solid color-mix(in srgb,var(--line) 45%,transparent)
+  }
+  .core-profile-row:last-child{border-bottom:0}
+  .core-profile-summary-block{grid-template-columns:1fr;gap:7px}
+  .core-profile-summary{padding-left:0;border-left:0}
+}
+
 .dossier-group{margin:0 0 20px}.dossier-group:last-child{margin-bottom:0}.dossier-group h3{margin:0 0 10px;color:var(--cyan);font:800 10px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.16em}.dossier-field{display:grid;grid-template-columns:minmax(110px,.9fr) 1.1fr;gap:12px;padding:8px 0;border-bottom:1px solid color-mix(in srgb,var(--line) 65%,transparent);font:11px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace}.dossier-field:last-child{border-bottom:0}.dossier-field-label{color:var(--muted)}.dossier-field-value{color:var(--ink);overflow-wrap:anywhere}
 .character-switch-btn{align-self:flex-start;border:1px solid var(--violet);border-radius:999px;background:transparent;color:var(--ink);padding:10px 14px;font:700 10px/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.12em;cursor:pointer}
 .character-switch-btn:hover{background:color-mix(in srgb,var(--violet) 15%,transparent)}
@@ -1327,12 +1463,14 @@ window.addEventListener('DOMContentLoaded',()=>{
         <strong id="characterName">Companion</strong>
         <span class="profile-loading" id="characterProfileStatus">Loading Notion profile…</span>
       </div>
-      <div class="core-profile-badges" id="coreProfileMeta" hidden></div>
-      <p class="core-profile-summary" id="coreProfileSummary" hidden></p>
+      <div class="core-profile-facts" id="coreProfileMeta" hidden></div>
+      <section class="core-profile-summary-block" id="coreProfileSummaryBlock" hidden>
+        <span class="core-profile-summary-label">SUMMARY</span>
+        <p class="core-profile-summary" id="coreProfileSummary"></p>
+      </section>
       <div class="character-card-actions">
         <button class="character-switch-btn" id="characterSwitchBtn" type="button">SWITCH CHARACTER</button>
       </div>
-      <div class="character-online">COMPANION ONLINE</div>
     </div>
     <div class="profile"><div><span id="characterDirectoryLabel">WORLD DIRECTORY</span></div><div class="online">ONLINE</div></div>
   </aside>
@@ -1606,9 +1744,10 @@ function renderCharacterProfile(profile){
   meta.hidden=!meta.children.length;
 
   const summary=document.querySelector('#coreProfileSummary');
+  const summaryBlock=document.querySelector('#coreProfileSummaryBlock');
   const summaryValue=profileValue(properties,'Summary');
   summary.textContent=summaryValue;
-  summary.hidden=!summaryValue;
+  summaryBlock.hidden=!summaryValue;
 
   const contextState=window.CompanionContext?.get?.();
   const birthdays=Array.isArray(contextState?.birthdaysToday)?contextState.birthdaysToday:[];

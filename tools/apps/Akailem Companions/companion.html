@@ -532,10 +532,28 @@ body:before{
 
 
 /* Character directory */
-.character-card{flex:1;min-height:280px;border:1px solid var(--line);border-radius:18px;padding:22px;display:flex;flex-direction:column;justify-content:center;gap:16px;background:linear-gradient(180deg,var(--panel2),var(--panel));box-shadow:inset 0 0 45px color-mix(in srgb,var(--violet) 12%,transparent)}
-.character-monogram{font:800 clamp(42px,7vw,76px)/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.08em;color:var(--violet);text-shadow:0 0 24px color-mix(in srgb,var(--violet) 55%,transparent)}
-.character-card-copy{display:grid;gap:6px}.character-card-kicker{font:700 9px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.2em;color:var(--muted)}
-.character-card-copy strong{font-size:20px}
+.character-card{position:relative;isolation:isolate;flex:1;min-height:330px;border:1px solid var(--line);border-radius:18px;padding:24px;display:flex;flex-direction:column;justify-content:center;gap:16px;overflow:hidden;background:
+  radial-gradient(circle at 82% 14%,color-mix(in srgb,var(--violet) 17%,transparent),transparent 34%),
+  linear-gradient(155deg,color-mix(in srgb,var(--panel2) 88%,var(--violet)),var(--panel) 64%);
+  box-shadow:inset 0 0 55px color-mix(in srgb,var(--violet) 14%,transparent),0 0 28px color-mix(in srgb,var(--violet) 7%,transparent)}
+.character-card:before{content:"";position:absolute;inset:12px;z-index:-1;pointer-events:none;border:1px solid color-mix(in srgb,var(--violet) 20%,transparent);border-radius:13px;clip-path:polygon(0 0,38% 0,38% 1px,100% 1px,100% 100%,62% 100%,62% calc(100% - 1px),0 calc(100% - 1px))}
+.character-card:after{content:"PROFILE // COMPANION";position:absolute;right:18px;top:17px;z-index:1;color:color-mix(in srgb,var(--muted) 70%,transparent);font:700 8px/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.18em}
+.character-monogram{position:absolute;right:-.04em;top:.08em;z-index:-1;font:900 clamp(96px,14vw,170px)/.8 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:-.08em;color:color-mix(in srgb,var(--violet) 13%,transparent);text-shadow:0 0 34px color-mix(in srgb,var(--violet) 12%,transparent);user-select:none;pointer-events:none}
+.character-card-copy{display:grid;gap:7px;position:relative;z-index:2;padding-top:18px}
+.character-card-kicker{font:800 9px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.22em;color:var(--cyan)}
+.character-card-copy strong{font:800 clamp(21px,2.4vw,29px)/1.05 system-ui;letter-spacing:.04em;text-transform:uppercase;text-shadow:0 0 18px color-mix(in srgb,var(--violet) 22%,transparent)}
+.core-profile-badges{display:flex;flex-wrap:wrap;gap:7px;padding:10px 0;border-top:1px solid color-mix(in srgb,var(--line) 70%,transparent);border-bottom:1px solid color-mix(in srgb,var(--line) 70%,transparent)}
+.core-profile-row{display:flex;align-items:center;gap:7px;width:max-content;max-width:100%;padding:6px 8px;border:1px solid color-mix(in srgb,var(--line) 78%,transparent);border-radius:999px;background:color-mix(in srgb,var(--panel2) 76%,transparent);font:9px/1.25 ui-monospace,SFMono-Regular,Consolas,monospace}
+.core-profile-label{color:var(--muted);font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.core-profile-value{color:var(--ink);overflow-wrap:anywhere}
+.core-profile-summary{position:relative;z-index:2;margin:0;padding:12px 13px;border-left:2px solid var(--violet);background:color-mix(in srgb,var(--panel2) 58%,transparent);color:var(--muted);font:12px/1.6 system-ui;white-space:pre-wrap}
+.core-profile-summary[hidden],.core-profile-badges[hidden]{display:none}
+.profile-loading{color:var(--muted);font:10px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.08em}
+.character-card-actions{position:relative;z-index:2}
+.character-online{position:absolute;right:19px;bottom:17px;z-index:2;display:flex;align-items:center;gap:7px;color:var(--muted);font:800 8px/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.15em}
+.character-online:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+.character-card.birthday-active .character-card-kicker:after{content:"  //  BIRTHDAY";color:var(--violet)}
+.character-card.birthday-active:after{content:"PROFILE // BIRTHDAY"}
 .core-profile-meta{display:grid;gap:7px;padding:10px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .core-profile-row{display:grid;grid-template-columns:minmax(76px,.7fr) 1.3fr;gap:10px;align-items:start;font:10px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace}
 .core-profile-label{color:var(--muted);font-weight:800;letter-spacing:.1em;text-transform:uppercase}
@@ -1309,11 +1327,12 @@ window.addEventListener('DOMContentLoaded',()=>{
         <strong id="characterName">Companion</strong>
         <span class="profile-loading" id="characterProfileStatus">Loading Notion profile…</span>
       </div>
-      <div class="core-profile-meta" id="coreProfileMeta" hidden></div>
+      <div class="core-profile-badges" id="coreProfileMeta" hidden></div>
       <p class="core-profile-summary" id="coreProfileSummary" hidden></p>
       <div class="character-card-actions">
         <button class="character-switch-btn" id="characterSwitchBtn" type="button">SWITCH CHARACTER</button>
       </div>
+      <div class="character-online">COMPANION ONLINE</div>
     </div>
     <div class="profile"><div><span id="characterDirectoryLabel">WORLD DIRECTORY</span></div><div class="online">ONLINE</div></div>
   </aside>
@@ -1560,6 +1579,7 @@ function renderCharacterProfile(profile){
 
   document.title=resolvedName+' — Companion Terminal';
   document.querySelector('#characterName').textContent=resolvedName;
+  document.querySelector('#characterMonogram').textContent=monogram(resolvedName);
   document.querySelector('#dossierTitle').textContent='DOSSIER // '+resolvedName.toUpperCase();
 
   const status=document.querySelector('#characterProfileStatus');
@@ -1577,6 +1597,15 @@ function renderCharacterProfile(profile){
   const summaryValue=profileValue(properties,'Summary');
   summary.textContent=summaryValue;
   summary.hidden=!summaryValue;
+
+  const contextState=window.CompanionContext?.get?.();
+  const birthdays=Array.isArray(contextState?.birthdaysToday)?contextState.birthdaysToday:[];
+  const birthdayActive=birthdays.some(item=>{
+    const candidate=String(item?.character||'').trim().toLowerCase();
+    return candidate===resolvedName.trim().toLowerCase() ||
+      candidate===String(CompanionCharacter.services.profileCharacter||'').trim().toLowerCase();
+  });
+  document.querySelector('#characterCard')?.classList.toggle('birthday-active',birthdayActive);
 
   renderProfileDossier(properties);
 }

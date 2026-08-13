@@ -14,6 +14,15 @@
       initials:"AN",
       path:"characters/alice_nexus",
       specialModule:false
+    },
+    {
+      id:"dahlberg_atwood",
+      name:"Dahlberg Atwood",
+      subtitle:"Dale",
+      group:"",
+      initials:"DA",
+      path:"characters/dahlberg_atwood",
+      specialModule:false
     }
   ];
 

@@ -16,7 +16,10 @@ window.CompanionExpressionManifest = {
           "id": "happy",
           "displayName": "Happy",
           "statusLabel": "DEFAULT_HAPPY",
-          "file": "J_Happy.webp"
+          "file": "J_Happy.webp",
+          "contexts" {
+            "birthday": "J_Happy_Birthday.webp"
+          }
         },
         {
           "id": "clue",

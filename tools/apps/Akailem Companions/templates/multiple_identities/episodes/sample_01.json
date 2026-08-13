@@ -1,7 +1,7 @@
 {
   "schema": "companion-episode-v1",
   "id": "sample_01",
-  "identity": "primary",
+  "identity": "identity_one",
   "title": "Sample Episode",
   "topic": "sample",
   "coreQuestion": "Does the episode runtime work?",
@@ -34,7 +34,7 @@
   },
   "achievement": {
     "id": "sample_episode_complete",
-    "identity": "primary",
+    "identity": "identity_one",
     "title": "SAMPLE EPISODE // COMPLETE",
     "description": "Completed the sample episode.",
     "requiredEndings": [

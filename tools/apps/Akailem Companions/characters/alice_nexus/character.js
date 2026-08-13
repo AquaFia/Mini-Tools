@@ -59,8 +59,6 @@
           "What have you been up to?",
           "Tell me something about yourself"
         ],
-
-        coreBelief:"",
         
         episodeAbandon:{
           message:"Okay. We can leave that conversation there."
@@ -82,9 +80,6 @@
       }
     },
 
-    identityAwareness:{
-      alice:{}
-    },
 
     missingBankGuidance:{
       alice:[

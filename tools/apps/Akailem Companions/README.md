@@ -61,7 +61,7 @@ Routes:
 - `/message-banks/{companion}`
 - `/context`
 
-The context endpoint currently supplies birthday awareness only; `events` remains an empty array for compatibility with the shared context-awareness script.
+The context endpoint supplies birthday awareness only.
 
 ## Notion character profiles
 
@@ -74,3 +74,12 @@ The companion currently displays these Notion fields in this order:
 - Associations: Animal, Season, Plant, Scent
 
 Empty fields are hidden. Relations, rollups, and formulas are ignored by the Worker. Add future eligible Alignment/Association fields to the layout lists in `companion.html`; the Worker property reader is generic and does not need character-specific code.
+
+
+## Framework audit
+
+The OG runtime contains no portrait, expression, audio, holiday, event-theme, or visual-context compatibility code.
+
+Character templates do not include placeholder special-module folders. Use `templates/special_module/` only when a character genuinely needs a special module.
+
+The shared awareness layer handles only browser-local time-of-day plus character birthdays from `/context`.

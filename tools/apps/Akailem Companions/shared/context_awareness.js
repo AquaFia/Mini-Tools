@@ -79,7 +79,6 @@
       character,
       date:date.dateKey,
       monthDay:date.monthDay,
-      visualContext:String(item.visualContext||'birthday').trim()||'birthday',
       metadata:item.metadata&&typeof item.metadata==='object'?item.metadata:{}
     };
   }
@@ -132,7 +131,7 @@
       }
 
       if(this.config.endpoint){
-        await this.loadRemoteEvents();
+        await this.loadRemoteBirthdays();
       }
 
       return this.get();
@@ -155,7 +154,7 @@
       return {...this.repository};
     },
 
-    async loadRemoteEvents({force=false}={}){
+    async loadRemoteBirthdays({force=false}={}){
       if(!this.config.endpoint)return null;
       if(this.loadPromise && !force)return this.loadPromise;
 
@@ -178,13 +177,12 @@
           if(
             !payload ||
             payload.schema!=='companion-context-repository-v1' ||
-            !Array.isArray(payload.birthdays) ||
-            !Array.isArray(payload.events)
+            !Array.isArray(payload.birthdays)
           ){
             throw new Error('Unsupported context repository response.');
           }
 
-          this.setEvents(payload);
+          this.setBirthdays(payload);
 
           this.setRepositoryStatus('ready',{
             source:payload.source||'notion',
@@ -206,7 +204,7 @@
       return this.loadPromise;
     },
 
-    setEvents(payload={}){
+    setBirthdays(payload={}){
       const birthdays=Array.isArray(payload.birthdays)?payload.birthdays:[];
 
       this.data.birthdays=birthdays
@@ -216,7 +214,7 @@
       return this.refresh({force:true});
     },
 
-    clearEvents(){
+    clearBirthdays(){
       this.data.birthdays=[];
       return this.refresh({force:true});
     },

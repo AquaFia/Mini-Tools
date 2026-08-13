@@ -40,7 +40,6 @@
         transitionLabel:"Loading Identity One…",
         switchMessage:"Identity One is active.",
         quickReplies:["Hello","Tell me about yourself"],
-        dossier:'SUBJECT: IDENTITY ONE<br>STATUS: <span class="ok">READY</span>',
         coreBelief:"Identity One's central belief.",
         episodeAbandon:{message:"Okay. We can leave that conversation there."},
         colors:{
@@ -65,7 +64,6 @@
         transitionLabel:"Loading Identity Two…",
         switchMessage:"Identity Two is active.",
         quickReplies:["Hello","Tell me about yourself"],
-        dossier:'SUBJECT: IDENTITY TWO<br>STATUS: <span class="ok">READY</span>',
         coreBelief:"Identity Two's central belief.",
         episodeAbandon:{message:"Okay. We can leave that conversation there."},
         colors:{

@@ -36,8 +36,6 @@
         placeholder:"Message Template…",
         status:"READY",
         quickReplies:["Hello","Tell me about yourself","How are you?"],
-        dossier:'SUBJECT: TEMPLATE CHARACTER<br>ROLE: ROLE / TALENT<br>STATUS: <span class="ok">READY</span>',
-        coreBelief:"Replace this with the character's central belief.",
         episodeAbandon:{message:"Okay. We can leave that conversation there."},
         colors:{
           bg:"#08070d",panel:"#10101a",panel2:"#151426",ink:"#f4efff",muted:"#9b95b5",
@@ -45,7 +43,6 @@
         }
       }
     },
-    identityAwareness:{template:{}},
     missingBankGuidance:{
       template:[
         "The remote dialogue archive is unavailable. Check the message-bank Worker.",

@@ -1,11 +1,12 @@
 window.CompanionMusicManifest = {
-  "primary": [
-    "primary_placeholder.wav"
+  "jace": [
+    "Kozoro - Curious (feat. Noctilucent).mp3",
+    "More Than A Mystery - Meg Donnelly.mp3"
   ],
-  "secondary": [
-    "secondary_placeholder.wav"
+  "mao": [
+    "LAPUTA - Masquerade (feat. Noctilucent).mp3"
   ],
-  "tertiary": [
-    "tertiary_placeholder.wav"
+  "naoya": [
+    "Psycho Crooks - Respawn.mp3"
   ]
 };

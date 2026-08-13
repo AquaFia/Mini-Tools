@@ -1317,6 +1317,8 @@ body:before{
 </style>
 
 <script src="character.js"></script>
+<script src="audio/music_manifest.js"></script>
+<script src="expressions/expression_manifest.js"></script>
 <script src="special_module.js"></script>
 <script src="../shared/context_awareness.js"></script>
 <script src="../shared/visual_context.js"></script>
@@ -1392,7 +1394,7 @@ window.addEventListener('DOMContentLoaded',()=>{
 /* ================================================================
    CHARACTER THEME CONFIG
    Portraits and expression metadata are loaded from:
-   expressions/expression_manifest.json
+   expressions/expression_manifest.js
    ================================================================ */
 /* =========================================================
    SECTION 2 — CHARACTER CONFIGURATION
@@ -1534,8 +1536,6 @@ Framework.modules.IdentityManager=IdentityManager;
    Identity crossfades begin immediately after the new identity
    colors have had a browser paint frame to appear.
    ========================================================= */
-const MUSIC_MANIFEST_URL='audio/music_manifest.json';
-
 const MusicManager={
   manifest:null,
   ready:false,
@@ -1549,16 +1549,14 @@ const MusicManager={
   ],
   activeChannel:0,
   fadeDuration:950,
-  manifestBaseUrl:new URL('.',new URL(MUSIC_MANIFEST_URL,document.baseURI)),
+  manifestBaseUrl:new URL('audio/',document.baseURI),
   _fadeToken:0,
   _identityTransitionToken:0,
   _preloads:new Map(),
 
   async load(){
     try{
-      const response=await fetch(MUSIC_MANIFEST_URL,{cache:'no-cache'});
-      if(!response.ok)throw new Error(`Music manifest request failed: ${response.status}`);
-      const manifest=await response.json();
+      const manifest=window.CompanionMusicManifest;
 
       if(!manifest || typeof manifest!=='object' || Array.isArray(manifest)){
         throw new Error('Unsupported music manifest.');
@@ -1905,13 +1903,11 @@ const portrait=document.querySelector('#portrait');
 const statusTag=document.querySelector('#statusTag');
 const exprWrap=document.querySelector('#expressions');
 const portraitFrame=document.querySelector('.portrait-frame');
-const EXPRESSION_MANIFEST_URL='expressions/expression_manifest.json';
-
 let busy=false;
 
 const PortraitManager={
   manifest:null,
-  manifestBaseUrl:new URL('.',new URL(EXPRESSION_MANIFEST_URL,document.baseURI)),
+  manifestBaseUrl:new URL('expressions/',document.baseURI),
   ready:false,
   loadPromise:null,
   pendingExpression:null,
@@ -1925,10 +1921,7 @@ const PortraitManager={
     if(this.loadPromise)return this.loadPromise;
 
     this.loadPromise=(async()=>{
-      const response=await fetch(EXPRESSION_MANIFEST_URL,{cache:'no-cache'});
-      if(!response.ok)throw new Error(`Expression manifest request failed: ${response.status}`);
-
-      const manifest=await response.json();
+      const manifest=window.CompanionExpressionManifest;
       if(
         manifest?.schema!=='companion-expression-manifest' ||
         !manifest.identities ||

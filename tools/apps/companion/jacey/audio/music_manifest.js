@@ -1,0 +1,11 @@
+window.CompanionMusicManifest = {
+  "primary": [
+    "primary_placeholder.wav"
+  ],
+  "secondary": [
+    "secondary_placeholder.wav"
+  ],
+  "tertiary": [
+    "tertiary_placeholder.wav"
+  ]
+};

@@ -16,7 +16,8 @@
 
   const state = {
     abracadabraUsed: false,
-    curtainCallUsed: false
+    curtainCallUsed: false,
+    miaOpen: false
   };
 
   const TRICK_TYPES = {
@@ -281,6 +282,40 @@
             <span>♢</span>
             <span>✦</span>
           </div>
+
+          <button
+            type="button"
+            class="cw-mia-secret"
+            data-mia-secret
+            aria-label="A tiny hidden rabbit"
+            title="...did that move?"
+          >🐇</button>
+        </div>
+
+        <div class="cw-mia-panel" data-mia-panel hidden>
+          <div class="cw-mia-head">
+            <div>
+              <span class="cw-mini-label">SECRET COMPARTMENT</span>
+              <h3>Mia's Hat</h3>
+            </div>
+            <button type="button" class="cw-mia-close" data-mia-close aria-label="Close Mia's Hat">×</button>
+          </div>
+
+          <p class="cw-explainer">
+            Something small is hiding in the workshop. Put a worry, doubt, or thought into the hat.
+            Milo won't solve it for you—he'll just sit with it for a moment.
+          </p>
+
+          <label class="cw-field">
+            <span>PUT SOMETHING IN THE HAT</span>
+            <textarea data-mia-input placeholder="I'm scared I'm overlooking something..."></textarea>
+          </label>
+
+          <div class="cw-actions">
+            <button type="button" class="cw-primary" data-mia-submit>LEAVE IT WITH MIA</button>
+          </div>
+
+          <div data-mia-result></div>
         </div>
 
         <div class="cw-tabs" role="tablist" aria-label="Workshop tools">
@@ -303,11 +338,84 @@
       button.addEventListener("click", () => switchTab(button.dataset.tab));
     });
 
+    panel.querySelector("[data-mia-secret]")?.addEventListener("click", toggleMiaPanel);
+    panel.querySelector("[data-mia-close]")?.addEventListener("click", () => toggleMiaPanel(false));
+    panel.querySelector("[data-mia-submit]")?.addEventListener("click", answerMia);
+
     renderTrickLab();
     renderSpellLab();
     renderAbracadabra();
     renderCurtainCall();
     switchTab(activeTab);
+  }
+
+  function toggleMiaPanel(force) {
+    const miaPanel = panel?.querySelector("[data-mia-panel]");
+    const rabbit = panel?.querySelector("[data-mia-secret]");
+    if (!miaPanel) return false;
+
+    const shouldOpen = typeof force === "boolean" ? force : miaPanel.hidden;
+    miaPanel.hidden = !shouldOpen;
+    state.miaOpen = shouldOpen;
+    rabbit?.classList.toggle("found", shouldOpen);
+
+    if (shouldOpen) {
+      expression("happy");
+      toast("SECRET FOUND // MIA'S HAT");
+      miaPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+    return true;
+  }
+
+  function answerMia() {
+    const root = panel?.querySelector("[data-mia-panel]");
+    if (!root) return false;
+
+    const input = root.querySelector("[data-mia-input]");
+    const result = root.querySelector("[data-mia-result]");
+    const thought = input?.value.trim() || "";
+
+    if (!thought) {
+      result.innerHTML = resultCard(
+        "MIA'S HAT",
+        "EMPTY HAT",
+        `<p>There's nothing in here yet. Milo glances into the hat anyway, just to make sure.</p>`,
+        "error"
+      );
+      toast("MIA'S HAT // EMPTY");
+      return false;
+    }
+
+    const seed = hashString(thought);
+    const responses = [
+      "You don't have to solve all of that at once. Pick the smallest part you can actually touch, and start there.",
+      "If something feels wrong, write down what you know before your brain starts filling the gaps for you.",
+      "Maybe you're missing something. Maybe you're not. Either way, checking carefully is better than punishing yourself for not knowing yet.",
+      "You can be scared and still keep going. Those two things aren't opposites.",
+      "Try looking at it from the other person's side for a minute. Sometimes the missing piece isn't a fact—it's a viewpoint.",
+      "If you keep circling the same thought, give it somewhere to sit for a while. You can come back when it stops shouting."
+    ];
+
+    const miaBits = [
+      "A tiny pair of ears rises from the hat for half a second, then disappears.",
+      "The hat rustles. Milo stares at it like this is somehow your fault.",
+      "Something nudges the brim from inside. Milo very deliberately pretends not to notice.",
+      "A little white nose appears, twitches once, and vanishes back into the darkness."
+    ];
+
+    result.innerHTML = resultCard(
+      "MIA'S HAT",
+      "SAFEKEEPING",
+      `
+        <p><strong>You left:</strong> ${esc(thought)}</p>
+        <p class="cw-quote">“${esc(pick(responses, seed, 3))}”</p>
+        <p class="cw-mia-rustle">🐇 ${esc(pick(miaBits, seed, 9))}</p>
+      `
+    );
+
+    expression("happy");
+    toast("MIA'S HAT // THOUGHT STORED");
+    return true;
   }
 
   function switchTab(tab) {
@@ -607,7 +715,7 @@
         </label>
 
         <div class="cw-hat" aria-hidden="true">
-          <div class="cw-hat-stars">✦ ✧ ✦</div>
+          <div class="cw-hat-stars"><span>✦</span><span>✧</span><span>✦</span></div>
           <div class="cw-hat-brim"></div>
           <div class="cw-hat-body"></div>
         </div>
@@ -959,6 +1067,82 @@
             0 0 0 28px color-mix(in srgb, var(--cw-blue) 5%, transparent),
             0 0 0 56px color-mix(in srgb, var(--cw-violet) 4%, transparent);
           pointer-events: none;
+        }
+
+        .cw-mia-secret {
+          position: absolute;
+          left: 7px;
+          bottom: 5px;
+          z-index: 3;
+          width: 24px;
+          height: 24px;
+          display: grid;
+          place-items: center;
+          border: 0;
+          padding: 0;
+          background: transparent;
+          color: inherit;
+          cursor: pointer;
+          opacity: .10;
+          filter: grayscale(1);
+          font-size: 14px;
+          transform: rotate(-8deg);
+          transition: opacity .2s ease, transform .2s ease, filter .2s ease;
+        }
+
+        .cw-mia-secret:hover,
+        .cw-mia-secret:focus-visible,
+        .cw-mia-secret.found {
+          opacity: .9;
+          filter: none;
+          transform: rotate(0deg) scale(1.08);
+          outline: none;
+        }
+
+        .cw-mia-panel {
+          border: 1px solid color-mix(in srgb, var(--cw-cyan) 34%, var(--line));
+          border-radius: 18px;
+          padding: clamp(14px, 1.4vw, 20px);
+          background:
+            radial-gradient(circle at 90% 0%, color-mix(in srgb, var(--cw-blue) 12%, transparent), transparent 34%),
+            color-mix(in srgb, var(--panel2) 92%, black);
+          box-shadow: inset 0 0 32px color-mix(in srgb, var(--cw-violet) 6%, transparent);
+        }
+
+        .cw-mia-panel[hidden] {
+          display: none;
+        }
+
+        .cw-mia-head {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          margin-bottom: 10px;
+        }
+
+        .cw-mia-head h3 {
+          margin: 4px 0 0;
+          color: var(--ink);
+          font-size: 18px;
+        }
+
+        .cw-mia-close {
+          width: 34px;
+          height: 34px;
+          border: 1px solid var(--line);
+          border-radius: 50%;
+          cursor: pointer;
+          background: color-mix(in srgb, var(--panel) 88%, black);
+          color: var(--muted);
+          font-size: 20px;
+          line-height: 1;
+        }
+
+        .cw-mia-rustle {
+          margin-top: 12px !important;
+          color: color-mix(in srgb, var(--cw-cyan) 68%, var(--muted)) !important;
+          font-style: italic;
         }
 
         .cw-kicker,
@@ -1313,18 +1497,21 @@
 
         .cw-hat-stars {
           position: absolute;
-          left: 0;
-          right: 0;
+          left: 50%;
           top: 0;
-          text-align: center;
+          width: max-content;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 14px;
           color: var(--cw-cyan);
-          letter-spacing: 14px;
+          transform: translateX(-50%);
           animation: cwFloat 2.8s ease-in-out infinite;
         }
 
         @keyframes cwFloat {
-          0%,100% { transform: translateY(4px); opacity: .65; }
-          50% { transform: translateY(-5px); opacity: 1; }
+          0%,100% { transform: translateX(-50%) translateY(4px); opacity: .65; }
+          50% { transform: translateX(-50%) translateY(-5px); opacity: 1; }
         }
 
         .cw-big-clue {
@@ -1497,6 +1684,7 @@
       activeTab = "trick";
       state.abracadabraUsed = false;
       state.curtainCallUsed = false;
+      state.miaOpen = false;
 
       return true;
     }

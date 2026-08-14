@@ -22,7 +22,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;background-ima
 .terminal{width:min(1500px,96vw);height:min(920px,94vh);display:grid;grid-template-columns:clamp(320px,27vw,420px) minmax(0,1fr);border:1px solid #482357;border-radius:var(--radius);overflow:hidden;background:rgba(10,9,18,.91);box-shadow:0 30px 90px rgba(0,0,0,.62),var(--glow);position:relative}
 .terminal:after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;background:linear-gradient(110deg,transparent 0 45%,rgba(255,255,255,.035) 50%,transparent 55%);transform:translateX(-120%);animation:sweep 9s infinite}@keyframes sweep{60%,100%{transform:translateX(120%)}}
 .sidebar{position:relative;padding:clamp(16px,1.25vw,24px);background:linear-gradient(180deg,rgba(22,15,35,.98),rgba(10,10,20,.98));border-right:1px solid #32203f;display:flex;flex-direction:column;min-height:0}
-.brand{display:flex;align-items:center;gap:11px;margin-bottom:14px}.sigil{width:39px;height:39px;border-radius:12px;display:grid;place-items:center;background:conic-gradient(from 90deg,var(--violet),var(--blue),var(--red),var(--violet));box-shadow:0 0 22px rgba(169,112,255,.35);font-weight:900}.brand h1{font-size:15px;letter-spacing:.12em;margin:0}.brand small{color:var(--muted);letter-spacing:.18em;font-size:9px}
+.brand{display:flex;align-items:center;gap:11px;margin-bottom:14px}.sigil{width:39px;height:39px;border-radius:12px;display:grid;place-items:center;background:conic-gradient(from 90deg,var(--sigil-a,var(--violet)),var(--sigil-b,var(--blue)),var(--sigil-c,var(--cyan)),var(--sigil-d,var(--line)),var(--sigil-a,var(--violet)));box-shadow:0 0 22px color-mix(in srgb,var(--sigil-a,var(--violet)) 35%,transparent);font-weight:900}.brand h1{font-size:15px;letter-spacing:.12em;margin:0}.brand small{color:var(--muted);letter-spacing:.18em;font-size:9px}
 
 
 
@@ -90,8 +90,8 @@ body:before{
   border-right-color:var(--line);
 }
 .sigil{
-  background:conic-gradient(from 90deg,var(--violet),var(--blue),var(--red),var(--violet));
-  box-shadow:0 0 24px color-mix(in srgb,var(--violet) 42%,transparent);
+  background:conic-gradient(from 90deg,var(--sigil-a,var(--violet)),var(--sigil-b,var(--blue)),var(--sigil-c,var(--cyan)),var(--sigil-d,var(--line)),var(--sigil-a,var(--violet)));
+  box-shadow:0 0 24px color-mix(in srgb,var(--sigil-a,var(--violet)) 42%,transparent);
 }
 
 
@@ -1472,6 +1472,18 @@ function applyCharacter(c){
   r.setProperty('--bg',c.colors.bg);r.setProperty('--panel',c.colors.panel);r.setProperty('--panel2',c.colors.panel2);
   r.setProperty('--ink',c.colors.ink);r.setProperty('--muted',c.colors.muted);r.setProperty('--violet',c.colors.accent);
   r.setProperty('--blue',c.colors.secondary);r.setProperty('--red',c.colors.danger);r.setProperty('--cyan',c.colors.cyan);r.setProperty('--line',c.colors.line);
+
+  // The top-left sigil uses only this character's own display palette.
+  // Accent participates when present; otherwise it falls back through the
+  // character's other configured colors instead of introducing a fixed hue.
+  const sigilA=c.colors.accent||c.colors.secondary||c.colors.cyan||c.colors.line||c.colors.ink;
+  const sigilB=c.colors.secondary||c.colors.cyan||c.colors.line||c.colors.muted||sigilA;
+  const sigilC=c.colors.cyan||c.colors.line||c.colors.ink||c.colors.muted||sigilB;
+  const sigilD=c.colors.line||c.colors.muted||c.colors.panel2||c.colors.ink||sigilC;
+  r.setProperty('--sigil-a',sigilA);
+  r.setProperty('--sigil-b',sigilB);
+  r.setProperty('--sigil-c',sigilC);
+  r.setProperty('--sigil-d',sigilD);
   document.title=c.name+' — Companion Terminal';
   document.querySelector('#sigil').textContent=c.initials;
   document.querySelector('#characterMonogram').textContent=c.initials;

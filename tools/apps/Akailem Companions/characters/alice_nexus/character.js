@@ -66,16 +66,16 @@
 
         /* Temporary UI palette for the first live character test. */
         colors:{
-          bg:"#080a0b",
-          panel:"#101416",
-          panel2:"#151b1d",
-          ink:"#eef5ef",
-          muted:"#93a59a",
+          bg:"#0a0a0d",
+          panel:"#121217",
+          panel2:"#19191f",
+          ink:"#f1eef7",
+          muted:"#9b98a5",
           accent:"#a86ee8",
-          secondary:"#5f9f73",
-          danger:"#d55372",
-          cyan:"#87caa0",
-          line:"#31433a"
+          secondary:"#7f7b8d",
+          danger:"#8c8796",
+          cyan:"#b7b2c1",
+          line:"#3d3947"
         }
       }
     },

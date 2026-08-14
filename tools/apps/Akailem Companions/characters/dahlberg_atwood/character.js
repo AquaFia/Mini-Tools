@@ -6,6 +6,7 @@
   "use strict";
 
   const PROFILE_NAME="Dahlberg Atwood";
+  const COMPANION_NAME="Dahlberg";
   const CHAT_NAME="Dale";
 
   const definition={
@@ -14,7 +15,7 @@
 
     services:{
       awarenessCompanionId:"dahlberg-atwood",
-      messageBankCompanion:CHAT_NAME,
+      messageBankCompanion:COMPANION_NAME,
       profileCharacter:PROFILE_NAME
     },
 
@@ -65,16 +66,16 @@
         },
 
         colors:{
-          bg:"#07090d",
-          panel:"#0d121b",
-          panel2:"#121a28",
-          ink:"#edf4ff",
-          muted:"#8f9caf",
-          accent:"#5f8fd8",
-          secondary:"#7aa6d8",
-          danger:"#b54e59",
-          cyan:"#82b8d9",
-          line:"#29394f"
+          bg:"#071023",
+          panel:"#0b1833",
+          panel2:"#10234a",
+          ink:"#f2f6ff",
+          muted:"#9caed0",
+          accent:"#245edb",
+          secondary:"#3f79ee",
+          danger:"#7088bd",
+          cyan:"#75a7ff",
+          line:"#2c4f98"
         }
       }
     },

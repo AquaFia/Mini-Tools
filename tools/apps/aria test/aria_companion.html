@@ -35492,13 +35492,12 @@ message: text
 
 
   // ============================================================
-  // NOTION MESSAGE BANK RUNTIME — normal companion dialogue only
-  // Uses the same proven Worker contract as the other companion framework.
-  // Investigation, Trial, and Episode systems remain locally owned.
+  // NOTION MESSAGE BANKS — normal companion dialogue only
+  // Client contract intentionally mirrors the proven companion framework.
+  // No server/backend/repository infrastructure is modified here.
   // ============================================================
-  const MESSAGE_BANK_CONFIG = Object.freeze({
-    workerEndpoint: "https://companions.aquafia1247.workers.dev/message-banks/Aria"
-  });
+  const COMPANION_MESSAGE_BANK_ENDPOINT =
+    "https://companions.aquafia1247.workers.dev/message-banks/Aria";
 
   const MESSAGE_BANK_EMERGENCY_FALLBACK = Object.freeze([
     ["neutral", "My dialogue archive is unavailable right now. Try again once the connection is restored."],
@@ -35506,82 +35505,85 @@ message: text
     ["neutral", "The message-bank connection failed. Try again in a moment."]
   ]);
 
-  const MessageBankService = (() => {
-    let document = null;
-    let banks = Object.create(null);
-    let identityKey = null;
-    let identityName = null;
-    let loading = null;
-    let loaded = false;
-    let lastError = null;
-    let lastHttpStatus = null;
+  let messageBankLoaded = false;
+  let loadedMessageBankDocument = null;
+  let responseBanks = Object.create(null);
+  let messageBankLoadError = null;
+  let messageBankHttpStatus = null;
 
-    const normalize = value => String(value || "").trim().toLocaleLowerCase().replace(/\s+/g, " ");
-    const validRow = row => Array.isArray(row) && row.length >= 2 && String(row[1] || "").trim();
+  function normalizeMessageBankText(value) {
+    return String(value || "").trim().toLocaleLowerCase().replace(/\s+/g, " ");
+  }
 
-    function isMessageBankDocument(data) {
-      return Boolean(
-        data &&
-        data.schema === "companion-message-bank" &&
-        data.identities &&
-        typeof data.identities === "object"
-      );
+  function isMessageBankDocument(data) {
+    return Boolean(
+      data &&
+      data.schema === "companion-message-bank" &&
+      data.identities &&
+      typeof data.identities === "object"
+    );
+  }
+
+  function installNotionMessageBanks(data) {
+    if (!isMessageBankDocument(data)) {
+      throw new Error("Worker returned an unsupported message-bank document.");
     }
 
-    function installNotionMessageBanks(data) {
+    // The Worker slugifies Identity titles. Aria's Identity page is therefore "aria".
+    // Keep a display-name fallback solely for compatibility with valid documents whose
+    // identity title was changed without changing the Companion property.
+    const identities = data.identities || {};
+    const ariaIdentity = identities.aria || Object.values(identities).find(identity =>
+      normalizeMessageBankText(identity?.displayName) === "aria"
+    );
+
+    if (!ariaIdentity || !ariaIdentity.banks || typeof ariaIdentity.banks !== "object") {
+      throw new Error('Worker document does not contain the "Aria" identity bank set.');
+    }
+
+    loadedMessageBankDocument = data;
+    responseBanks = ariaIdentity.banks;
+    messageBankLoaded = true;
+    messageBankLoadError = null;
+    return true;
+  }
+
+  async function fetchMessageBankJSON(url) {
+    // Deliberately identical request shape to the working companion framework.
+    const response = await fetch(url, { cache: "no-store" });
+    messageBankHttpStatus = response.status;
+    if (!response.ok) throw new Error(`${response.status} ${url}`);
+    return response.json();
+  }
+
+  async function loadNotionMessageBanks() {
+    try {
+      const data = await fetchMessageBankJSON(COMPANION_MESSAGE_BANK_ENDPOINT);
       if (!isMessageBankDocument(data)) {
         throw new Error("Worker returned an unsupported message-bank document.");
       }
-
-      const entries = Object.entries(data.identities || {});
-      const selected = entries.find(([key, value]) =>
-        normalize(key) === "aria" || normalize(value?.displayName) === "aria"
-      ) || entries[0] || null;
-
-      document = data;
-      identityKey = selected ? selected[0] : null;
-      identityName = selected ? String(selected[1]?.displayName || selected[0] || "Aria") : "Aria";
-      banks = selected && selected[1]?.banks && typeof selected[1].banks === "object"
-        ? selected[1].banks
-        : Object.create(null);
-      loaded = true;
-      lastError = null;
+      installNotionMessageBanks(data);
       return true;
+    } catch (error) {
+      messageBankLoaded = false;
+      loadedMessageBankDocument = null;
+      responseBanks = Object.create(null);
+      messageBankLoadError = String(error?.message || error);
+      console.error("Could not load Notion message banks.", error);
+      return false;
     }
+  }
 
-    async function fetchJSON(url) {
-      const response = await fetch(url, { cache: "no-store" });
-      lastHttpStatus = response.status;
-      if (!response.ok) throw new Error(`${response.status} ${url}`);
-      return response.json();
-    }
+  // Start the Worker request once, exactly like the working companion framework.
+  // Replies await this same promise instead of spawning competing startup requests.
+  const messageBankLoadPromise = loadNotionMessageBanks();
 
-    async function load({ force = false } = {}) {
-      if (!force && loaded) return true;
-      if (!force && loading) return loading;
-
-      loading = (async () => {
-        try {
-          const data = await fetchJSON(MESSAGE_BANK_CONFIG.workerEndpoint);
-          installNotionMessageBanks(data);
-          return true;
-        } catch (error) {
-          document = null;
-          banks = Object.create(null);
-          identityKey = null;
-          identityName = null;
-          loaded = false;
-          lastError = String(error?.message || error);
-          console.error("Could not load Aria Notion message banks.", error);
-          return false;
-        }
-      })().finally(() => { loading = null; });
-
-      return loading;
-    }
+  const MessageBankService = (() => {
+    const validRow = row =>
+      Array.isArray(row) && row.length >= 2 && String(row[1] || "").trim();
 
     function choose(rows) {
-      const valid = (rows || []).filter(validRow);
+      const valid = (Array.isArray(rows) ? rows : []).filter(validRow);
       if (!valid.length) return null;
       const row = valid[Math.floor(Math.random() * valid.length)];
       return {
@@ -35591,18 +35593,19 @@ message: text
     }
 
     function findBank(text) {
-      const normalizedText = normalize(text);
+      const normalizedText = normalizeMessageBankText(text);
       let best = null;
       let generic = null;
 
-      for (const [bankId, bank] of Object.entries(banks || {})) {
+      for (const [bankId, bank] of Object.entries(responseBanks || {})) {
         const keywords = Array.isArray(bank?.keywords)
-          ? bank.keywords.map(normalize).filter(Boolean)
+          ? bank.keywords.map(normalizeMessageBankText).filter(Boolean)
           : [];
 
-        // Per Aria's message-bank contract, no keywords means Generic.
+        // User-defined contract: any no-keyword bank is Generic.
         if (!keywords.length) {
-          if (!generic || normalize(bankId) === "generic") {
+          // Prefer the explicitly named Generic bank when available.
+          if (!generic || normalizeMessageBankText(bankId) === "generic") {
             generic = { bankId, bank };
           }
           continue;
@@ -35610,9 +35613,8 @@ message: text
 
         for (const keyword of keywords) {
           if (!normalizedText.includes(keyword)) continue;
-          const score = keyword.length;
-          if (!best || score > best.score) {
-            best = { bankId, bank, keyword, score };
+          if (!best || keyword.length > best.keyword.length) {
+            best = { bankId, bank, keyword };
           }
         }
       }
@@ -35621,7 +35623,9 @@ message: text
     }
 
     async function reply(text) {
-      if (await load()) {
+      await messageBankLoadPromise;
+
+      if (messageBankLoaded) {
         const match = findBank(text);
         const picked = match ? choose(match.bank?.responses) : null;
         if (picked) {
@@ -35645,25 +35649,35 @@ message: text
       };
     }
 
+    async function reload() {
+      return loadNotionMessageBanks();
+    }
+
     function inspect() {
+      const ariaIdentity = loadedMessageBankDocument?.identities?.aria || null;
       return {
-        loaded,
-        source: loaded ? "notion-live" : "emergency-local",
-        endpoint: MESSAGE_BANK_CONFIG.workerEndpoint,
-        schema: document?.schema || null,
-        companion: document?.companion || null,
-        identity: identityName,
-        identityKey,
-        bankCount: Object.keys(banks || {}).length,
-        responseCount: Object.values(banks || {}).reduce((sum, bank) =>
-          sum + (Array.isArray(bank?.responses) ? bank.responses.filter(validRow).length : 0), 0),
-        lastHttpStatus,
-        lastError
+        loaded: messageBankLoaded,
+        endpoint: COMPANION_MESSAGE_BANK_ENDPOINT,
+        schema: loadedMessageBankDocument?.schema || null,
+        companion: loadedMessageBankDocument?.companion || null,
+        identity: ariaIdentity?.displayName || null,
+        bankCount: Object.keys(responseBanks || {}).length,
+        responseCount: Object.values(responseBanks || {}).reduce(
+          (sum, bank) => sum + (Array.isArray(bank?.responses)
+            ? bank.responses.filter(validRow).length
+            : 0),
+          0
+        ),
+        httpStatus: messageBankHttpStatus,
+        error: messageBankLoadError
       };
     }
 
-    return Object.freeze({ load, reply, inspect });
+    return Object.freeze({ reply, reload, inspect });
   })();
+
+  // Make diagnostics accessible without changing any existing backend/server tooling.
+  window.MessageBankService = MessageBankService;
 
   async function generateReply(text) {
     return StateStore.transaction(
@@ -35692,7 +35706,6 @@ message: text
     );
   }
 
-  MessageBankService.load().catch(error => console.warn("Message bank preload failed", error));
 
   async function send(text) {
     const cleaned = DialogueText.cleanUserInput(text);

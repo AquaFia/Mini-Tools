@@ -1807,113 +1807,284 @@ window.addEventListener('DOMContentLoaded',()=>{
 </style>
 
 
-<style id="akc-responsive-fixes-v147">
-/* Phone already exposes SWITCH CHARACTER inside the profile drawer.
-   Keep the toolbar switch only for tablet portrait, where the sidebar is hidden
-   and there is no phone profile drawer. */
-@media (max-width:700px){
-  .head-actions .mobile-character-switch{
-    display:none !important;
-  }
-}
 
-/* Tablet notifications should never share the header/tool region.
-   Fix them to the viewport bottom-right in both tablet orientations. */
-@media
-  (min-width:701px)
-  and (max-width:1400px)
-  and (pointer:coarse)
-  and (hover:none){
-  .toast{
-    position:fixed !important;
-    top:auto !important;
-    left:auto !important;
-    right:max(18px,env(safe-area-inset-right)) !important;
-    bottom:max(18px,env(safe-area-inset-bottom)) !important;
-    max-width:min(360px,calc(100vw - 36px)) !important;
-    z-index:300 !important;
-  }
-}
-</style>
+<style id="akc-responsive-header-v149">
+/* =========================================================
+   RESPONSIVE HEADER
+   One row on tablet + phone. Desktop remains unchanged.
+   ========================================================= */
 
-
-<style id="akc-toolbar-alignment-v148">
-/* Keep responsive header controls vertically centered like desktop. */
-
-/* Tablet landscape */
+/* Tablet landscape: identity text | modes | tools */
 @media
   (min-width:701px)
   and (max-width:1400px)
   and (orientation:landscape)
   and (pointer:coarse)
   and (hover:none){
+
   .chat-head{
+    display:grid !important;
+    grid-template-columns:minmax(150px,1fr) auto auto !important;
+    grid-template-areas:"identity modes tools" !important;
     align-items:center !important;
+    gap:10px !important;
+    min-height:64px;
+    padding:8px 14px;
   }
-  .channel-info,
-  .mode-tabs,
-  .head-actions{
+
+  .channel-info{
+    grid-area:identity !important;
     align-self:center !important;
+    min-width:0 !important;
   }
-  .mode-tabs,
-  .head-actions{
+
+  .mode-tabs{
+    grid-area:modes !important;
+    width:auto !important;
+    order:initial !important;
+    display:flex !important;
     align-items:center !important;
+    align-self:center !important;
+    justify-content:center !important;
+    gap:7px !important;
+    overflow-x:auto;
+    overflow-y:hidden;
+    scrollbar-width:none;
   }
+  .mode-tabs::-webkit-scrollbar{display:none}
+
   .head-actions{
-    padding-top:0 !important;
-    padding-bottom:0 !important;
+    grid-area:tools !important;
+    width:auto !important;
+    margin:0 !important;
+    padding:0 !important;
+    display:flex !important;
+    align-items:center !important;
+    align-self:center !important;
+    justify-content:flex-end !important;
+    flex-wrap:nowrap !important;
+    gap:6px !important;
+    overflow:visible !important;
+  }
+
+  .head-actions .icon-btn{
+    flex:0 0 32px;
+    width:32px;
+    height:32px;
+    align-self:center;
+  }
+
+  /* Restore the normal top-right notification position, below the one-row header. */
+  .toast{
+    position:absolute !important;
+    top:76px !important;
+    right:14px !important;
+    bottom:auto !important;
+    left:auto !important;
+    max-width:min(360px,calc(100% - 28px)) !important;
+    z-index:110 !important;
   }
 }
 
-/* Tablet portrait */
+/* Tablet portrait: switch | modes | tools, all on one row. */
 @media
   (min-width:701px)
   and (max-width:1100px)
   and (orientation:portrait)
   and (pointer:coarse)
   and (hover:none){
+
   .chat-head{
+    display:grid !important;
+    grid-template-columns:auto minmax(0,1fr) auto !important;
+    grid-template-areas:"identity modes tools" !important;
     align-items:center !important;
+    gap:10px !important;
+    min-height:64px;
+    padding:10px 14px;
   }
-  .channel-info,
-  .mode-tabs,
-  .head-actions{
+
+  .channel-info{
+    grid-area:identity !important;
     align-self:center !important;
+    min-width:0 !important;
   }
-  .mode-tabs,
-  .head-actions{
+
+  .mode-tabs{
+    grid-area:modes !important;
+    width:auto !important;
+    display:flex !important;
     align-items:center !important;
+    align-self:center !important;
+    justify-content:flex-start !important;
+    gap:7px !important;
+    padding:0 !important;
+    overflow-x:auto !important;
+    overflow-y:hidden !important;
+    scrollbar-width:none;
   }
+  .mode-tabs::-webkit-scrollbar{display:none}
+  .mode-tabs .mode-tab,
+  #specialModuleNav .mode-tab{
+    flex:0 0 auto;
+    min-height:36px;
+  }
+
   .head-actions{
-    padding-top:0 !important;
-    padding-bottom:0 !important;
+    grid-area:tools !important;
+    width:auto !important;
+    margin:0 !important;
+    padding:0 !important;
+    display:flex !important;
+    align-items:center !important;
+    align-self:center !important;
+    justify-content:flex-end !important;
+    flex-wrap:nowrap !important;
+    gap:7px !important;
+    overflow:visible !important;
   }
+
   .head-actions .icon-btn{
+    flex:0 0 36px !important;
+    width:36px !important;
+    height:36px !important;
+    min-width:36px !important;
+    min-height:36px !important;
     align-self:center !important;
+  }
+
+  .toast{
+    position:absolute !important;
+    top:78px !important;
+    right:14px !important;
+    bottom:auto !important;
+    left:auto !important;
+    max-width:min(360px,calc(100% - 28px)) !important;
+    z-index:110 !important;
   }
 }
 
-/* Phones */
+/* Phone: profile | modes | tools, all on one row. */
 @media (max-width:700px){
+
   .chat-head{
+    display:grid !important;
+    grid-template-columns:auto minmax(0,1fr) auto !important;
+    grid-template-areas:"identity modes tools" !important;
     align-items:center !important;
+    gap:7px !important;
+    min-height:58px;
+    padding:8px 9px !important;
   }
-  .channel-info,
-  .mode-tabs,
-  .head-actions{
+
+  .channel-info{
+    grid-area:identity !important;
     align-self:center !important;
+    justify-content:center !important;
+    min-width:0 !important;
   }
-  .mode-tabs,
-  .head-actions{
-    align-items:center !important;
-  }
-  .head-actions{
-    padding-top:0 !important;
-    padding-bottom:0 !important;
-  }
-  .head-actions .icon-btn,
+
   .mobile-profile-toggle{
     align-self:center !important;
+  }
+
+  .mode-tabs{
+    grid-area:modes !important;
+    width:auto !important;
+    min-width:0 !important;
+    display:flex !important;
+    align-items:center !important;
+    align-self:center !important;
+    justify-content:flex-start !important;
+    gap:5px !important;
+    padding:0 !important;
+    overflow-x:auto !important;
+    overflow-y:hidden !important;
+    scrollbar-width:none;
+  }
+  .mode-tabs::-webkit-scrollbar{display:none}
+
+  .mode-tabs .mode-tab,
+  #specialModuleNav .mode-tab{
+    flex:0 0 auto;
+    min-height:32px;
+    padding:7px 8px;
+  }
+
+  .head-actions{
+    grid-area:tools !important;
+    width:auto !important;
+    margin:0 !important;
+    padding:0 !important;
+    display:flex !important;
+    align-items:center !important;
+    align-self:center !important;
+    justify-content:flex-end !important;
+    flex-wrap:nowrap !important;
+    gap:5px !important;
+    overflow:visible !important;
+  }
+
+  /* Switching already lives inside the phone profile drawer. */
+  .head-actions .mobile-character-switch{
+    display:none !important;
+  }
+
+  .head-actions .icon-btn{
+    flex:0 0 32px !important;
+    width:32px !important;
+    height:32px !important;
+    min-width:32px !important;
+    min-height:32px !important;
+    align-self:center !important;
+  }
+
+  /* Keep the phone toast in its familiar top-right area under the single row. */
+  .toast{
+    top:68px !important;
+    right:9px !important;
+    left:auto !important;
+    bottom:auto !important;
+    max-width:min(330px,calc(100% - 18px)) !important;
+  }
+}
+
+@media (max-width:420px){
+  .chat-head{
+    grid-template-columns:42px minmax(0,1fr) auto !important;
+    gap:5px !important;
+    padding:7px !important;
+  }
+
+  .mobile-profile-toggle{
+    width:38px;
+    height:38px;
+    flex-basis:38px;
+  }
+
+  .mode-tabs{
+    gap:4px !important;
+  }
+  .mode-tabs .mode-tab,
+  #specialModuleNav .mode-tab{
+    min-height:30px;
+    padding:6px 7px;
+    font-size:7.5px;
+  }
+
+  .head-actions{
+    gap:4px !important;
+  }
+  .head-actions .icon-btn{
+    flex-basis:29px !important;
+    width:29px !important;
+    height:29px !important;
+    min-width:29px !important;
+    min-height:29px !important;
+  }
+
+  .toast{
+    top:64px !important;
   }
 }
 </style>

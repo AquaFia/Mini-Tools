@@ -35493,13 +35493,11 @@ message: text
 
   // ============================================================
   // NOTION MESSAGE BANK RUNTIME — normal companion dialogue only
+  // Uses the same proven Worker contract as the other companion framework.
   // Investigation, Trial, and Episode systems remain locally owned.
   // ============================================================
   const MESSAGE_BANK_CONFIG = Object.freeze({
-    workerEndpoint: "https://companions.aquafia1247.workers.dev/message-banks/Aria",
-    localProxyEndpoint: "/__aria/message-banks/Aria",
-    cacheKey: "aria:notion-message-banks:last-known-good:v1",
-    requestTimeoutMs: 7000
+    workerEndpoint: "https://companions.aquafia1247.workers.dev/message-banks/Aria"
   });
 
   const MESSAGE_BANK_EMERGENCY_FALLBACK = Object.freeze([
@@ -35509,164 +35507,76 @@ message: text
   ]);
 
   const MessageBankService = (() => {
-    let payload = null;
-    let activeIdentity = null;
-    let activeIdentityKey = null;
+    let document = null;
+    let banks = Object.create(null);
+    let identityKey = null;
+    let identityName = null;
     let loading = null;
-    let source = "uninitialized";
+    let loaded = false;
     let lastError = null;
-    let lastEndpoint = null;
     let lastHttpStatus = null;
 
-    const normalize = value => String(value || "").trim().toLowerCase().replace(/\s+/g, " ");
+    const normalize = value => String(value || "").trim().toLocaleLowerCase().replace(/\s+/g, " ");
     const validRow = row => Array.isArray(row) && row.length >= 2 && String(row[1] || "").trim();
 
-    function normalizeDocument(document) {
-      if (!document || typeof document !== "object") return null;
-      if (document.schema === "companion-message-bank" && document.identities && typeof document.identities === "object") {
-        return document;
-      }
-      // Compatibility with the older companion Worker shape used elsewhere in this project.
-      if (document.banks && typeof document.banks === "object") {
-        return {
-          schema: "companion-message-bank",
-          source: document.source || "worker-compat",
-          companion: document.companion || "Aria",
-          identities: {
-            aria: {
-              displayName: "Aria",
-              banks: document.banks
-            }
-          }
-        };
-      }
-      return null;
-    }
-
-    function selectIdentity(document) {
-      const identities = document && document.identities && typeof document.identities === "object"
-        ? Object.entries(document.identities)
-        : [];
-      if (!identities.length) return null;
-      const selected = identities.find(([key, identity]) =>
-        normalize(key) === "aria" || normalize(identity?.displayName) === "aria"
-      ) || identities[0];
-      return selected ? { key: selected[0], value: selected[1] } : null;
-    }
-
-    function validate(document) {
-      const normalizedDocument = normalizeDocument(document);
-      if (!normalizedDocument) return false;
-      const selected = selectIdentity(normalizedDocument);
-      if (!selected || !selected.value?.banks || typeof selected.value.banks !== "object") return false;
-      return Object.values(selected.value.banks).some(bank =>
-        Array.isArray(bank?.responses) && bank.responses.some(validRow)
+    function isMessageBankDocument(data) {
+      return Boolean(
+        data &&
+        data.schema === "companion-message-bank" &&
+        data.identities &&
+        typeof data.identities === "object"
       );
     }
 
-    function install(document, installedSource) {
-      const normalizedDocument = normalizeDocument(document);
-      if (!validate(normalizedDocument)) return false;
-      const selected = selectIdentity(normalizedDocument);
-      payload = normalizedDocument;
-      activeIdentityKey = selected.key;
-      activeIdentity = selected.value;
-      source = installedSource;
+    function installNotionMessageBanks(data) {
+      if (!isMessageBankDocument(data)) {
+        throw new Error("Worker returned an unsupported message-bank document.");
+      }
+
+      const entries = Object.entries(data.identities || {});
+      const selected = entries.find(([key, value]) =>
+        normalize(key) === "aria" || normalize(value?.displayName) === "aria"
+      ) || entries[0] || null;
+
+      document = data;
+      identityKey = selected ? selected[0] : null;
+      identityName = selected ? String(selected[1]?.displayName || selected[0] || "Aria") : "Aria";
+      banks = selected && selected[1]?.banks && typeof selected[1].banks === "object"
+        ? selected[1].banks
+        : Object.create(null);
+      loaded = true;
       lastError = null;
       return true;
     }
 
-    function readCache() {
-      try {
-        const cached = JSON.parse(localStorage.getItem(MESSAGE_BANK_CONFIG.cacheKey) || "null");
-        return cached && validate(cached.payload) ? cached.payload : null;
-      } catch (_) { return null; }
-    }
-
-    function writeCache(document) {
-      try {
-        localStorage.setItem(MESSAGE_BANK_CONFIG.cacheKey, JSON.stringify({ savedAt: Date.now(), payload: document }));
-      } catch (_) {}
-    }
-
-    async function fetchEndpoint(endpoint) {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), MESSAGE_BANK_CONFIG.requestTimeoutMs);
-      lastEndpoint = endpoint;
-      try {
-        const response = await fetch(endpoint, {
-          method: "GET",
-          headers: { Accept: "application/json" },
-          signal: controller.signal,
-          cache: "no-store",
-          credentials: "omit",
-          mode: endpoint.startsWith("http") ? "cors" : "same-origin",
-          redirect: "follow"
-        });
-        lastHttpStatus = response.status;
-        const raw = await response.text();
-        if (!response.ok) {
-          let detail = raw;
-          try {
-            const parsed = JSON.parse(raw);
-            detail = parsed?.message || parsed?.error || raw;
-          } catch (_) {}
-          throw new Error(`HTTP ${response.status} from ${endpoint}${detail ? ` — ${detail}` : ""}`);
-        }
-        let document;
-        try { document = JSON.parse(raw); }
-        catch (error) { throw new Error(`Worker returned non-JSON data from ${endpoint}: ${error.message}`); }
-        const liveSource = endpoint === MESSAGE_BANK_CONFIG.localProxyEndpoint
-          ? "notion-live-local-proxy"
-          : "notion-live";
-        if (!install(document, liveSource)) {
-          const identityCount = document?.identities && typeof document.identities === "object"
-            ? Object.keys(document.identities).length
-            : 0;
-          throw new Error(`Worker payload was readable but contained no usable Aria response rows (identities: ${identityCount}).`);
-        }
-        writeCache(payload);
-        return true;
-      } finally {
-        clearTimeout(timer);
-      }
+    async function fetchJSON(url) {
+      const response = await fetch(url, { cache: "no-store" });
+      lastHttpStatus = response.status;
+      if (!response.ok) throw new Error(`${response.status} ${url}`);
+      return response.json();
     }
 
     async function load({ force = false } = {}) {
-      if (!force && activeIdentity) return true;
+      if (!force && loaded) return true;
       if (!force && loading) return loading;
+
       loading = (async () => {
-        const isDirectFile = window.location.protocol === "file:";
-        const isLocalServer = /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname || "");
-        const endpoints = isDirectFile
-          ? [MESSAGE_BANK_CONFIG.workerEndpoint]
-          : isLocalServer
-            ? [MESSAGE_BANK_CONFIG.localProxyEndpoint, MESSAGE_BANK_CONFIG.workerEndpoint]
-            : [MESSAGE_BANK_CONFIG.workerEndpoint];
-
-        const errors = [];
-        for (const endpoint of endpoints) {
-          try {
-            if (await fetchEndpoint(endpoint)) return true;
-          } catch (error) {
-            const message = error?.name === "AbortError"
-              ? `Timed out after ${MESSAGE_BANK_CONFIG.requestTimeoutMs} ms at ${endpoint}`
-              : String(error?.message || error);
-            errors.push(message);
-          }
+        try {
+          const data = await fetchJSON(MESSAGE_BANK_CONFIG.workerEndpoint);
+          installNotionMessageBanks(data);
+          return true;
+        } catch (error) {
+          document = null;
+          banks = Object.create(null);
+          identityKey = null;
+          identityName = null;
+          loaded = false;
+          lastError = String(error?.message || error);
+          console.error("Could not load Aria Notion message banks.", error);
+          return false;
         }
-
-        const cached = readCache();
-        if (cached && install(cached, "notion-cache")) return true;
-
-        payload = null;
-        activeIdentity = null;
-        activeIdentityKey = null;
-        source = "emergency-local";
-        lastError = errors.join(" | ") || "No message-bank endpoint was available.";
-        console.warn("Aria message bank unavailable:", lastError);
-        return false;
       })().finally(() => { loading = null; });
+
       return loading;
     }
 
@@ -35674,55 +35584,79 @@ message: text
       const valid = (rows || []).filter(validRow);
       if (!valid.length) return null;
       const row = valid[Math.floor(Math.random() * valid.length)];
-      return { expression: String(row[0] || "neutral").trim() || "neutral", text: String(row[1] || "").trim() };
+      return {
+        expression: String(row[0] || "neutral").trim() || "neutral",
+        text: String(row[1] || "").trim()
+      };
     }
 
     function findBank(text) {
-      if (!activeIdentity) return null;
       const normalizedText = normalize(text);
       let best = null;
       let generic = null;
-      for (const [bankId, bank] of Object.entries(activeIdentity.banks || {})) {
-        const keywords = Array.isArray(bank?.keywords) ? bank.keywords.map(normalize).filter(Boolean) : [];
+
+      for (const [bankId, bank] of Object.entries(banks || {})) {
+        const keywords = Array.isArray(bank?.keywords)
+          ? bank.keywords.map(normalize).filter(Boolean)
+          : [];
+
+        // Per Aria's message-bank contract, no keywords means Generic.
         if (!keywords.length) {
-          if (!generic || normalize(bankId) === "generic") generic = { bankId, bank };
+          if (!generic || normalize(bankId) === "generic") {
+            generic = { bankId, bank };
+          }
           continue;
         }
+
         for (const keyword of keywords) {
           if (!normalizedText.includes(keyword)) continue;
           const score = keyword.length;
-          if (!best || score > best.score) best = { bankId, bank, score, keyword };
+          if (!best || score > best.score) {
+            best = { bankId, bank, keyword, score };
+          }
         }
       }
+
       return best || generic;
     }
 
     async function reply(text) {
-      const available = await load();
-      if (available) {
+      if (await load()) {
         const match = findBank(text);
-        const picked = match ? choose(match.bank.responses) : null;
-        if (picked) return { ...picked, bankId: match.bankId, source, responseSource: "notion-message-bank", responseMode: "message-bank" };
+        const picked = match ? choose(match.bank?.responses) : null;
+        if (picked) {
+          return {
+            ...picked,
+            bankId: match.bankId,
+            source: "notion-live",
+            responseSource: "notion-message-bank",
+            responseMode: "message-bank"
+          };
+        }
       }
+
       const fallback = choose(MESSAGE_BANK_EMERGENCY_FALLBACK);
-      return { ...fallback, bankId: null, source: "emergency-local", responseSource: "message-bank-emergency", responseMode: "message-bank-emergency" };
+      return {
+        ...fallback,
+        bankId: null,
+        source: "emergency-local",
+        responseSource: "message-bank-emergency",
+        responseMode: "message-bank-emergency"
+      };
     }
 
     function inspect() {
-      const isDirectFile = window.location.protocol === "file:";
-      const isLocalServer = /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname || "");
       return {
-        source,
-        loaded: Boolean(activeIdentity),
-        identity: activeIdentity?.displayName || activeIdentityKey || null,
-        identityKey: activeIdentityKey,
-        bankCount: Object.keys(activeIdentity?.banks || {}).length,
-        responseCount: Object.values(activeIdentity?.banks || {}).reduce((sum, bank) =>
+        loaded,
+        source: loaded ? "notion-live" : "emergency-local",
+        endpoint: MESSAGE_BANK_CONFIG.workerEndpoint,
+        schema: document?.schema || null,
+        companion: document?.companion || null,
+        identity: identityName,
+        identityKey,
+        bankCount: Object.keys(banks || {}).length,
+        responseCount: Object.values(banks || {}).reduce((sum, bank) =>
           sum + (Array.isArray(bank?.responses) ? bank.responses.filter(validRow).length : 0), 0),
-        runtime: isDirectFile ? "local-file" : isLocalServer ? "local-server" : "deployed",
-        workerEndpoint: MESSAGE_BANK_CONFIG.workerEndpoint,
-        localProxyEnabled: isLocalServer,
-        lastEndpoint,
         lastHttpStatus,
         lastError
       };

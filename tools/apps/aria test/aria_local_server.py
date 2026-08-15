@@ -3,8 +3,6 @@ import json
 import os
 import tempfile
 import re
-import urllib.request
-import urllib.error
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 
@@ -12,37 +10,6 @@ ROOT = Path(__file__).resolve().parent
 ALLOWED = {'knowledge/catalog.json'}
 
 class Handler(SimpleHTTPRequestHandler):
-    MESSAGE_BANK_WORKER = 'https://companions.aquafia1247.workers.dev/message-banks/Aria'
-
-    def _json_bytes(self, status, data, content_type='application/json; charset=utf-8'):
-        self.send_response(status)
-        self.send_header('Content-Type', content_type)
-        self.send_header('Cache-Control', 'no-store')
-        self.send_header('Content-Length', str(len(data)))
-        self.end_headers()
-        self.wfile.write(data)
-
-    def do_GET(self):
-        if self.path.rstrip('/') in {'/__aria/message-banks/Aria', '/__aria/message-banks/aria'}:
-            try:
-                request = urllib.request.Request(
-                    self.MESSAGE_BANK_WORKER,
-                    headers={'Accept': 'application/json', 'User-Agent': 'AriaLocalServer/1.1'},
-                    method='GET'
-                )
-                with urllib.request.urlopen(request, timeout=10) as response:
-                    data = response.read()
-                    content_type = response.headers.get('Content-Type', 'application/json; charset=utf-8')
-                    return self._json_bytes(response.status, data, content_type)
-            except urllib.error.HTTPError as exc:
-                data = exc.read() or json.dumps({'error': 'MESSAGE_BANK_PROXY_HTTP_ERROR', 'status': exc.code}).encode('utf-8')
-                return self._json_bytes(exc.code, data)
-            except Exception as exc:
-                return self._json(502, {'ok': False, 'error': 'MESSAGE_BANK_PROXY_ERROR', 'message': str(exc)})
-        if self.path.rstrip('/') == '/__aria/message-banks/status':
-            return self._json(200, {'ok': True, 'proxy': True, 'worker': self.MESSAGE_BANK_WORKER})
-        return super().do_GET()
-
     def _json(self, status, payload):
         data=json.dumps(payload,indent=2).encode('utf-8')
         self.send_response(status)
@@ -114,5 +81,4 @@ if __name__=='__main__':
     os.chdir(ROOT)
     print('Aria local server: http://localhost:8877')
     print('Activation repository writer: enabled')
-    print('Notion message-bank proxy: enabled')
     ThreadingHTTPServer(('127.0.0.1',8877),Handler).serve_forever()

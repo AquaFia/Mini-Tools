@@ -1,0 +1,1888 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>World Companion Character Generator</title>
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#0a0b10;--panel:#12141b;--panel2:#181b25;--ink:#f2f3f7;--muted:#9ca2b4;
+  --accent:#8c72dc;--line:#303547;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(145deg,#08090d,#11131a);color:var(--ink);font:14px/1.45 system-ui,sans-serif}
+main{width:min(1040px,calc(100% - 28px));margin:28px auto 60px}
+h1{font-size:25px;margin:0 0 6px} p{color:var(--muted)}
+.card{background:rgba(18,20,27,.96);border:1px solid var(--line);border-radius:16px;padding:18px;margin-top:16px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.grid.colors{grid-template-columns:repeat(3,minmax(0,1fr))}
+label{display:grid;gap:6px;color:#c9cddd;font-weight:700;font-size:12px}
+small{font-weight:400;color:var(--muted)}
+input,button{font:inherit}
+input[type=text],input[type=file],textarea{width:100%;border:1px solid var(--line);border-radius:9px;background:#0c0e14;color:var(--ink);padding:10px}
+textarea{min-height:92px;resize:vertical;line-height:1.45}
+.color-row{display:grid;grid-template-columns:42px 1fr;gap:7px}
+input[type=color]{width:42px;height:39px;border:1px solid var(--line);border-radius:8px;background:#0c0e14;padding:3px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+button{border:1px solid #5f55a4;border-radius:9px;background:#201d37;color:#f4efff;padding:10px 14px;font-weight:800;cursor:pointer}button.mode-active{background:#4a3d85;border-color:#a994ff;box-shadow:0 0 14px rgba(169,148,255,.18)}
+.status{margin-top:12px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;color:var(--muted);white-space:pre-wrap}
+.status.ok{border-color:#365842;color:#b9e5c5}.status.bad{border-color:#663944;color:#f0b6c1}
+.preview{display:block;margin-top:18px}
+.companion-preview-wrap{border:1px solid var(--line);border-radius:14px;padding:12px;background:#090a0f;overflow:auto}
+.companion-preview{
+  --p-bg:#090a0f;--p-panel:#11141d;--p-panel2:#181d2a;--p-ink:#f1f3f8;--p-muted:#9ba3b5;
+  --p-violet:#8c72dc;--p-blue:#777d91;--p-red:#8e8698;--p-cyan:#b6b9c7;--p-line:#373c4a;
+  --p-sigil-a:var(--p-violet);--p-sigil-b:var(--p-blue);--p-sigil-c:var(--p-cyan);--p-sigil-d:var(--p-line);
+  width:min(900px,100%);min-width:720px;height:500px;margin:auto;display:grid;grid-template-columns:250px 1fr;
+  border:1px solid color-mix(in srgb,var(--p-violet) 48%,var(--p-line));border-radius:18px;overflow:hidden;
+  background:color-mix(in srgb,var(--p-bg) 88%,transparent);color:var(--p-ink);
+  box-shadow:0 18px 46px rgba(0,0,0,.5),0 0 26px color-mix(in srgb,var(--p-violet) 24%,transparent);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif
+}
+.cp-sidebar{padding:16px;background:linear-gradient(180deg,color-mix(in srgb,var(--p-panel2) 96%,transparent),color-mix(in srgb,var(--p-bg) 97%,transparent));border-right:1px solid var(--p-line);display:flex;flex-direction:column;min-height:0}
+.cp-brand{display:flex;align-items:center;gap:9px;margin-bottom:11px}.cp-sigil{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:conic-gradient(from 90deg,var(--p-sigil-a),var(--p-sigil-b),var(--p-sigil-c),var(--p-sigil-d),var(--p-sigil-a));box-shadow:0 0 19px color-mix(in srgb,var(--p-sigil-a) 42%,transparent);font-weight:900;font-size:11px}.cp-brand strong{font-size:11px;letter-spacing:.11em}.cp-brand small{display:block;color:var(--p-muted);font-size:7px;letter-spacing:.15em;margin-top:2px}
+.cp-card{position:relative;isolation:isolate;flex:1;border:1px solid var(--p-line);border-radius:14px;padding:17px;display:flex;flex-direction:column;justify-content:center;gap:12px;overflow:hidden;background:radial-gradient(circle at 84% 12%,color-mix(in srgb,var(--p-violet) 16%,transparent),transparent 36%),linear-gradient(155deg,color-mix(in srgb,var(--p-panel2) 90%,var(--p-violet)),var(--p-panel) 66%);box-shadow:inset 0 0 38px color-mix(in srgb,var(--p-violet) 13%,transparent),0 0 20px color-mix(in srgb,var(--p-violet) 7%,transparent)}
+.cp-card:before{content:"";position:absolute;inset:8px;z-index:-1;border:1px solid color-mix(in srgb,var(--p-violet) 20%,transparent);border-radius:10px}
+.cp-card:after{content:"PROFILE // COMPANION";position:absolute;right:12px;top:11px;color:color-mix(in srgb,var(--p-muted) 70%,transparent);font:700 6px ui-monospace,monospace;letter-spacing:.16em}
+.cp-monogram{position:absolute;right:-.02em;top:.05em;z-index:-1;font:900 82px/.8 ui-monospace,monospace;letter-spacing:-.08em;color:color-mix(in srgb,var(--p-violet) 12%,transparent)}
+.cp-kicker,.cp-summary-title{color:var(--p-cyan);font:800 7px ui-monospace,monospace;letter-spacing:.17em}.cp-name{font-size:19px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;text-shadow:0 0 14px color-mix(in srgb,var(--p-violet) 22%,transparent)}
+.cp-facts{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid color-mix(in srgb,var(--p-line) 78%,transparent);border-bottom:1px solid color-mix(in srgb,var(--p-line) 78%,transparent)}
+.cp-fact{padding:7px 5px;border-right:1px solid color-mix(in srgb,var(--p-line) 55%,transparent);font:7px ui-monospace,monospace}.cp-fact:last-child{border-right:0}.cp-fact span{display:block;color:var(--p-muted);font-size:6px;font-weight:800;letter-spacing:.12em;margin-bottom:3px}.cp-fact b{color:var(--p-ink);font-size:7px}
+.cp-summary{color:color-mix(in srgb,var(--p-ink) 78%,var(--p-muted));font-size:8px;line-height:1.45}.cp-switch{align-self:flex-start;border:1px solid var(--p-violet);border-radius:999px;background:transparent;color:var(--p-ink);padding:7px 9px;font:700 7px ui-monospace,monospace;letter-spacing:.1em}
+.cp-online{display:flex;justify-content:space-between;align-items:end;margin-top:9px;color:var(--p-muted);font-size:7px}.cp-online b{color:#7ef7c1;font:700 7px ui-monospace,monospace}
+.cp-chat{display:grid;grid-template-rows:58px minmax(0,1fr) auto;min-height:0;background:linear-gradient(180deg,color-mix(in srgb,var(--p-panel) 94%,transparent),color-mix(in srgb,var(--p-bg) 98%,transparent))}
+.cp-head{padding:0 17px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--p-line)}.cp-channel strong{font-size:10px;letter-spacing:.07em}.cp-channel small{display:block;color:var(--p-muted);font:7px ui-monospace,monospace;margin-top:2px}.cp-head-right{display:flex;align-items:center;gap:5px}.cp-mode{border:1px solid var(--p-line);border-radius:8px;background:var(--p-panel2);color:var(--p-muted);padding:6px 8px;font:800 7px ui-monospace,monospace;letter-spacing:.08em}.cp-mode.active{border-color:var(--p-violet);color:var(--p-ink);background:color-mix(in srgb,var(--p-panel2) 72%,var(--p-violet))}.cp-mode.topic{border-color:color-mix(in srgb,var(--p-cyan) 70%,var(--p-line))}.cp-icon{width:25px;height:25px;border:1px solid var(--p-line);border-radius:8px;background:var(--p-panel2);color:color-mix(in srgb,var(--p-ink) 72%,var(--p-muted));display:grid;place-items:center;font-size:9px}
+.cp-log{padding:18px;overflow:hidden}.cp-message{margin-bottom:12px}.cp-message.user{text-align:right}.cp-bubble{display:inline-block;max-width:77%;padding:10px 11px;border-radius:13px;font-size:9px;line-height:1.45;text-align:left}.cp-assistant .cp-bubble{background:linear-gradient(135deg,color-mix(in srgb,var(--p-panel2) 72%,var(--p-violet)),var(--p-panel2));border:1px solid color-mix(in srgb,var(--p-violet) 50%,var(--p-line));border-top-left-radius:4px}.cp-user .cp-bubble{background:linear-gradient(135deg,color-mix(in srgb,var(--p-panel2) 65%,var(--p-blue)),color-mix(in srgb,var(--p-panel) 74%,var(--p-violet)));border:1px solid color-mix(in srgb,var(--p-blue) 58%,var(--p-line));border-top-right-radius:4px}.cp-speaker{color:color-mix(in srgb,var(--p-violet) 75%,var(--p-ink));font:800 7px ui-monospace,monospace;letter-spacing:.1em;margin-bottom:4px}.cp-stamp{color:var(--p-muted);font:6px ui-monospace,monospace;margin-top:4px}
+.cp-composer{padding:12px 15px 15px;border-top:1px solid var(--p-line);background:color-mix(in srgb,var(--p-bg) 84%,transparent)}.cp-quick{display:flex;gap:5px;margin-bottom:8px}.cp-chip{border:1px solid var(--p-line);border-radius:999px;background:var(--p-panel2);color:var(--p-muted);padding:6px 8px;font-size:7px}.cp-input-row{display:grid;grid-template-columns:1fr 35px;gap:7px}.cp-input{padding:9px 10px;border:1px solid var(--p-line);border-radius:11px;background:color-mix(in srgb,var(--p-bg) 90%,black);color:var(--p-muted);font-size:8px}.cp-send{border:0;border-radius:11px;color:white;display:grid;place-items:center;background:linear-gradient(135deg,var(--p-violet),var(--p-blue));box-shadow:0 6px 18px color-mix(in srgb,var(--p-violet) 28%,transparent)}
+.color-control-active{outline:2px solid #fff!important;outline-offset:2px}
+.color-key{margin-top:10px;color:var(--muted);font-size:11px}.color-key b{color:var(--ink)}
+
+.registry-manager{display:grid;gap:10px;margin-top:14px}
+.registry-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.registry-count{margin-left:auto;color:var(--muted);font-size:12px}
+.registry-list{display:grid;gap:9px}
+.registry-row{display:grid;grid-template-columns:auto minmax(150px,1.2fr) minmax(100px,.8fr) 86px minmax(130px,1fr) auto;gap:8px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:11px;background:#0d0f16}
+.registry-row input[type=text]{padding:8px}
+.registry-order{display:flex;gap:4px}
+.registry-order button,.registry-remove{padding:7px 9px}
+.registry-meta{display:grid;gap:2px;min-width:0}
+.registry-meta code{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px}
+.registry-empty{padding:18px;border:1px dashed var(--line);border-radius:11px;text-align:center;color:var(--muted)}
+@media(max-width:820px){
+  .registry-row{grid-template-columns:auto 1fr 90px auto}
+  .registry-row .registry-group{grid-column:2/3}
+  .registry-row .registry-meta{grid-column:2/4}
+}
+
+
+.audit-manager{display:grid;gap:12px;margin-top:14px}
+.audit-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.audit-stat{padding:10px;border:1px solid var(--line);border-radius:10px;background:#0d0f16;text-align:center}
+.audit-stat strong{display:block;font-size:20px}.audit-stat span{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em}
+.audit-results{display:grid;gap:10px}
+.audit-card{border:1px solid var(--line);border-radius:12px;background:#0d0f16;overflow:hidden}
+.audit-card-head{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:11px 12px;border-bottom:1px solid var(--line)}
+.audit-card-title{min-width:0}.audit-card-title strong{display:block;font-size:13px}.audit-card-title small{display:block;margin-top:3px;color:var(--muted);font:10px ui-monospace,SFMono-Regular,Consolas,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.audit-badge{flex:none;padding:6px 8px;border:1px solid var(--line);border-radius:999px;font:800 9px/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.08em}
+.audit-badge.current{border-color:#365842;color:#b9e5c5}
+.audit-badge.outdated{border-color:#715f32;color:#f0d992}
+.audit-badge.invalid{border-color:#663944;color:#f0b6c1}
+.audit-badge.unusual{border-color:#55507a;color:#d2c8ff}
+.audit-details{padding:10px 12px;display:grid;gap:7px}
+.audit-meta{display:flex;gap:7px;flex-wrap:wrap;color:var(--muted);font:10px ui-monospace,SFMono-Regular,Consolas,monospace}
+.audit-issues{margin:0;padding-left:18px;color:#cdd1dc;font-size:12px}
+.audit-issues li+li{margin-top:5px}
+.audit-ok{color:#b9e5c5;font-size:12px}
+.audit-empty{padding:20px;border:1px dashed var(--line);border-radius:11px;color:var(--muted);text-align:center}
+@media(max-width:700px){.audit-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+@media(max-width:700px){.grid,.grid.colors{grid-template-columns:1fr}.companion-preview-wrap{margin-left:-6px;margin-right:-6px}}
+code{color:#d9ccff;white-space:pre-wrap}
+
+</style>
+</head>
+<body>
+<main>
+  <h1>World Companion Character Generator <small style="font-size:12px;color:var(--muted)">v1.4.0</small></h1>
+  <p>Creates and edits Akailem Companion character packages. Current character schema: <code>v1.0.4</code>. Nothing leaves your computer.</p>
+
+  <section class="card">
+    <h2>Mode</h2>
+    <div class="actions">
+      <button id="newModeBtn" type="button">Create New Character</button>
+      <button id="editModeBtn" type="button">Edit Existing Character</button>
+      <button id="registryModeBtn" type="button">Manage Character Registry</button>
+      <button id="auditModeBtn" type="button">Schema Audit</button>
+    </div>
+    <div id="editLoader" hidden style="margin-top:14px">
+      <label>
+        Existing character.js
+        <input id="existingCharacterFile" type="file" accept=".js,text/javascript">
+        <small>Loads the current character settings into the editor. Exporting returns a single updated character.js and preserves unrelated code.</small>
+      </label>
+      <div class="status" id="schemaStatus" style="margin-top:10px">No character loaded.</div>
+    </div>
+    <div id="registryManagerLoader" hidden style="margin-top:14px">
+      <label>
+        Current character_list.js
+        <input id="registryManagerFile" type="file" accept=".js,text/javascript">
+        <small>Loads the current directory. IDs and folder paths stay read-only so character folders cannot be broken accidentally. Optional special_module.js files are detected automatically by the companion.</small>
+      </label>
+      <div class="registry-manager" id="registryManager" hidden>
+        <div class="registry-toolbar">
+          <button id="sortRegistryNameBtn" type="button">Sort A–Z</button>
+          <button id="sortRegistryGroupBtn" type="button">Sort by Group</button>
+          <span class="registry-count" id="registryCount"></span>
+        </div>
+        <div class="registry-list" id="registryList"></div>
+        <div class="actions">
+          <button id="downloadRegistryBtn" type="button">Download updated character_list.js</button>
+        </div>
+      </div>
+      <div class="status" id="registryManagerStatus">Choose a character_list.js to manage.</div>
+    </div>
+
+    <div id="auditLoader" hidden style="margin-top:14px">
+      <label>
+        Character files
+        <input id="auditFiles" type="file" accept=".js,text/javascript" multiple>
+        <small>Select as many <code>character.js</code> files as you want. The audit is read-only and uses character schema <code>v1.0.4</code> as the current reference.</small>
+      </label>
+      <div class="audit-manager" id="auditManager" hidden>
+        <div class="audit-summary">
+          <div class="audit-stat"><strong id="auditCurrentCount">0</strong><span>Current</span></div>
+          <div class="audit-stat"><strong id="auditOutdatedCount">0</strong><span>Outdated</span></div>
+          <div class="audit-stat"><strong id="auditInvalidCount">0</strong><span>Invalid</span></div>
+          <div class="audit-stat"><strong id="auditUnusualCount">0</strong><span>Unusual</span></div>
+        </div>
+        <div class="audit-results" id="auditResults"></div>
+      </div>
+      <div class="status" id="auditStatus">Choose one or more character.js files to audit.</div>
+    </div>
+  </section>
+
+  <section class="card" id="identityStructureCard">
+    <h2>Identity structure</h2>
+    <div class="actions">
+      <button id="singleIdentityBtn" type="button">Single Identity</button>
+      <button id="multipleIdentityBtn" type="button">Multiple Identities</button>
+    </div>
+    <p id="identityModeHelp">Most characters use one identity. Multiple identities are for one character package with two or more distinct named states/identities.</p>
+    <div id="multipleIdentityControls" hidden>
+      <div class="actions" style="margin:12px 0 8px">
+        <button id="previousIdentityBtn" type="button">← Previous</button>
+        <button id="nextIdentityBtn" type="button">Next →</button>
+        <button id="addIdentityBtn" type="button">+ Add Identity</button>
+        <button id="removeIdentityBtn" type="button">Remove Identity</button>
+      </div>
+      <div class="status" id="identityStatus">Identity 1 of 2</div>
+      <div class="grid" style="margin-top:10px">
+        <label>Switch keyphrase
+          <input id="identityKeyphrase" type="text" placeholder="switch to identity name">
+          <small>Phrase the companion can recognize when switching identities.</small>
+        </label>
+        <label>Transition label
+          <input id="identityTransition" type="text" placeholder="Loading Identity…">
+        </label>
+        <label>Switch response
+          <input id="identitySwitchMessage" type="text" placeholder="Identity is active.">
+        </label>
+        <label>Core belief
+          <textarea id="identityCoreBelief" placeholder="Optional identity-specific belief or internal framing."></textarea>
+        </label>
+      </div>
+      <p><small>The Display name, initials, palette, quick replies, episode-abandon line and missing-bank responses below belong to the currently selected identity. Startup and episode-selection/offer prompts remain shared by the whole character.</small></p>
+    </div>
+  </section>
+
+  <section class="card" id="registryCard">
+    <h2>1. Current registry</h2>
+    <label>
+      character_list.js
+      <input id="registryFile" type="file" accept=".js,text/javascript">
+      <small>Select the current registry from the root of your companion folder.</small>
+    </label>
+  </section>
+
+  <section class="card" id="characterNamesCard">
+    <h2>2. Character names</h2>
+    <div class="grid">
+      <label>Full character name <small>Notion Name / profile lookup, e.g. Dahlberg Atwood</small>
+        <input id="profileName" type="text">
+      </label>
+      <label>Companion name <small>Notion Companion field / full first name, e.g. Dahlberg</small>
+        <input id="companionName" type="text">
+      </label>
+      <label><span id="displayNameLabel">Display name / Identity</span> <small>Notion Identity field, e.g. Dale</small>
+        <input id="displayName" type="text">
+      </label>
+      <label>Character ID <small>Folder + route ID; generated from the full name unless edited</small>
+        <input id="characterId" type="text">
+      </label>
+      <label><span id="initialsLabel">Initials</span>
+        <input id="initials" type="text">
+      </label>
+    </div>
+  </section>
+
+  <section class="card" id="paletteCard">
+    <h2>3. Display palette</h2>
+    <p>These values are written directly to the character file. Accent may be blank.</p>
+    <div id="colors" class="grid colors"></div>
+    <div class="preview">
+      <div class="companion-preview-wrap">
+        <div class="companion-preview" id="companionPreview">
+          <aside class="cp-sidebar" data-color-use="bg panel panel2 line accent secondary cyan muted ink">
+            <div class="cp-brand">
+              <div class="cp-sigil" id="previewSigil" data-color-use="accent secondary cyan line">--</div>
+              <div><strong>WORLD//LINK</strong><small>COMPANION TERMINAL</small></div>
+            </div>
+            <div class="cp-card" data-color-use="panel panel2 line accent cyan muted ink">
+              <div class="cp-monogram" id="previewMonogram" data-color-use="accent">--</div>
+              <div>
+                <div class="cp-kicker" data-color-use="cyan">NAME</div>
+                <div class="cp-name" id="previewName" data-color-use="ink accent">CHARACTER</div>
+              </div>
+              <div class="cp-facts" data-color-use="line muted ink">
+                <div class="cp-fact"><span>GENDER</span><b>Example</b></div>
+                <div class="cp-fact"><span>PRONOUNS</span><b>They/Them</b></div>
+                <div class="cp-fact"><span>BIRTHDATE</span><b>Month 1</b></div>
+              </div>
+              <div>
+                <div class="cp-summary-title" data-color-use="cyan">SUMMARY</div>
+                <div class="cp-summary" data-color-use="ink muted">Character summary from Notion appears here.</div>
+              </div>
+              <button class="cp-switch" data-color-use="accent ink">SWITCH CHARACTER</button>
+            </div>
+            <div class="cp-online"><span>WORLD DIRECTORY</span><b>● ONLINE</b></div>
+          </aside>
+
+          <section class="cp-chat" data-color-use="bg panel">
+            <header class="cp-head" data-color-use="line panel">
+              <div class="cp-channel"><strong id="previewChannel">CHARACTER CHANNEL</strong><small id="previewChannelLine">channel: character // online</small></div>
+              <div class="cp-head-right">
+                <span class="cp-mode active" data-color-use="accent panel2 ink">CHAT</span>
+                <span class="cp-mode topic" data-color-use="cyan line panel2">TOPICS</span>
+                <span class="cp-icon" data-color-use="panel2 line muted ink">⌘</span>
+              </div>
+            </header>
+
+            <div class="cp-log">
+              <div class="cp-message cp-assistant">
+                <div class="cp-bubble" data-color-use="panel2 accent line">
+                  <div class="cp-speaker" id="previewSpeaker" data-color-use="accent ink">CHARACTER // VERIFIED</div>
+                  This is how a companion response will look with the current palette.
+                  <div class="cp-stamp" data-color-use="muted">COMPANION</div>
+                </div>
+              </div>
+              <div class="cp-message cp-user user">
+                <div class="cp-bubble" data-color-use="panel panel2 secondary accent line">And this is the user side of the conversation.</div>
+              </div>
+            </div>
+
+            <div class="cp-composer" data-color-use="bg line">
+              <div class="cp-quick">
+                <span class="cp-chip" data-color-use="panel2 line muted">Hello</span>
+                <span class="cp-chip" data-color-use="panel2 line muted">How are you?</span>
+              </div>
+              <div class="cp-input-row">
+                <div class="cp-input" data-color-use="bg line muted">Message character…</div>
+                <div class="cp-send" data-color-use="accent secondary">➤</div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+      <p class="color-key">Focus or hover a color field to highlight the parts of the preview that use it. The preview follows the current companion's actual palette mapping and visual treatment.</p>
+    </div>
+  </section>
+
+  <section class="card" id="dialogueCard">
+    <h2>4. Built-in dialogue</h2>
+    <p>These lines live in <code>character.js</code>, so they can match the character's voice. Put list-style dialogue one line per entry.</p>
+    <div class="grid">
+      <label>Startup fallback <small>Shared by all identities</small>
+        <textarea id="startupMessage">Connection established. {display} is online.</textarea>
+        <small><code>{display}</code> becomes the Identity/display name.</small>
+      </label>
+
+      <label>Quick replies <small id="quickReplyScope">Current identity</small>
+        <textarea id="quickReplies">Hello
+How are you?
+What have you been up to?
+Tell me something about yourself</textarea>
+        <small>One button per line.</small>
+      </label>
+
+      <label>Episode selection prompt <small>Shared by all identities</small>
+        <textarea id="episodeSelection">Which conversation did you mean?</textarea>
+      </label>
+
+      <label>Episode offer prompt <small>Shared by all identities</small>
+        <textarea id="episodeOffer">I have more to say about {trigger}. Do you want to continue?</textarea>
+        <small>Keep <code>{trigger}</code> wherever you want the matched topic inserted.</small>
+      </label>
+
+      <label>Episode abandon response <small>Current identity</small>
+        <textarea id="episodeAbandon">Okay. We can leave that conversation there.</textarea>
+      </label>
+
+      <label>Missing-bank fallback responses <small>Current identity</small>
+        <textarea id="missingBank">The remote dialogue archive is unavailable right now.
+I don't have a general response bank loaded for {display} yet.
+The dialogue archive didn't load, but the rest of the character profile is still available.
+No remote dialogue data is available for this response.</textarea>
+        <small>One fallback response per line. <code>{display}</code> becomes the Identity/display name.</small>
+      </label>
+    </div>
+  </section>
+
+  <section class="card" id="generateCard">
+    <h2 id="generateHeading">5. Generate</h2>
+    <code id="pathsPreview">character_list.js
+characters/&lt;id&gt;/character.js
+characters/&lt;id&gt;/episodes/episode_list.json</code>
+    <div class="actions">
+      <button id="generateBtn" type="button">Create patch ZIP</button>
+    </div>
+    <div class="status" id="status">Load character_list.js and fill in the character names.</div>
+  </section>
+</main>
+
+<script>
+(()=>{
+"use strict";
+const $=id=>document.getElementById(id);
+const CHARACTER_SCHEMA_VERSION="1.0.4";
+const colorDefs=[
+  ["bg","Background","#090a0f"],["panel","Panel","#11141d"],["panel2","Raised panel","#181d2a"],
+  ["ink","Text","#f1f3f8"],["muted","Muted text","#9ba3b5"],["accent","Accent (optional)","#8c72dc"],
+  ["secondary","Secondary","#777d91"],["danger","Warning / danger","#8e8698"],["cyan","Highlight","#b6b9c7"],["line","Borders / lines","#373c4a"]
+];
+
+function slug(value){
+  return String(value||"").trim().toLowerCase().normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"_").replace(/^_+|_+$/g,"");
+}
+function makeInitials(value){
+  const parts=String(value||"").trim().split(/\s+/).filter(Boolean);
+  if(!parts.length)return "";
+  if(parts.length===1)return parts[0].slice(0,2).toUpperCase();
+  return (parts[0][0]+parts[parts.length-1][0]).toUpperCase();
+}
+function jsString(value){return JSON.stringify(String(value??""))}
+function escapeRegExp(s){return s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")}
+
+const colors=$("colors");
+for(const [key,label,def] of colorDefs){
+  const wrapper=document.createElement("label");
+  wrapper.innerHTML=`${label}<div class="color-row">
+    <input type="color" id="color_${key}" value="${def}">
+    <input type="text" id="text_${key}" value="${def}" ${key==="accent"?'placeholder="optional"':""}>
+  </div>`;
+  colors.appendChild(wrapper);
+  const picker=wrapper.querySelector('input[type=color]');
+  const text=wrapper.querySelector('input[type=text]');
+  picker.addEventListener("input",()=>{text.value=picker.value;refreshPreview()});
+  text.addEventListener("input",()=>{if(/^#[0-9a-f]{6}$/i.test(text.value))picker.value=text.value;refreshPreview()});
+
+  const highlight=()=>{
+    document.querySelectorAll("[data-color-use]").forEach(node=>{
+      const uses=String(node.dataset.colorUse||"").split(/\s+/);
+      node.classList.toggle("color-control-active",uses.includes(key));
+    });
+  };
+  const clear=()=>document.querySelectorAll(".color-control-active").forEach(node=>node.classList.remove("color-control-active"));
+  [picker,text].forEach(control=>{
+    control.addEventListener("focus",highlight);
+    control.addEventListener("mouseenter",highlight);
+    control.addEventListener("blur",clear);
+    control.addEventListener("mouseleave",clear);
+  });
+}
+$("text_accent").value="";
+
+let registryText="";
+let editorMode="new";
+let existingCharacterText="";
+let existingCharacterFileName="character.js";
+let loadedSchemaVersion=null;
+let identityMode="single";
+let identityDrafts=[];
+let activeIdentityIndex=0;
+let loadedIdentityAwareness={};
+let registryManagerSource="";
+let registryManagerEntries=[];
+let auditReports=[];
+
+
+function versionParts(value){
+  return String(value||"")
+    .split(".")
+    .map(part=>Number.parseInt(part,10))
+    .map(value=>Number.isFinite(value)?value:0);
+}
+function compareVersions(a,b){
+  const left=versionParts(a);
+  const right=versionParts(b);
+  const length=Math.max(left.length,right.length);
+  for(let i=0;i<length;i++){
+    const l=left[i]||0;
+    const r=right[i]||0;
+    if(l<r)return -1;
+    if(l>r)return 1;
+  }
+  return 0;
+}
+function readSchemaVersion(source){
+  return matchValue(source,/schemaVersion\s*:\s*(["'`][\s\S]*?["'`])\s*,/);
+}
+function showSchemaStatus(version,{fileLoaded=Boolean(existingCharacterText)}={}){
+  const box=$("schemaStatus");
+  if(!box)return;
+
+  if(!fileLoaded){
+    box.textContent=`Generator character schema: v${CHARACTER_SCHEMA_VERSION}. No character loaded.`;
+    box.className="status";
+    return;
+  }
+
+  if(!version){
+    box.textContent=`No schema marker found. This character predates v${CHARACTER_SCHEMA_VERSION}; exporting will upgrade it.`;
+    box.className="status bad";
+    return;
+  }
+
+  const comparison=compareVersions(version,CHARACTER_SCHEMA_VERSION);
+  if(comparison<0){
+    box.textContent=`Character schema v${version} is older than current v${CHARACTER_SCHEMA_VERSION}. Exporting will upgrade it.`;
+    box.className="status bad";
+    return;
+  }
+
+  if(comparison>0){
+    box.textContent=`Character schema v${version} is newer than this generator (v${CHARACTER_SCHEMA_VERSION}). Export is disabled to prevent a downgrade.`;
+    box.className="status bad";
+    return;
+  }
+
+  box.textContent=`Character schema v${version} matches the current generator.`;
+  box.className="status ok";
+}
+
+
+function defaultIdentityDraft(name="Identity One"){
+  const display=String(name||"Identity").trim()||"Identity";
+  return {
+    display,
+    initials:makeInitials(display),
+    palette:{
+      bg:"#090a0f",panel:"#11141d",panel2:"#181d2a",ink:"#f1f3f8",muted:"#9ba3b5",
+      accent:"#8c72dc",secondary:"#777d91",danger:"#8e8698",cyan:"#b6b9c7",line:"#373c4a"
+    },
+    quickReplies:["Hello","How are you?","Tell me something about yourself"],
+    episodeAbandon:"Okay. We can leave that conversation there.",
+    missingBank:["The remote dialogue archive is unavailable right now."],
+    keyphrase:`switch to ${display.toLowerCase()}`,
+    transitionLabel:`Loading ${display}…`,
+    switchMessage:`${display} is active.`,
+    coreBelief:""
+  };
+}
+function captureActiveIdentity(){
+  if(identityMode!=="multiple"||!identityDrafts.length)return;
+  const draft=identityDrafts[activeIdentityIndex]||defaultIdentityDraft();
+  draft.display=$("displayName").value.trim();
+  draft.initials=$("initials").value.trim().toUpperCase();
+  draft.palette=getPalette();
+  draft.quickReplies=dialogueLines("quickReplies");
+  draft.episodeAbandon=$("episodeAbandon").value.trim();
+  draft.missingBank=dialogueLines("missingBank");
+  draft.keyphrase=$("identityKeyphrase").value.trim();
+  draft.transitionLabel=$("identityTransition").value.trim();
+  draft.switchMessage=$("identitySwitchMessage").value.trim();
+  draft.coreBelief=$("identityCoreBelief").value.trim();
+  identityDrafts[activeIdentityIndex]=draft;
+}
+function loadIdentityDraft(index){
+  if(!identityDrafts.length)return;
+  activeIdentityIndex=Math.max(0,Math.min(index,identityDrafts.length-1));
+  const draft=identityDrafts[activeIdentityIndex];
+
+  $("displayName").value=draft.display||"";
+  $("initials").value=draft.initials||"";
+  for(const [key] of colorDefs){
+    const value=draft.palette?.[key]||"";
+    $(`text_${key}`).value=value;
+    if(/^#[0-9a-f]{6}$/i.test(value))$(`color_${key}`).value=value;
+  }
+  $("quickReplies").value=(draft.quickReplies||[]).join("\n");
+  $("episodeAbandon").value=draft.episodeAbandon||"";
+  $("missingBank").value=(draft.missingBank||[]).join("\n");
+  $("identityKeyphrase").value=draft.keyphrase||"";
+  $("identityTransition").value=draft.transitionLabel||"";
+  $("identitySwitchMessage").value=draft.switchMessage||"";
+  $("identityCoreBelief").value=draft.coreBelief||"";
+  updateIdentityStatus();
+  refresh();
+}
+function updateIdentityStatus(){
+  const box=$("identityStatus");
+  if(!box)return;
+  const count=identityDrafts.length;
+  const draft=identityDrafts[activeIdentityIndex];
+  box.textContent=count
+    ? `Identity ${activeIdentityIndex+1} of ${count}${draft?.display?` — ${draft.display}`:""}`
+    : "No identities";
+}
+function setIdentityMode(mode,{preserve=false}={}){
+  const next=mode==="multiple"?"multiple":"single";
+  if(identityMode==="multiple")captureActiveIdentity();
+  identityMode=next;
+  $("singleIdentityBtn").classList.toggle("mode-active",next==="single");
+  $("multipleIdentityBtn").classList.toggle("mode-active",next==="multiple");
+  $("multipleIdentityControls").hidden=next!=="multiple";
+  $("displayNameLabel").textContent=next==="multiple"?"Current identity name":"Display name / Identity";
+  $("initialsLabel").textContent=next==="multiple"?"Current identity initials":"Initials";
+
+  if(next==="multiple"){
+    if(!preserve||identityDrafts.length<2){
+      const first=defaultIdentityDraft($("displayName").value.trim()||"Identity One");
+      first.initials=$("initials").value.trim().toUpperCase()||first.initials;
+      first.palette=getPalette();
+      first.quickReplies=dialogueLines("quickReplies");
+      first.episodeAbandon=$("episodeAbandon").value.trim();
+      first.missingBank=dialogueLines("missingBank");
+      const second=defaultIdentityDraft("Identity Two");
+      identityDrafts=[first,second];
+      activeIdentityIndex=0;
+    }
+    loadIdentityDraft(activeIdentityIndex);
+  }else{
+    updateIdentityStatus();
+    refresh();
+  }
+}
+$("singleIdentityBtn").addEventListener("click",()=>setIdentityMode("single"));
+$("multipleIdentityBtn").addEventListener("click",()=>setIdentityMode("multiple"));
+$("previousIdentityBtn").addEventListener("click",()=>{
+  captureActiveIdentity();
+  loadIdentityDraft((activeIdentityIndex-1+identityDrafts.length)%identityDrafts.length);
+});
+$("nextIdentityBtn").addEventListener("click",()=>{
+  captureActiveIdentity();
+  loadIdentityDraft((activeIdentityIndex+1)%identityDrafts.length);
+});
+$("addIdentityBtn").addEventListener("click",()=>{
+  captureActiveIdentity();
+  identityDrafts.push(defaultIdentityDraft(`Identity ${identityDrafts.length+1}`));
+  loadIdentityDraft(identityDrafts.length-1);
+});
+$("removeIdentityBtn").addEventListener("click",()=>{
+  if(identityDrafts.length<=2){
+    setStatus("Multiple-identity characters need at least two identities.",false,true);
+    return;
+  }
+  identityDrafts.splice(activeIdentityIndex,1);
+  activeIdentityIndex=Math.min(activeIdentityIndex,identityDrafts.length-1);
+  loadIdentityDraft(activeIdentityIndex);
+});
+
+function extractNamedObject(source,propertyName){
+  const re=new RegExp(`\\b${escapeRegExp(propertyName)}\\s*:\\s*\\{`,"m");
+  const match=re.exec(source);
+  if(!match)return null;
+  const brace=source.indexOf("{",match.index);
+  let depth=0,quote=null,escaped=false;
+  for(let i=brace;i<source.length;i++){
+    const ch=source[i];
+    if(quote){
+      if(escaped){escaped=false;continue}
+      if(ch==="\\"){escaped=true;continue}
+      if(ch===quote)quote=null;
+      continue;
+    }
+    if(ch==='"'||ch==="'"||ch==="`"){quote=ch;continue}
+    if(ch==="{")depth++;
+    if(ch==="}"&&--depth===0)return {start:match.index,braceStart:brace,end:i+1,body:source.slice(brace+1,i)};
+  }
+  return null;
+}
+function topLevelObjectEntries(body){
+  const entries=[];
+  let i=0;
+  while(i<body.length){
+    while(i<body.length&&/[\s,]/.test(body[i]))i++;
+    const keyMatch=/^([A-Za-z_$][\w$]*)\s*:\s*\{/.exec(body.slice(i));
+    if(!keyMatch){i++;continue}
+    const key=keyMatch[1];
+    const keyStart=i;
+    const brace=i+keyMatch[0].lastIndexOf("{");
+    let depth=0,quote=null,escaped=false,end=-1;
+    for(let j=brace;j<body.length;j++){
+      const ch=body[j];
+      if(quote){
+        if(escaped){escaped=false;continue}
+        if(ch==="\\"){escaped=true;continue}
+        if(ch===quote)quote=null;
+        continue;
+      }
+      if(ch==='"'||ch==="'"||ch==="`"){quote=ch;continue}
+      if(ch==="{")depth++;
+      if(ch==="}"&&--depth===0){end=j+1;break}
+    }
+    if(end<0)break;
+    entries.push({key,body:body.slice(brace+1,end-1),raw:body.slice(keyStart,end)});
+    i=end;
+  }
+  return entries;
+}
+function parseIdentityDrafts(source){
+  const identities=extractNamedObject(source,"identities");
+  if(!identities)return [];
+  return topLevelObjectEntries(identities.body).map(entry=>{
+    const body=entry.body;
+    const display=matchValue(body,/\bshortName\s*:\s*(["'`][\s\S]*?["'`])\s*,/)
+      ||matchValue(body,/\bname\s*:\s*(["'`][\s\S]*?["'`])\s*,/)
+      ||entry.key;
+    return {
+      key:entry.key,
+      display,
+      initials:matchValue(body,/\binitials\s*:\s*(["'`][\s\S]*?["'`])\s*,/)||makeInitials(display),
+      palette:extractColors(body),
+      quickReplies:extractArrayStrings(body,"quickReplies"),
+      episodeAbandon:matchValue(body,/episodeAbandon\s*:\s*\{\s*message\s*:\s*(["'`][\s\S]*?["'`])\s*\}/),
+      missingBank:[],
+      keyphrase:matchValue(body,/\bkeyphrase\s*:\s*(["'`][\s\S]*?["'`])\s*,/),
+      transitionLabel:matchValue(body,/\btransitionLabel\s*:\s*(["'`][\s\S]*?["'`])\s*,/),
+      switchMessage:matchValue(body,/\bswitchMessage\s*:\s*(["'`][\s\S]*?["'`])\s*,/),
+      coreBelief:matchValue(body,/\bcoreBelief\s*:\s*(["'`][\s\S]*?["'`])\s*,/)
+    };
+  });
+}
+function parseMissingGuidance(source,drafts){
+  const block=extractNamedObject(source,"missingBankGuidance");
+  if(!block)return;
+  for(const draft of drafts){
+    const re=new RegExp(`${escapeRegExp(draft.key)}\\s*:\\s*\\[([\\s\\S]*?)\\]`);
+    const match=block.body.match(re);
+    if(!match)continue;
+    const values=[];
+    const token=/(["'`])((?:\\.|(?!\1)[\s\S])*?)\1/g;
+    let item;
+    while((item=token.exec(match[1])))values.push(normalizeEditableDialogue(unquoteJsString(item[0])));
+    draft.missingBank=values;
+  }
+}
+function parseIdentityAwareness(source){
+  const block=extractNamedObject(source,"identityAwareness");
+  const result={};
+  if(!block)return result;
+  for(const outer of topLevelObjectEntries(block.body)){
+    result[outer.key]={};
+    const pair=/([A-Za-z_$][\w$]*)\s*:\s*(["'`][\s\S]*?["'`])/g;
+    let match;
+    while((match=pair.exec(outer.body)))result[outer.key][match[1]]=unquoteJsString(match[2]);
+  }
+  return result;
+}
+
+
+function parseRegistryDirectory(source){
+  const marker="const directory=[";
+  const start=source.indexOf(marker);
+  if(start<0)throw new Error('Could not find "const directory=[" in character_list.js.');
+  const arrayStart=start+marker.length;
+  const close=source.indexOf("];",arrayStart);
+  if(close<0)throw new Error("Could not find the end of the character directory.");
+  const body=source.slice(arrayStart,close);
+
+  const objects=[];
+  let depth=0,quote=null,escaped=false,objectStart=-1;
+  for(let i=0;i<body.length;i++){
+    const ch=body[i];
+    if(quote){
+      if(escaped){escaped=false;continue}
+      if(ch==="\\"){escaped=true;continue}
+      if(ch===quote)quote=null;
+      continue;
+    }
+    if(ch==='"'||ch==="'"||ch==="`"){quote=ch;continue}
+    if(ch==="{"){
+      if(depth===0)objectStart=i;
+      depth++;
+    }else if(ch==="}"&&depth){
+      depth--;
+      if(depth===0&&objectStart>=0){
+        objects.push(body.slice(objectStart,i+1));
+        objectStart=-1;
+      }
+    }
+  }
+
+  const read=(raw,key,fallback="")=>{
+    const stringMatch=raw.match(new RegExp(`\\b${key}\\s*:\\s*(["'\`])([\\s\\S]*?)\\1`));
+    if(stringMatch)return unquoteJsString(stringMatch[1]+stringMatch[2]+stringMatch[1]);
+    const boolMatch=raw.match(new RegExp(`\\b${key}\\s*:\\s*(true|false)`));
+    if(boolMatch)return boolMatch[1]==="true";
+    return fallback;
+  };
+
+  const entries=objects.map(raw=>({
+    id:read(raw,"id"),
+    name:read(raw,"name"),
+    group:read(raw,"group"),
+    initials:read(raw,"initials"),
+    path:read(raw,"path")
+  })).filter(entry=>entry.id&&entry.path);
+
+  if(!entries.length)throw new Error("No valid character entries were found.");
+  return {start,arrayStart,close,entries};
+}
+function registryEntryText(entry){
+  return `    {
+      id:${jsString(entry.id)},
+      name:${jsString(entry.name)},
+      group:${jsString(entry.group||"")},
+      initials:${jsString(entry.initials||"")},
+      path:${jsString(entry.path)}
+    }`;
+}
+function buildManagedRegistry(){
+  if(!registryManagerSource)throw new Error("Load character_list.js first.");
+  if(!registryManagerEntries.length)throw new Error("The registry cannot be empty.");
+  const parsed=parseRegistryDirectory(registryManagerSource);
+  const directory=registryManagerEntries.map(registryEntryText).join(",\n");
+  return registryManagerSource.slice(0,parsed.arrayStart)+"\n"+directory+"\n  "+registryManagerSource.slice(parsed.close);
+}
+function renderRegistryManager(){
+  const list=$("registryList");
+  if(!list)return;
+  list.replaceChildren();
+  $("registryCount").textContent=`${registryManagerEntries.length} character${registryManagerEntries.length===1?"":"s"}`;
+
+  if(!registryManagerEntries.length){
+    const empty=document.createElement("div");
+    empty.className="registry-empty";
+    empty.textContent="No characters in registry.";
+    list.appendChild(empty);
+    return;
+  }
+
+  registryManagerEntries.forEach((entry,index)=>{
+    const row=document.createElement("div");
+    row.className="registry-row";
+
+    const order=document.createElement("div");
+    order.className="registry-order";
+    const up=document.createElement("button");
+    up.type="button";up.textContent="↑";up.title="Move up";up.disabled=index===0;
+    const down=document.createElement("button");
+    down.type="button";down.textContent="↓";down.title="Move down";down.disabled=index===registryManagerEntries.length-1;
+    up.onclick=()=>{[registryManagerEntries[index-1],registryManagerEntries[index]]=[registryManagerEntries[index],registryManagerEntries[index-1]];renderRegistryManager()};
+    down.onclick=()=>{[registryManagerEntries[index+1],registryManagerEntries[index]]=[registryManagerEntries[index],registryManagerEntries[index+1]];renderRegistryManager()};
+    order.append(up,down);
+
+    const name=document.createElement("input");
+    name.type="text";name.value=entry.name;name.placeholder="Character name";
+    name.oninput=()=>entry.name=name.value;
+
+    const group=document.createElement("input");
+    group.type="text";group.value=entry.group||"";group.placeholder="Group";
+    group.className="registry-group";
+    group.oninput=()=>entry.group=group.value;
+
+    const initialsInput=document.createElement("input");
+    initialsInput.type="text";initialsInput.value=entry.initials||"";initialsInput.placeholder="Initials";initialsInput.maxLength=4;
+    initialsInput.oninput=()=>entry.initials=initialsInput.value.toUpperCase();
+
+    const meta=document.createElement("div");
+    meta.className="registry-meta";
+    const idLine=document.createElement("code");idLine.textContent=`ID: ${entry.id}`;
+    const pathLine=document.createElement("code");pathLine.textContent=`${entry.path}`;
+    meta.append(idLine,pathLine);
+    const remove=document.createElement("button");
+    remove.type="button";remove.className="registry-remove";remove.textContent="Remove";
+    remove.onclick=()=>{
+      const name=entry.name||entry.id;
+      if(!confirm(`Remove ${name} from character_list.js? This does not delete the character folder.`))return;
+      registryManagerEntries.splice(index,1);
+      renderRegistryManager();
+    };
+
+    row.append(order,name,group,initialsInput,meta,remove);
+    list.appendChild(row);
+  });
+}
+function showCharacterEditorSections(show){
+  for(const id of ["identityStructureCard","registryCard","characterNamesCard","paletteCard","dialogueCard","generateCard"]){
+    const node=$(id);
+    if(node)node.hidden=!show;
+  }
+}
+$("registryModeBtn").addEventListener("click",()=>setMode("registry"));
+$("registryManagerFile").addEventListener("change",async event=>{
+  const file=event.target.files?.[0];
+  if(!file){
+    registryManagerSource="";
+    registryManagerEntries=[];
+    $("registryManager").hidden=true;
+    $("registryManagerStatus").textContent="Choose a character_list.js to manage.";
+    return;
+  }
+  try{
+    registryManagerSource=await file.text();
+    registryManagerEntries=parseRegistryDirectory(registryManagerSource).entries;
+    renderRegistryManager();
+    $("registryManager").hidden=false;
+    $("registryManagerStatus").textContent=`Loaded ${file.name}. IDs and paths are locked; visible registry fields can be edited.`;
+    $("registryManagerStatus").className="status ok";
+  }catch(error){
+    registryManagerSource="";
+    registryManagerEntries=[];
+    $("registryManager").hidden=true;
+    $("registryManagerStatus").textContent=error?.message||String(error);
+    $("registryManagerStatus").className="status bad";
+  }
+});
+$("sortRegistryNameBtn").addEventListener("click",()=>{
+  registryManagerEntries.sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),undefined,{sensitivity:"base"}));
+  renderRegistryManager();
+});
+$("sortRegistryGroupBtn").addEventListener("click",()=>{
+  registryManagerEntries.sort((a,b)=>{
+    const groupA=String(a.group||"").trim();
+    const groupB=String(b.group||"").trim();
+
+    if(!groupA&&groupB)return 1;
+    if(groupA&&!groupB)return -1;
+
+    const groupCompare=groupA.localeCompare(groupB,undefined,{sensitivity:"base"});
+    if(groupCompare!==0)return groupCompare;
+
+    return String(a.name||"").localeCompare(String(b.name||""),undefined,{sensitivity:"base"});
+  });
+  renderRegistryManager();
+});
+$("downloadRegistryBtn").addEventListener("click",()=>{
+  try{
+    const updated=buildManagedRegistry();
+    downloadText(updated,"character_list.js");
+    $("registryManagerStatus").textContent="Created the updated character_list.js.";
+    $("registryManagerStatus").className="status ok";
+  }catch(error){
+    $("registryManagerStatus").textContent=error?.message||String(error);
+    $("registryManagerStatus").className="status bad";
+  }
+});
+
+
+function hasProperty(source,name){
+  return new RegExp(`\\b${escapeRegExp(name)}\\s*:`).test(source);
+}
+function hasConst(source,name){
+  return new RegExp(`\\bconst\\s+${escapeRegExp(name)}\\s*=`).test(source);
+}
+function auditIdentity(entry,isMultiple){
+  const issues=[];
+  const body=entry.body;
+  const display=matchValue(body,/\bshortName\s*:\s*(["'`][\s\S]*?["'`])\s*,/)
+    ||matchValue(body,/\bname\s*:\s*(["'`][\s\S]*?["'`])\s*,/)
+    ||entry.key;
+
+  for(const required of ["name","shortName","initials","quickReplies","episodeAbandon","colors"]){
+    if(!hasProperty(body,required))issues.push(`${display}: missing identity field "${required}".`);
+  }
+
+  const colors=extractColors(body);
+  for(const required of ["bg","panel","panel2","ink","muted","secondary","danger","cyan","line"]){
+    if(!colors[required])issues.push(`${display}: missing display color "${required}".`);
+  }
+
+  if(!extractArrayStrings(body,"quickReplies").length){
+    issues.push(`${display}: quickReplies is empty.`);
+  }
+
+  if(isMultiple){
+    for(const required of ["keyphrase","transitionLabel","switchMessage","coreBelief"]){
+      if(!hasProperty(body,required))issues.push(`${display}: multiple-identity field "${required}" is missing.`);
+    }
+  }
+
+  return issues;
+}
+function auditCharacterSource(source,fileName){
+  const errors=[];
+  const warnings=[];
+  const notes=[];
+
+  const schema=readSchemaVersion(source)||"";
+  const profile=matchValue(source,/const\s+PROFILE_NAME\s*=\s*(["'`][\s\S]*?["'`])\s*;/);
+  const companion=matchValue(source,/const\s+COMPANION_NAME\s*=\s*(["'`][\s\S]*?["'`])\s*;/);
+  const chatName=matchValue(source,/const\s+CHAT_NAME\s*=\s*(["'`][\s\S]*?["'`])\s*;/);
+  const id=matchValue(source,/\bid\s*:\s*(["'`][\s\S]*?["'`])\s*,/);
+  const defaultIdentity=matchValue(source,/defaultIdentity\s*:\s*(["'`][\s\S]*?["'`])\s*,/);
+  const identitiesObject=extractNamedObject(source,"identities");
+  const identityEntries=identitiesObject?topLevelObjectEntries(identitiesObject.body):[];
+  const identityCount=identityEntries.length;
+  const type=identityCount>1?"multiple":identityCount===1?"single":"unknown";
+
+  if(!schema){
+    warnings.push(`No schemaVersion marker; current schema is v${CHARACTER_SCHEMA_VERSION}.`);
+  }else{
+    const comparison=compareVersions(schema,CHARACTER_SCHEMA_VERSION);
+    if(comparison<0)warnings.push(`Schema v${schema} is older than current v${CHARACTER_SCHEMA_VERSION}.`);
+    if(comparison>0)warnings.push(`Schema v${schema} is newer than this generator's v${CHARACTER_SCHEMA_VERSION}.`);
+  }
+
+  if(!hasConst(source,"PROFILE_NAME"))errors.push('Missing const PROFILE_NAME.');
+  if(!hasConst(source,"COMPANION_NAME"))errors.push('Missing const COMPANION_NAME.');
+  if(!profile)errors.push("PROFILE_NAME is empty or unreadable.");
+  if(!companion)errors.push("COMPANION_NAME is empty or unreadable.");
+  if(!id)errors.push('Missing or unreadable character "id".');
+  if(!defaultIdentity)errors.push("Missing or unreadable defaultIdentity.");
+  if(!hasProperty(source,"services"))errors.push('Missing "services" configuration.');
+  if(!hasProperty(source,"memory"))errors.push('Missing "memory" configuration.');
+  if(!hasProperty(source,"startup"))errors.push('Missing "startup" configuration.');
+  if(!hasProperty(source,"episode"))errors.push('Missing "episode" configuration.');
+  if(!identitiesObject||!identityCount)errors.push('Missing or empty "identities" configuration.');
+  if(!hasProperty(source,"missingBankGuidance"))errors.push('Missing "missingBankGuidance" configuration.');
+  if(!/window\.CompanionCharacter\s*=/.test(source))errors.push("File never assigns window.CompanionCharacter.");
+
+  if(!/messageBankCompanion\s*:\s*COMPANION_NAME\b/.test(source)){
+    warnings.push("messageBankCompanion is not wired to COMPANION_NAME.");
+  }
+  if(!/profileCharacter\s*:\s*PROFILE_NAME\b/.test(source)){
+    warnings.push("profileCharacter is not wired to PROFILE_NAME.");
+  }
+
+  if(type==="single"){
+    if(!hasConst(source,"CHAT_NAME"))errors.push("Single-identity character is missing const CHAT_NAME.");
+    if(chatName&&defaultIdentity&&slug(chatName)!==defaultIdentity){
+      warnings.push(`defaultIdentity "${defaultIdentity}" does not match CHAT_NAME "${chatName}" when slugged.`);
+    }
+  }
+
+  if(type==="multiple"){
+    if(hasConst(source,"CHAT_NAME"))warnings.push("Multiple-identity character has a global CHAT_NAME; current multiple-identity structure does not use one.");
+    if(!hasProperty(source,"identityAwareness"))warnings.push('Multiple-identity character is missing "identityAwareness".');
+  }
+
+  if(defaultIdentity&&identityEntries.length&&!identityEntries.some(entry=>entry.key===defaultIdentity)){
+    errors.push(`defaultIdentity "${defaultIdentity}" does not exist in identities.`);
+  }
+
+  for(const entry of identityEntries){
+    errors.push(...auditIdentity(entry,type==="multiple"));
+  }
+
+  if(/\bcompanionModeLabel\s*:/.test(source)){
+    warnings.push('Old/dead field "companionModeLabel" is still present.');
+  }
+  if(/["'`]\$\{CHAT_NAME\}["'`]/.test(source)){
+    warnings.push('Literal "${CHAT_NAME}" text found; this may be the old generator placeholder bug.');
+  }
+  if(/FIRST LIVE CHARACTER TEST/i.test(source)){
+    warnings.push("Old test-file marker/comment is still present.");
+  }
+
+  const uniqueKeys=new Set(identityEntries.map(entry=>entry.key));
+  if(uniqueKeys.size!==identityEntries.length){
+    errors.push("Duplicate identity keys detected.");
+  }
+
+  if(type==="multiple"){
+    notes.push(`${identityCount} identities detected.`);
+  }else if(type==="single"){
+    notes.push("Single identity detected.");
+  }
+
+  let status="current";
+  if(errors.length){
+    status="invalid";
+  }else if(!schema||compareVersions(schema,CHARACTER_SCHEMA_VERSION)<0){
+    status="outdated";
+  }else if(compareVersions(schema,CHARACTER_SCHEMA_VERSION)>0||warnings.length){
+    status="unusual";
+  }
+
+  return {
+    fileName,
+    profile:profile||"(unknown character)",
+    companion:companion||"",
+    id:id||"(unknown id)",
+    schema:schema||"none",
+    type,
+    identityCount,
+    status,
+    errors,
+    warnings,
+    notes
+  };
+}
+function renderAuditReports(){
+  const results=$("auditResults");
+  results.replaceChildren();
+
+  const counts={current:0,outdated:0,invalid:0,unusual:0};
+  for(const report of auditReports)counts[report.status]=(counts[report.status]||0)+1;
+  $("auditCurrentCount").textContent=counts.current;
+  $("auditOutdatedCount").textContent=counts.outdated;
+  $("auditInvalidCount").textContent=counts.invalid;
+  $("auditUnusualCount").textContent=counts.unusual;
+
+  if(!auditReports.length){
+    const empty=document.createElement("div");
+    empty.className="audit-empty";
+    empty.textContent="No audit results.";
+    results.append(empty);
+    return;
+  }
+
+  for(const report of auditReports){
+    const card=document.createElement("article");
+    card.className="audit-card";
+
+    const head=document.createElement("div");
+    head.className="audit-card-head";
+
+    const title=document.createElement("div");
+    title.className="audit-card-title";
+    const strong=document.createElement("strong");
+    strong.textContent=report.profile;
+    const small=document.createElement("small");
+    small.textContent=`${report.id} · ${report.fileName}`;
+    title.append(strong,small);
+
+    const badge=document.createElement("span");
+    badge.className=`audit-badge ${report.status}`;
+    badge.textContent=report.status.toUpperCase();
+    head.append(title,badge);
+
+    const details=document.createElement("div");
+    details.className="audit-details";
+
+    const meta=document.createElement("div");
+    meta.className="audit-meta";
+    for(const value of [`schema: ${report.schema}`,`type: ${report.type}`,`identities: ${report.identityCount}`]){
+      const span=document.createElement("span");
+      span.textContent=value;
+      meta.append(span);
+    }
+    details.append(meta);
+
+    const issues=[...report.errors.map(text=>`ERROR — ${text}`),...report.warnings.map(text=>`WARNING — ${text}`)];
+    if(issues.length){
+      const list=document.createElement("ul");
+      list.className="audit-issues";
+      for(const issue of issues){
+        const item=document.createElement("li");
+        item.textContent=issue;
+        list.append(item);
+      }
+      details.append(list);
+    }else{
+      const ok=document.createElement("div");
+      ok.className="audit-ok";
+      ok.textContent="No schema or structure issues detected.";
+      details.append(ok);
+    }
+
+    for(const noteText of report.notes){
+      const note=document.createElement("div");
+      note.className="audit-meta";
+      note.textContent=noteText;
+      details.append(note);
+    }
+
+    card.append(head,details);
+    results.append(card);
+  }
+}
+function applyBatchAuditChecks(reports){
+  const ids=new Map();
+  for(const report of reports){
+    if(!report.id||report.id==="(unknown id)")continue;
+    if(!ids.has(report.id))ids.set(report.id,[]);
+    ids.get(report.id).push(report);
+  }
+
+  for(const [id,matches] of ids){
+    if(matches.length<2)continue;
+    for(const report of matches){
+      report.warnings.push(`Duplicate character ID "${id}" appears in this audit batch.`);
+      if(report.status==="current")report.status="unusual";
+    }
+  }
+}
+$("auditModeBtn").addEventListener("click",()=>setMode("audit"));
+$("auditFiles").addEventListener("change",async event=>{
+  const files=[...(event.target.files||[])];
+  auditReports=[];
+
+  if(!files.length){
+    $("auditManager").hidden=true;
+    $("auditStatus").textContent="Choose one or more character.js files to audit.";
+    $("auditStatus").className="status";
+    return;
+  }
+
+  try{
+    for(const file of files){
+      const source=await file.text();
+      auditReports.push(auditCharacterSource(source,file.name||"character.js"));
+    }
+    applyBatchAuditChecks(auditReports);
+    auditReports.sort((a,b)=>{
+      const order={invalid:0,outdated:1,unusual:2,current:3};
+      return (order[a.status]-order[b.status])||String(a.profile).localeCompare(String(b.profile),undefined,{sensitivity:"base"});
+    });
+    renderAuditReports();
+    $("auditManager").hidden=false;
+    $("auditStatus").textContent=`Audited ${auditReports.length} character file${auditReports.length===1?"":"s"} against schema v${CHARACTER_SCHEMA_VERSION}. No files were modified.`;
+    $("auditStatus").className="status ok";
+  }catch(error){
+    auditReports=[];
+    $("auditManager").hidden=true;
+    $("auditStatus").textContent=error?.message||String(error);
+    $("auditStatus").className="status bad";
+  }
+});
+
+function setMode(mode){
+  editorMode=mode==="edit"?"edit":mode==="registry"?"registry":mode==="audit"?"audit":"new";
+  $("newModeBtn").classList.toggle("mode-active",editorMode==="new");
+  $("editModeBtn").classList.toggle("mode-active",editorMode==="edit");
+  $("registryModeBtn").classList.toggle("mode-active",editorMode==="registry");
+  $("auditModeBtn").classList.toggle("mode-active",editorMode==="audit");
+  $("editLoader").hidden=editorMode!=="edit";
+  $("registryManagerLoader").hidden=editorMode!=="registry";
+  $("auditLoader").hidden=editorMode!=="audit";
+
+  const toolMode=editorMode==="registry"||editorMode==="audit";
+  showCharacterEditorSections(!toolMode);
+  if(toolMode){
+    $("registryCard").hidden=true;
+    setStatus(editorMode==="registry"
+      ?"Registry Manager is active. Character creation/edit fields are hidden."
+      :"Schema Audit is active. Character files are checked without being modified.");
+    return;
+  }
+
+  $("registryCard").hidden=editorMode==="edit";
+  $("generateHeading").textContent=editorMode==="edit"?"5. Export Updated Character":"5. Generate";
+  $("generateBtn").textContent=editorMode==="edit"?"Download updated character.js":"Create patch ZIP";
+  if(editorMode==="edit")showSchemaStatus(loadedSchemaVersion,{fileLoaded:Boolean(existingCharacterText)});
+  setStatus(editorMode==="edit"
+    ?"Choose an existing character.js to load its editable settings."
+    :"Load character_list.js and fill in the character names.");
+}
+$("newModeBtn").addEventListener("click",()=>setMode("new"));
+$("editModeBtn").addEventListener("click",()=>setMode("edit"));
+
+function unquoteJsString(raw){
+  raw=String(raw||"").trim();
+  if(!raw)return "";
+  if(raw[0]==='"'){
+    try{return JSON.parse(raw)}catch{}
+  }
+  if(raw[0]==="'"){
+    return raw.slice(1,-1)
+      .replace(/\\'/g,"'")
+      .replace(/\\\\/g,"\\")
+      .replace(/\\n/g,"\n")
+      .replace(/\\r/g,"\r")
+      .replace(/\\t/g,"\t");
+  }
+  if(raw[0]==="`"){
+    return raw.slice(1,-1)
+      .replace(/\\`/g,"`")
+      .replace(/\\\\/g,"\\");
+  }
+  return raw;
+}
+function matchValue(source,pattern,fallback=""){
+  const m=source.match(pattern);
+  return m?unquoteJsString(m[1]):fallback;
+}
+function extractBlock(source,startPattern){
+  const startMatch=startPattern.exec(source);
+  if(!startMatch)return "";
+  const braceStart=source.indexOf("{",startMatch.index+startMatch[0].length-1);
+  if(braceStart<0)return "";
+  let depth=0,quote=null,escaped=false;
+  for(let i=braceStart;i<source.length;i++){
+    const ch=source[i];
+    if(quote){
+      if(escaped){escaped=false;continue}
+      if(ch==="\\"){escaped=true;continue}
+      if(ch===quote)quote=null;
+      continue;
+    }
+    if(ch==='"'||ch==="'"||ch==="`"){quote=ch;continue}
+    if(ch==="{")depth++;
+    else if(ch==="}"&&--depth===0)return source.slice(braceStart+1,i);
+  }
+  return "";
+}
+function extractArrayStrings(source,propertyName){
+  const re=new RegExp(propertyName+"\\s*:\\s*\\[([\\s\\S]*?)\\]","m");
+  const m=source.match(re);
+  if(!m)return [];
+  const values=[];
+  const token=/(["'`])((?:\\.|(?!\1)[\s\S])*?)\1/g;
+  let t;
+  while((t=token.exec(m[1])))values.push(unquoteJsString(t[0]));
+  return values;
+}
+function extractColors(source){
+  const block=extractBlock(source,/colors\s*:\s*\{/m);
+  const result={};
+  if(!block)return result;
+  const re=/\b(bg|panel|panel2|ink|muted|accent|secondary|danger|cyan|line)\s*:\s*(["'`][\s\S]*?["'`])/g;
+  let m;
+  while((m=re.exec(block)))result[m[1]]=unquoteJsString(m[2]);
+  return result;
+}
+function normalizeEditableDialogue(value){
+  return String(value||"")
+    .replace(/\$\{CHAT_NAME\}/g,"{display}")
+    .replace(/\$\{PROFILE_NAME\}/g,"{profile}")
+    .replace(/\$\{COMPANION_NAME\}/g,"{companion}");
+}
+
+function populateFromExisting(source){
+  const profile=matchValue(source,/const\s+PROFILE_NAME\s*=\s*(["'`][\s\S]*?["'`])\s*;/);
+  let companion=matchValue(source,/const\s+COMPANION_NAME\s*=\s*(["'`][\s\S]*?["'`])\s*;/);
+  const display=matchValue(source,/const\s+CHAT_NAME\s*=\s*(["'`][\s\S]*?["'`])\s*;/);
+  if(!companion&&profile)companion=profile.split(/\s+/)[0]||profile;
+  const id=matchValue(source,/\bid\s*:\s*(["'`][\s\S]*?["'`])\s*,/);
+  const init=matchValue(source,/\binitials\s*:\s*(["'`][\s\S]*?["'`])\s*,/);
+
+  const parsedIdentityCheck=parseIdentityDrafts(source);
+  if(!profile||!id||(!display&&parsedIdentityCheck.length<2))throw new Error("This character.js does not match a supported current companion format.");
+
+  $("profileName").value=profile;
+  $("companionName").value=companion||profile.split(/\s+/)[0]||"";
+  $("displayName").value=display||parsedIdentityCheck[0]?.display||"";
+  $("characterId").value=id;
+  $("initials").value=init||makeInitials(profile);
+
+  const colors=extractColors(source);
+  for(const [key] of colorDefs){
+    const value=colors[key]||"";
+    $(`text_${key}`).value=value;
+    if(/^#[0-9a-f]{6}$/i.test(value))$(`color_${key}`).value=value;
+  }
+
+  const startup=matchValue(source,/fallbackMessage\s*:\s*(["'`][\s\S]*?["'`])\s*[},]/);
+  const selection=matchValue(source,/selectionPrompt\s*:\s*(["'`][\s\S]*?["'`])\s*,/);
+  const offer=matchValue(source,/offerPromptTemplate\s*:\s*(["'`][\s\S]*?["'`])\s*[},]/);
+  const abandon=matchValue(source,/episodeAbandon\s*:\s*\{\s*message\s*:\s*(["'`][\s\S]*?["'`])\s*\}/);
+  const quick=extractArrayStrings(source,"quickReplies");
+
+  const missingBlock=extractBlock(source,/missingBankGuidance\s*:\s*\{/m);
+  let missing=[];
+  if(missingBlock){
+    const arrayMatch=missingBlock.match(/\w+\s*:\s*\[([\s\S]*?)\]/);
+    if(arrayMatch){
+      const token=/(["'`])((?:\\.|(?!\1)[\s\S])*?)\1/g;
+      let t;
+      while((t=token.exec(arrayMatch[1])))missing.push(unquoteJsString(t[0]));
+    }
+  }
+
+  $("startupMessage").value=normalizeEditableDialogue(startup)||"Connection established. {display} is online.";
+  $("quickReplies").value=(quick.length?quick:["Hello","How are you?"]).map(normalizeEditableDialogue).join("\n");
+  $("episodeSelection").value=normalizeEditableDialogue(selection)||"Which conversation did you mean?";
+  $("episodeOffer").value=normalizeEditableDialogue(offer)||"I have more to say about {trigger}. Do you want to continue?";
+  $("episodeAbandon").value=normalizeEditableDialogue(abandon)||"Okay. We can leave that conversation there.";
+  $("missingBank").value=(missing.length?missing:["The remote dialogue archive is unavailable right now."]).map(normalizeEditableDialogue).join("\n");
+
+  const parsedIdentities=parseIdentityDrafts(source);
+  if(parsedIdentities.length>1){
+    parseMissingGuidance(source,parsedIdentities);
+    loadedIdentityAwareness=parseIdentityAwareness(source);
+    identityDrafts=parsedIdentities.map(draft=>({
+      ...defaultIdentityDraft(draft.display),
+      ...draft,
+      quickReplies:draft.quickReplies.length?draft.quickReplies:defaultIdentityDraft(draft.display).quickReplies,
+      missingBank:draft.missingBank.length?draft.missingBank:["The remote dialogue archive is unavailable right now."]
+    }));
+    activeIdentityIndex=Math.max(0,identityDrafts.findIndex(item=>item.key===matchValue(source,/defaultIdentity\s*:\s*(["'`][\s\S]*?["'`])\s*,/)));
+    setIdentityMode("multiple",{preserve:true});
+    loadIdentityDraft(activeIdentityIndex);
+  }else{
+    loadedIdentityAwareness={};
+    setIdentityMode("single",{preserve:true});
+    refresh();
+  }
+}
+
+$("existingCharacterFile").addEventListener("change",async e=>{
+  const file=e.target.files?.[0];
+  if(!file){existingCharacterText="";loadedSchemaVersion=null;showSchemaStatus(null,{fileLoaded:false});return}
+  try{
+    existingCharacterText=await file.text();
+    existingCharacterFileName=file.name||"character.js";
+    loadedSchemaVersion=readSchemaVersion(existingCharacterText)||null;
+    populateFromExisting(existingCharacterText);
+    showSchemaStatus(loadedSchemaVersion,{fileLoaded:true});
+
+    let schemaNote="";
+    if(!loadedSchemaVersion){
+      schemaNote=` No schema marker was found; export will upgrade it to v${CHARACTER_SCHEMA_VERSION}.`;
+    }else{
+      const comparison=compareVersions(loadedSchemaVersion,CHARACTER_SCHEMA_VERSION);
+      if(comparison<0)schemaNote=` Schema v${loadedSchemaVersion} will be upgraded to v${CHARACTER_SCHEMA_VERSION}.`;
+      if(comparison>0)schemaNote=` Schema v${loadedSchemaVersion} is newer than this generator; export is blocked.`;
+    }
+
+    setStatus(`Loaded ${existingCharacterFileName}.${schemaNote}`,true);
+  }catch(error){
+    existingCharacterText="";
+    loadedSchemaVersion=null;
+    showSchemaStatus(null,{fileLoaded:false});
+    setStatus(error?.message||String(error),false,true);
+  }
+});
+
+$("registryFile").addEventListener("change",async e=>{
+  const file=e.target.files?.[0];
+  if(!file){registryText="";return}
+  registryText=await file.text();
+  setStatus(`Loaded ${file.name}.`,true);
+});
+
+$("profileName").addEventListener("input",()=>{
+  const name=$("profileName").value;
+  $("characterId").value=slug(name);
+  $("initials").value=makeInitials(name);
+  refresh();
+});
+$("displayName").addEventListener("input",()=>{if(identityMode==="multiple")captureActiveIdentity();refresh()});
+["companionName","characterId","initials"].forEach(id=>$(id).addEventListener("input",refresh));
+
+
+function getPalette(){
+  const result={};
+  for(const [key] of colorDefs){
+    const value=$(`text_${key}`).value.trim();
+    if(value)result[key]=value;
+  }
+  return result;
+}
+function refreshPreview(){
+  const p=getPalette();
+  const preview=$("companionPreview");
+  if(!preview)return;
+
+  const fallback=(...values)=>values.find(Boolean)||"#777";
+  preview.style.setProperty("--p-bg",p.bg||"#090a0f");
+  preview.style.setProperty("--p-panel",p.panel||p.bg||"#11141d");
+  preview.style.setProperty("--p-panel2",p.panel2||p.panel||p.bg||"#181d2a");
+  preview.style.setProperty("--p-ink",p.ink||"#f1f3f8");
+  preview.style.setProperty("--p-muted",p.muted||p.ink||"#9ba3b5");
+  preview.style.setProperty("--p-violet",p.accent||p.secondary||p.cyan||p.line||p.ink||"#8c72dc");
+  preview.style.setProperty("--p-blue",p.secondary||p.accent||p.cyan||p.line||p.ink||"#777d91");
+  preview.style.setProperty("--p-red",p.danger||p.secondary||p.muted||p.line||"#8e8698");
+  preview.style.setProperty("--p-cyan",p.cyan||p.secondary||p.accent||p.ink||"#b6b9c7");
+  preview.style.setProperty("--p-line",p.line||p.muted||p.secondary||"#373c4a");
+
+  const sigilA=fallback(p.accent,p.secondary,p.cyan,p.line,p.ink);
+  const sigilB=fallback(p.secondary,p.cyan,p.line,p.accent,p.ink);
+  const sigilC=fallback(p.cyan,p.line,p.secondary,p.accent,p.ink);
+  const sigilD=fallback(p.line,p.muted,p.secondary,p.cyan,p.accent,p.ink);
+  preview.style.setProperty("--p-sigil-a",sigilA);
+  preview.style.setProperty("--p-sigil-b",sigilB);
+  preview.style.setProperty("--p-sigil-c",sigilC);
+  preview.style.setProperty("--p-sigil-d",sigilD);
+}
+function refresh(){
+  const id=slug($("characterId").value);
+  $("pathsPreview").textContent=`character_list.js
+characters/${id||"<id>"}/character.js
+characters/${id||"<id>"}/episodes/episode_list.json`;
+  const display=$("displayName").value||$("profileName").value||"CHARACTER";
+  const profile=$("profileName").value||display;
+  const init=$("initials").value||makeInitials(profile)||"--";
+  $("previewName").textContent=profile.toUpperCase();
+  $("previewMonogram").textContent=init.toUpperCase();
+  $("previewSigil").textContent=init.slice(0,2).toUpperCase();
+  $("previewChannel").textContent=(identityMode==="multiple"?display:profile).toUpperCase();
+  $("previewChannelLine").textContent=`channel: ${identityMode==="multiple"?slug(display):(id||"character")} // online`;
+  $("previewSpeaker").textContent=`${display.toUpperCase()} // VERIFIED`;
+  if(identityMode==="multiple")updateIdentityStatus();
+  refreshPreview();
+}
+refresh();
+setMode("new");
+setIdentityMode("single");
+
+function dialogueLines(id){
+  return $(id).value
+    .split(/\r?\n/)
+    .map(value=>value.trim())
+    .filter(Boolean);
+}
+function applyDialogueVariables(value,data){
+  return String(value||"")
+    .replaceAll("{display}",data.display)
+    .replaceAll("{profile}",data.profile)
+    .replaceAll("{companion}",data.companion);
+}
+
+function validate(){
+  if(editorMode==="registry")throw new Error("Registry Manager does not generate character packages.");
+  if(editorMode==="audit")throw new Error("Schema Audit does not generate character packages.");
+  if(editorMode==="new"&&!registryText.trim())throw new Error("Select the current character_list.js first.");
+  if(editorMode==="edit"&&!existingCharacterText.trim())throw new Error("Select an existing character.js first.");
+  if(editorMode==="edit"&&loadedSchemaVersion&&compareVersions(loadedSchemaVersion,CHARACTER_SCHEMA_VERSION)>0){
+    throw new Error(`This character uses schema v${loadedSchemaVersion}, which is newer than generator schema v${CHARACTER_SCHEMA_VERSION}. Update the generator before editing it.`);
+  }
+  const data={
+    profile:$("profileName").value.trim(),
+    companion:$("companionName").value.trim(),
+    display:$("displayName").value.trim(),
+    id:slug($("characterId").value),
+    init:$("initials").value.trim().toUpperCase(),
+    palette:getPalette(),
+    identityMode,
+    identities:[],
+    dialogue:{
+      startup:$("startupMessage").value.trim(),
+      quickReplies:dialogueLines("quickReplies"),
+      episodeSelection:$("episodeSelection").value.trim(),
+      episodeOffer:$("episodeOffer").value.trim(),
+      episodeAbandon:$("episodeAbandon").value.trim(),
+      missingBank:dialogueLines("missingBank")
+    }
+  };
+  if(identityMode==="multiple"){
+    captureActiveIdentity();
+    data.identities=identityDrafts.map((draft,index)=>({
+      ...draft,
+      key:slug(draft.display),
+      display:String(draft.display||"").trim(),
+      initials:String(draft.initials||"").trim().toUpperCase()
+    }));
+    if(data.identities.length<2)throw new Error("Multiple-identity characters need at least two identities.");
+    for(const [index,identity] of data.identities.entries()){
+      if(!identity.display)throw new Error(`Identity ${index+1} needs a name.`);
+      if(!identity.key)throw new Error(`Identity ${index+1} needs a valid identity key.`);
+      if(!identity.initials)throw new Error(`Identity ${index+1} needs initials.`);
+      if(!identity.quickReplies?.length)throw new Error(`${identity.display} needs at least one quick reply.`);
+      if(!identity.episodeAbandon)throw new Error(`${identity.display} needs an episode-abandon response.`);
+      if(!identity.missingBank?.length)throw new Error(`${identity.display} needs at least one missing-bank response.`);
+    }
+    const keys=data.identities.map(item=>item.key);
+    if(new Set(keys).size!==keys.length)throw new Error("Each identity needs a unique name/key.");
+    data.display=data.identities[0].display;
+    data.init=data.identities[0].initials;
+  }
+  if(!data.profile)throw new Error("Full character name is required.");
+  if(!data.companion)throw new Error("Companion name is required.");
+  if(identityMode==="single"&&!data.display)throw new Error("Display name / Identity is required.");
+  if(!data.id)throw new Error("Character ID is required.");
+  if(identityMode==="single"&&!data.init)throw new Error("Initials are required.");
+  if(!data.dialogue.startup)throw new Error("Startup fallback is required.");
+  if(identityMode==="single"&&!data.dialogue.quickReplies.length)throw new Error("Add at least one quick reply.");
+  if(!data.dialogue.episodeSelection)throw new Error("Episode selection prompt is required.");
+  if(!data.dialogue.episodeOffer)throw new Error("Episode offer prompt is required.");
+  if(identityMode==="single"&&!data.dialogue.episodeAbandon)throw new Error("Episode abandon response is required.");
+  if(identityMode==="single"&&!data.dialogue.missingBank.length)throw new Error("Add at least one missing-bank fallback response.");
+  if(editorMode==="new"&&new RegExp(`\\bid\\s*:\\s*["']${escapeRegExp(data.id)}["']`).test(registryText))
+    throw new Error(`character_list.js already contains "${data.id}".`);
+  return data;
+}
+
+function buildRegistry(data){
+  const marker="const directory=[";
+  const start=registryText.indexOf(marker);
+  if(start<0)throw new Error('Could not find "const directory=[" in character_list.js.');
+  const arrayStart=start+marker.length;
+  const close=registryText.indexOf("];",arrayStart);
+  if(close<0)throw new Error("Could not find the end of the character directory.");
+  const before=registryText.slice(0,close).replace(/\s+$/,"");
+  const body=registryText.slice(arrayStart,close).trim();
+  const comma=body?",":"";
+  const entry=`
+    {
+      id:${jsString(data.id)},
+      name:${jsString(data.profile)},
+      group:"",
+      initials:${jsString(data.init)},
+      path:${jsString(`characters/${data.id}`)}
+    }`;
+  return before+comma+entry+"\n  "+registryText.slice(close);
+}
+
+
+function replaceOne(source,regex,replacement,label){
+  if(!regex.test(source))throw new Error(`Could not locate ${label} in the existing character.js.`);
+  return source.replace(regex,replacement);
+}
+function patchExistingCharacter(source,data){
+  let out=source;
+  const identityKey=slug(data.display);
+  const startup=applyDialogueVariables(data.dialogue.startup,data);
+  const quick=data.dialogue.quickReplies.map(v=>`          ${jsString(applyDialogueVariables(v,data))}`).join(",\n");
+  const selection=applyDialogueVariables(data.dialogue.episodeSelection,data);
+  const offer=applyDialogueVariables(data.dialogue.episodeOffer,data);
+  const abandon=applyDialogueVariables(data.dialogue.episodeAbandon,data);
+  const missing=data.dialogue.missingBank.map(v=>`        ${jsString(applyDialogueVariables(v,data))}`).join(",\n");
+  const colorLines=Object.entries(data.palette).map(([k,v])=>`          ${k}:${jsString(v)}`).join(",\n");
+
+  out=replaceOne(out,/const\s+PROFILE_NAME\s*=\s*(["'`][\s\S]*?["'`])\s*;/,`const PROFILE_NAME=${jsString(data.profile)};`,"PROFILE_NAME");
+
+  if(/const\s+COMPANION_NAME\s*=/.test(out)){
+    out=replaceOne(out,/const\s+COMPANION_NAME\s*=\s*(["'`][\s\S]*?["'`])\s*;/,`const COMPANION_NAME=${jsString(data.companion)};`,"COMPANION_NAME");
+  }else{
+    out=out.replace(
+      /(const\s+PROFILE_NAME\s*=\s*["'`][\s\S]*?["'`]\s*;)/,
+      `$1\n  const COMPANION_NAME=${jsString(data.companion)};`
+    );
+  }
+
+  if(/schemaVersion\s*:/.test(out)){
+    out=replaceOne(out,/schemaVersion\s*:\s*(["'`][\s\S]*?["'`])\s*,/,`schemaVersion:${jsString(CHARACTER_SCHEMA_VERSION)},`,"schemaVersion");
+  }else{
+    out=out.replace(/const definition\s*=\s*\{/,`const definition={\n    schemaVersion:${jsString(CHARACTER_SCHEMA_VERSION)},`);
+  }
+  out=replaceOne(out,/const\s+CHAT_NAME\s*=\s*(["'`][\s\S]*?["'`])\s*;/,`const CHAT_NAME=${jsString(data.display)};`,"CHAT_NAME");
+  out=replaceOne(out,/\bid\s*:\s*(["'`][\s\S]*?["'`])\s*,/,`id:${jsString(data.id)},`,"character id");
+  out=replaceOne(out,/defaultIdentity\s*:\s*(["'`][\s\S]*?["'`])\s*,/,`defaultIdentity:${jsString(identityKey)},`,"defaultIdentity");
+  out=replaceOne(out,/awarenessCompanionId\s*:\s*(["'`][\s\S]*?["'`])\s*,/,`awarenessCompanionId:${jsString(data.id.replace(/_/g,"-"))},`,"awarenessCompanionId");
+  out=replaceOne(out,/fileName\s*:\s*(["'`][\s\S]*?["'`])\s*}/,`fileName:${jsString(data.id+"_memory.json")}}`,"memory filename");
+  out=replaceOne(out,/fallbackMessage\s*:\s*(["'`][\s\S]*?["'`])\s*}/,`fallbackMessage:${jsString(startup)}}`,"startup fallback");
+  out=replaceOne(out,/selectionPrompt\s*:\s*(["'`][\s\S]*?["'`])\s*,/,`selectionPrompt:${jsString(selection)},`,"episode selection prompt");
+  out=replaceOne(out,/offerPromptTemplate\s*:\s*(["'`][\s\S]*?["'`])\s*}/,`offerPromptTemplate:${jsString(offer)}}`,"episode offer prompt");
+  out=replaceOne(out,/\binitials\s*:\s*(["'`][\s\S]*?["'`])\s*,/,`initials:${jsString(data.init)},`,"initials");
+  out=replaceOne(out,/channelLine\s*:\s*(["'`][\s\S]*?["'`])\s*,/,`channelLine:${jsString(`channel: ${data.id} // online`)},`,"channelLine");
+  out=replaceOne(out,/quickReplies\s*:\s*\[[\s\S]*?\]\s*,/,`quickReplies:[\n${quick}\n        ],`,"quick replies");
+  out=replaceOne(out,/episodeAbandon\s*:\s*\{\s*message\s*:\s*(["'`][\s\S]*?["'`])\s*\}/,`episodeAbandon:{message:${jsString(abandon)}}`,"episode abandon response");
+  out=replaceOne(out,/colors\s*:\s*\{[\s\S]*?\n\s*\}/,`colors:{\n${colorLines}\n        }`,"colors");
+
+  const guidanceRe=/missingBankGuidance\s*:\s*\{[\s\S]*?\n\s*\}\s*\n\s*\}/m;
+  const guidance=`missingBankGuidance:{\n      ${identityKey}:[\n${missing}\n      ]\n    }\n  }`;
+  out=replaceOne(out,guidanceRe,guidance,"missing-bank guidance");
+
+  // If identity object key is a plain identifier, rename it with the display identity.
+  const oldDefault=matchValue(source,/defaultIdentity\s*:\s*(["'`][\s\S]*?["'`])\s*,/);
+  if(oldDefault && /^[a-zA-Z_$][\w$]*$/.test(oldDefault) && /^[a-zA-Z_$][\w$]*$/.test(identityKey) && oldDefault!==identityKey){
+    const keyRe=new RegExp(`(identities\\s*:\\s*\\{\\s*)${escapeRegExp(oldDefault)}(\\s*:\\s*\\{)`);
+    out=out.replace(keyRe,`$1${identityKey}$2`);
+  }
+  return out;
+}
+
+
+function identityColorLines(identity){
+  return Object.entries(identity.palette||{}).map(([key,value])=>`          ${key}:${jsString(value)}`).join(",\n");
+}
+function buildIdentityBlock(identity,data){
+  const display=identity.display;
+  const key=identity.key||slug(display);
+  const quick=(identity.quickReplies||[]).map(value=>`          ${jsString(applyDialogueVariables(value,{...data,display}))}`).join(",\n");
+  return `      ${key}:{
+        name:${jsString(display)},
+        shortName:${jsString(display)},
+        initials:${jsString(identity.initials)},
+        brand:"WORLD//LINK",
+        brandSubtitle:"COMPANION TERMINAL",
+        channelTitle:${jsString(display.toUpperCase())},
+        channelLine:${jsString(`channel: ${key} // online`)},
+        speakerLabel:${jsString(`${display.toUpperCase()} // VERIFIED`)},
+        typingLabel:${jsString(`${display.toUpperCase()} // TYPING`)},
+        botStamp:${jsString(display.toUpperCase())},
+        placeholder:${jsString(`Message ${display}…`)},
+        status:"READY",
+        keyphrase:${jsString(identity.keyphrase||`switch to ${display.toLowerCase()}`)},
+        transitionLabel:${jsString(identity.transitionLabel||`Loading ${display}…`)},
+        switchMessage:${jsString(identity.switchMessage||`${display} is active.`)},
+        quickReplies:[
+${quick}
+        ],
+        coreBelief:${jsString(identity.coreBelief||"")},
+        episodeAbandon:{message:${jsString(identity.episodeAbandon)}},
+        colors:{
+${identityColorLines(identity)}
+        }
+      }`;
+}
+function awarenessForIdentities(identities){
+  const keys=identities.map(item=>item.key);
+  return keys.map(from=>{
+    const pairs=keys.filter(to=>to!==from).map(to=>{
+      const preserved=loadedIdentityAwareness?.[from]?.[to]||"You recognize the change.";
+      return `        ${to}:${jsString(preserved)}`;
+    }).join(",\n");
+    return `      ${from}:{\n${pairs}\n      }`;
+  }).join(",\n");
+}
+function buildMultipleCharacter(data){
+  const defaultIdentity=data.identities[0];
+  const identityBlocks=data.identities.map(identity=>buildIdentityBlock(identity,data)).join(",\n\n");
+  const awareness=awarenessForIdentities(data.identities);
+  const guidance=data.identities.map(identity=>{
+    const responses=(identity.missingBank||[]).map(value=>`        ${jsString(applyDialogueVariables(value,{...data,display:identity.display}))}`).join(",\n");
+    return `      ${identity.key}:[\n${responses}\n      ]`;
+  }).join(",\n");
+  const startup=applyDialogueVariables(data.dialogue.startup,{...data,display:defaultIdentity.display});
+  const selection=applyDialogueVariables(data.dialogue.episodeSelection,data);
+  const offer=applyDialogueVariables(data.dialogue.episodeOffer,data);
+
+  return `/* =========================================================
+   CHARACTER PACKAGE — ${data.profile.toUpperCase()} — MULTIPLE IDENTITIES
+   ========================================================= */
+(function(){
+  "use strict";
+
+  const PROFILE_NAME=${jsString(data.profile)};
+  const COMPANION_NAME=${jsString(data.companion)};
+
+  const definition={
+    schemaVersion:${jsString(CHARACTER_SCHEMA_VERSION)},
+    id:${jsString(data.id)},
+    defaultIdentity:${jsString(defaultIdentity.key)},
+
+    services:{
+      awarenessCompanionId:${jsString(data.id.replace(/_/g,"-"))},
+      messageBankCompanion:COMPANION_NAME,
+      profileCharacter:PROFILE_NAME
+    },
+
+    memory:{fileName:${jsString(data.id+"_memory.json")}},
+
+    startup:{fallbackMessage:${jsString(startup)}},
+    idle:{minMs:45000,maxMs:90000},
+
+    episode:{
+      selectionPrompt:${jsString(selection)},
+      offerPromptTemplate:${jsString(offer)}
+    },
+
+    identities:{
+${identityBlocks}
+    },
+
+    identityAwareness:{
+${awareness}
+    },
+
+    missingBankGuidance:{
+${guidance}
+    }
+  };
+
+  function deepFreeze(value){
+    if(!value||typeof value!=="object"||Object.isFrozen(value))return value;
+    Object.freeze(value);
+    for(const item of Object.values(value))deepFreeze(item);
+    return value;
+  }
+  window.CompanionCharacter=deepFreeze(definition);
+})();
+`;
+}
+
+function replaceNamedObject(source,propertyName,replacement){
+  const block=extractNamedObject(source,propertyName);
+  if(!block)throw new Error(`Could not locate ${propertyName} in the existing character.js.`);
+  return source.slice(0,block.start)+replacement+source.slice(block.end);
+}
+function patchExistingMultipleCharacter(source,data){
+  let out=source;
+  const generated=buildMultipleCharacter(data);
+  const generatedIdentities=extractNamedObject(generated,"identities");
+  const generatedAwareness=extractNamedObject(generated,"identityAwareness");
+  const generatedGuidance=extractNamedObject(generated,"missingBankGuidance");
+
+  out=replaceOne(out,/const\s+PROFILE_NAME\s*=\s*(["'`][\s\S]*?["'`])\s*;/,`const PROFILE_NAME=${jsString(data.profile)};`,"PROFILE_NAME");
+  if(/const\s+COMPANION_NAME\s*=/.test(out)){
+    out=replaceOne(out,/const\s+COMPANION_NAME\s*=\s*(["'`][\s\S]*?["'`])\s*;/,`const COMPANION_NAME=${jsString(data.companion)};`,"COMPANION_NAME");
+  }
+  if(/schemaVersion\s*:/.test(out)){
+    out=replaceOne(out,/schemaVersion\s*:\s*(["'`][\s\S]*?["'`])\s*,/,`schemaVersion:${jsString(CHARACTER_SCHEMA_VERSION)},`,"schemaVersion");
+  }
+  out=replaceOne(out,/\bid\s*:\s*(["'`][\s\S]*?["'`])\s*,/,`id:${jsString(data.id)},`,"character id");
+  out=replaceOne(out,/defaultIdentity\s*:\s*(["'`][\s\S]*?["'`])\s*,/,`defaultIdentity:${jsString(data.identities[0].key)},`,"defaultIdentity");
+  out=replaceOne(out,/awarenessCompanionId\s*:\s*(["'`][\s\S]*?["'`])\s*,/,`awarenessCompanionId:${jsString(data.id.replace(/_/g,"-"))},`,"awarenessCompanionId");
+  out=replaceOne(out,/fileName\s*:\s*(["'`][\s\S]*?["'`])\s*}/,`fileName:${jsString(data.id+"_memory.json")}}`,"memory filename");
+
+  const startup=applyDialogueVariables(data.dialogue.startup,{...data,display:data.identities[0].display});
+  out=replaceOne(out,/fallbackMessage\s*:\s*(["'`][\s\S]*?["'`])\s*}/,`fallbackMessage:${jsString(startup)}}`,"startup fallback");
+  out=replaceOne(out,/selectionPrompt\s*:\s*(["'`][\s\S]*?["'`])\s*,/,`selectionPrompt:${jsString(data.dialogue.episodeSelection)},`,"episode selection prompt");
+  out=replaceOne(out,/offerPromptTemplate\s*:\s*(["'`][\s\S]*?["'`])\s*}/,`offerPromptTemplate:${jsString(data.dialogue.episodeOffer)}}`,"episode offer prompt");
+
+  out=replaceNamedObject(out,"identities",`identities:{${generatedIdentities.body}}`);
+  out=replaceNamedObject(out,"identityAwareness",`identityAwareness:{${generatedAwareness.body}}`);
+  out=replaceNamedObject(out,"missingBankGuidance",`missingBankGuidance:{${generatedGuidance.body}}`);
+  return out;
+}
+
+function buildCharacter(data){
+  const identityKey=slug(data.display);
+  const colorLines=Object.entries(data.palette).map(([k,v])=>`          ${k}:${jsString(v)}`).join(",\n");
+  const startup=applyDialogueVariables(data.dialogue.startup,data);
+  const quickReplies=data.dialogue.quickReplies.map(value=>`          ${jsString(applyDialogueVariables(value,data))}`).join(",\n");
+  const episodeSelection=applyDialogueVariables(data.dialogue.episodeSelection,data);
+  const episodeOffer=applyDialogueVariables(data.dialogue.episodeOffer,data);
+  const episodeAbandon=applyDialogueVariables(data.dialogue.episodeAbandon,data);
+  const missingBank=data.dialogue.missingBank.map(value=>`        ${jsString(applyDialogueVariables(value,data))}`).join(",\n");
+  return `/* =========================================================
+   CHARACTER PACKAGE — ${data.profile.toUpperCase()}
+   ========================================================= */
+(function(){
+  "use strict";
+
+  const PROFILE_NAME=${jsString(data.profile)};
+  const COMPANION_NAME=${jsString(data.companion)};
+  const CHAT_NAME=${jsString(data.display)};
+
+  const definition={
+    schemaVersion:${jsString(CHARACTER_SCHEMA_VERSION)},
+    id:${jsString(data.id)},
+    defaultIdentity:${jsString(identityKey)},
+
+    services:{
+      awarenessCompanionId:${jsString(data.id.replace(/_/g,"-"))},
+      messageBankCompanion:COMPANION_NAME,
+      profileCharacter:PROFILE_NAME
+    },
+
+    memory:{fileName:${jsString(data.id+"_memory.json")}},
+
+    startup:{fallbackMessage:${jsString(startup)}},
+    idle:{minMs:45000,maxMs:90000},
+
+    episode:{
+      selectionPrompt:${jsString(episodeSelection)},
+      offerPromptTemplate:${jsString(episodeOffer)}
+    },
+
+    identities:{
+      ${identityKey}:{
+        name:PROFILE_NAME,
+        shortName:CHAT_NAME,
+        initials:${jsString(data.init)},
+        brand:"WORLD//LINK",
+        brandSubtitle:"COMPANION TERMINAL",
+        channelTitle:PROFILE_NAME.toUpperCase(),
+        channelLine:${jsString(`channel: ${data.id} // online`)},
+        speakerLabel:\`\${CHAT_NAME.toUpperCase()} // VERIFIED\`,
+        typingLabel:\`\${CHAT_NAME.toUpperCase()} // TYPING\`,
+        botStamp:CHAT_NAME.toUpperCase(),
+        placeholder:\`Message \${CHAT_NAME}…\`,
+        status:"READY",
+        quickReplies:[
+${quickReplies}
+        ],
+        episodeAbandon:{message:${jsString(episodeAbandon)}},
+        colors:{
+${colorLines}
+        }
+      }
+    },
+
+    missingBankGuidance:{
+      ${identityKey}:[
+${missingBank}
+      ]
+    }
+  };
+
+  function deepFreeze(value){
+    if(!value||typeof value!=="object"||Object.isFrozen(value))return value;
+    Object.freeze(value);
+    for(const item of Object.values(value))deepFreeze(item);
+    return value;
+  }
+  window.CompanionCharacter=deepFreeze(definition);
+})();
+`;
+}
+
+/* Small no-dependency ZIP writer (STORE method). */
+const crcTable=(()=>{
+  const t=new Uint32Array(256);
+  for(let n=0;n<256;n++){
+    let c=n;
+    for(let k=0;k<8;k++)c=(c&1)?(0xedb88320^(c>>>1)):(c>>>1);
+    t[n]=c>>>0;
+  }
+  return t;
+})();
+function crc32(bytes){
+  let c=0xffffffff;
+  for(const b of bytes)c=crcTable[(c^b)&255]^(c>>>8);
+  return (c^0xffffffff)>>>0;
+}
+function dosDateTime(date=new Date()){
+  const year=Math.max(1980,date.getFullYear());
+  return {
+    time:(date.getHours()<<11)|(date.getMinutes()<<5)|(date.getSeconds()>>1),
+    day:((year-1980)<<9)|((date.getMonth()+1)<<5)|date.getDate()
+  };
+}
+function u16(n){const b=new Uint8Array(2);new DataView(b.buffer).setUint16(0,n,true);return b}
+function u32(n){const b=new Uint8Array(4);new DataView(b.buffer).setUint32(0,n>>>0,true);return b}
+function concat(parts){
+  const len=parts.reduce((n,p)=>n+p.length,0),out=new Uint8Array(len);
+  let off=0;for(const p of parts){out.set(p,off);off+=p.length}return out;
+}
+function makeZip(files){
+  const enc=new TextEncoder(),locals=[],centrals=[];let offset=0;const dt=dosDateTime();
+  for(const file of files){
+    const name=enc.encode(file.name.replace(/\\/g,"/"));
+    const data=typeof file.data==="string"?enc.encode(file.data):file.data;
+    const crc=crc32(data);
+    const local=concat([u32(0x04034b50),u16(20),u16(0x0800),u16(0),u16(dt.time),u16(dt.day),
+      u32(crc),u32(data.length),u32(data.length),u16(name.length),u16(0),name,data]);
+    locals.push(local);
+    centrals.push(concat([u32(0x02014b50),u16(20),u16(20),u16(0x0800),u16(0),u16(dt.time),u16(dt.day),
+      u32(crc),u32(data.length),u32(data.length),u16(name.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(offset),name]));
+    offset+=local.length;
+  }
+  const central=concat(centrals);
+  const end=concat([u32(0x06054b50),u16(0),u16(0),u16(files.length),u16(files.length),u32(central.length),u32(offset),u16(0)]);
+  return new Blob([...locals,central,end],{type:"application/zip"});
+}
+function download(blob,name){
+  const url=URL.createObjectURL(blob),a=document.createElement("a");
+  a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+function downloadText(text,name){
+  download(new Blob([text],{type:"text/javascript;charset=utf-8"}),name);
+}
+function setStatus(message,ok=false,bad=false){
+  const s=$("status");s.textContent=message;s.className="status"+(ok?" ok":bad?" bad":"");
+}
+
+$("generateBtn").addEventListener("click",()=>{
+  try{
+    const data=validate();
+    if(editorMode==="edit"){
+      const updated=data.identityMode==="multiple"?patchExistingMultipleCharacter(existingCharacterText,data):patchExistingCharacter(existingCharacterText,data);
+      downloadText(updated,"character.js");
+      setStatus(`Created the updated character.js using schema v${CHARACTER_SCHEMA_VERSION}.`,true);
+      return;
+    }
+
+    const zip=makeZip([
+      {name:"character_list.js",data:buildRegistry(data)},
+      {name:`characters/${data.id}/character.js`,data:data.identityMode==="multiple"?buildMultipleCharacter(data):buildCharacter(data)},
+      {name:`characters/${data.id}/episodes/episode_list.json`,data:JSON.stringify({files:[]},null,2)+"\n"}
+    ]);
+    download(zip,`${data.id}_character_patch.zip`);
+    setStatus(`Created ${data.id}_character_patch.zip\n\nExtract it over the companion root folder.`,true);
+  }catch(error){
+    setStatus(error?.message||String(error),false,true);
+  }
+});
+})();
+</script>
+</body>
+</html>

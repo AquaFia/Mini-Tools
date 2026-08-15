@@ -1,0 +1,44 @@
+{
+  "schema": "companion-episode-v1",
+  "id": "sample_01",
+  "identity": "identity_one",
+  "title": "Sample Episode",
+  "topic": "sample",
+  "coreQuestion": "Does the episode runtime work?",
+  "triggers": [
+    "sample episode",
+    "test episode"
+  ],
+  "openingNode": "sample_opening",
+  "requires": "None",
+  "nodes": {
+    "sample_opening": {
+      "type": "Conversation",
+      "dialogue": "This is a minimal sample episode.",
+      "choices": [
+        {
+          "label": "Finish the sample.",
+          "nextNode": "sample_ending",
+          "requires": "None"
+        }
+      ]
+    },
+    "sample_ending": {
+      "type": "Ending",
+      "dialogue": "The sample episode is complete.",
+      "endingId": "sample_ending",
+      "unlocks": [
+        "sample_complete"
+      ]
+    }
+  },
+  "achievement": {
+    "id": "sample_episode_complete",
+    "identity": "identity_one",
+    "title": "SAMPLE EPISODE // COMPLETE",
+    "description": "Completed the sample episode.",
+    "requiredEndings": [
+      "sample_ending"
+    ]
+  }
+}

@@ -1806,6 +1806,118 @@ window.addEventListener('DOMContentLoaded',()=>{
 }
 </style>
 
+
+<style id="akc-responsive-fixes-v147">
+/* Phone already exposes SWITCH CHARACTER inside the profile drawer.
+   Keep the toolbar switch only for tablet portrait, where the sidebar is hidden
+   and there is no phone profile drawer. */
+@media (max-width:700px){
+  .head-actions .mobile-character-switch{
+    display:none !important;
+  }
+}
+
+/* Tablet notifications should never share the header/tool region.
+   Fix them to the viewport bottom-right in both tablet orientations. */
+@media
+  (min-width:701px)
+  and (max-width:1400px)
+  and (pointer:coarse)
+  and (hover:none){
+  .toast{
+    position:fixed !important;
+    top:auto !important;
+    left:auto !important;
+    right:max(18px,env(safe-area-inset-right)) !important;
+    bottom:max(18px,env(safe-area-inset-bottom)) !important;
+    max-width:min(360px,calc(100vw - 36px)) !important;
+    z-index:300 !important;
+  }
+}
+</style>
+
+
+<style id="akc-toolbar-alignment-v148">
+/* Keep responsive header controls vertically centered like desktop. */
+
+/* Tablet landscape */
+@media
+  (min-width:701px)
+  and (max-width:1400px)
+  and (orientation:landscape)
+  and (pointer:coarse)
+  and (hover:none){
+  .chat-head{
+    align-items:center !important;
+  }
+  .channel-info,
+  .mode-tabs,
+  .head-actions{
+    align-self:center !important;
+  }
+  .mode-tabs,
+  .head-actions{
+    align-items:center !important;
+  }
+  .head-actions{
+    padding-top:0 !important;
+    padding-bottom:0 !important;
+  }
+}
+
+/* Tablet portrait */
+@media
+  (min-width:701px)
+  and (max-width:1100px)
+  and (orientation:portrait)
+  and (pointer:coarse)
+  and (hover:none){
+  .chat-head{
+    align-items:center !important;
+  }
+  .channel-info,
+  .mode-tabs,
+  .head-actions{
+    align-self:center !important;
+  }
+  .mode-tabs,
+  .head-actions{
+    align-items:center !important;
+  }
+  .head-actions{
+    padding-top:0 !important;
+    padding-bottom:0 !important;
+  }
+  .head-actions .icon-btn{
+    align-self:center !important;
+  }
+}
+
+/* Phones */
+@media (max-width:700px){
+  .chat-head{
+    align-items:center !important;
+  }
+  .channel-info,
+  .mode-tabs,
+  .head-actions{
+    align-self:center !important;
+  }
+  .mode-tabs,
+  .head-actions{
+    align-items:center !important;
+  }
+  .head-actions{
+    padding-top:0 !important;
+    padding-bottom:0 !important;
+  }
+  .head-actions .icon-btn,
+  .mobile-profile-toggle{
+    align-self:center !important;
+  }
+}
+</style>
+
 </head>
 <body>
 <main class="terminal" id="terminal">

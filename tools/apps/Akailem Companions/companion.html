@@ -1842,7 +1842,7 @@ const IdentityManager={
       const note=this.awareness[id]?.[previous];
       add(note?note+' '+CHARACTER.switchMessage:CHARACTER.switchMessage);
       showToast('IDENTITY ROUTE // '+CHARACTER.shortName.toUpperCase());
-      resetIdleTimer();
+      
       return true;
     }finally{
       overlay.classList.remove('active');
@@ -2374,23 +2374,39 @@ function respond(text){
     wait.remove();
     add(msg);
     busy=false;
-    resetIdleTimer();
+    
   },FRAMEWORK_TIMING.replyBase+Math.min(text.length*FRAMEWORK_TIMING.replyPerCharacter,FRAMEWORK_TIMING.replyMaximumExtra));
 }
 
 let idleTimer=null;
-function nextIdleDelay(){return CHARACTER.idleMinMs+Math.random()*(CHARACTER.idleMaxMs-CHARACTER.idleMinMs)}
-function resetIdleTimer(){clearTimeout(idleTimer);idleTimer=setTimeout(runIdle,nextIdleDelay())}
+
+function nextIdleDelay(){
+  return CHARACTER.idleMinMs+
+    Math.random()*(CHARACTER.idleMaxMs-CHARACTER.idleMinMs);
+}
+
+function startIdleCountdown(){
+  clearTimeout(idleTimer);
+  idleTimer=setTimeout(runIdle,nextIdleDelay());
+}
+
 function runIdle(){
-  if(busy){resetIdleTimer();return}
+  if(busy){
+    idleTimer=setTimeout(runIdle,1000);
+    return;
+  }
+
   const msg=pickAlias('idle')||pickAlias('generic');
   if(msg)add(msg);
-  resetIdleTimer();
+
+  // After an idle line, begin the next natural idle interval.
+  startIdleCountdown();
 }
-['pointerdown','keydown','touchstart'].forEach(evt=>document.addEventListener(evt,resetIdleTimer,{passive:true}));
 function send(text){
   text=text.trim();
   if(!text||busy)return;
+
+  startIdleCountdown();
 
   const identityKey=detectIdentityPhrase(text);
   document.querySelector('#input').value='';
@@ -2543,6 +2559,10 @@ window.addEventListener('error',()=>{
     EpisodeOverlayController.enableOptions();
   }
 });
+
+window.addEventListener('DOMContentLoaded',()=>{
+  startIdleCountdown();
+},{once:true});
 
 </script>
 
@@ -2898,7 +2918,7 @@ function offerEpisodeSelection(matches,originalText){
     add(CompanionCharacter.episode.selectionPrompt);
     renderEpisodeSelectionOptions(matches,originalText);
     busy=false;
-    resetIdleTimer();
+    
   },FRAMEWORK_TIMING.replyBase);
 }
 
@@ -2921,7 +2941,7 @@ function offerEpisode(episode,originalText,matchedTrigger){
 
     add(prompt);
     busy=false;
-    resetIdleTimer();
+    
   },FRAMEWORK_TIMING.replyBase);
 }
 
@@ -2998,7 +3018,7 @@ function showEpisodeNode(nodeId){
     if(ending){
       completeEpisode(episode,node);
       busy=false;
-      resetIdleTimer();
+      
       return;
     }
 
@@ -3008,7 +3028,7 @@ function showEpisodeNode(nodeId){
         closeEpisodeOverlay();
         showToast('EPISODE ERROR // TRANSITION HAS NO NEXT NODE');
         busy=false;
-        resetIdleTimer();
+        
         return;
       }
 
@@ -3017,7 +3037,7 @@ function showEpisodeNode(nodeId){
         : 800;
 
       setTimeout(()=>showEpisodeNode(node.nextNode),transitionDelay);
-      resetIdleTimer();
+      
       return;
     }
 
@@ -3031,7 +3051,7 @@ function showEpisodeNode(nodeId){
     }
 
     busy=false;
-    resetIdleTimer();
+    
   },delay);
 }
 
@@ -3051,6 +3071,8 @@ function abandonEpisode(showMessage=true){
 send=function(text){
   text=text.trim();
   if(!text||busy)return;
+
+  startIdleCountdown();
 
   const identityKey=detectIdentityPhrase(text);
   document.querySelector('#input').value='';

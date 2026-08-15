@@ -52,6 +52,14 @@
       "tags": ["companion", "jacey"]
     },
     {
+      "title": "Aria Matsuda Companion Chat Box",
+      "file": "tools/apps/aria test/aria_companion.html",
+      "icon": "▧",
+      "accent": "#4cc9f0",
+      "description": "The Aria Companion Test.",
+      "tags": ["companion", "aria"]
+    },
+    {
       "title": "Image to Base64",
       "file": "tools/apps/converters/image-to-base64.html",
       "icon": "▧",

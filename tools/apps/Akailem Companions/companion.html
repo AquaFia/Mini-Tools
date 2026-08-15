@@ -1131,8 +1131,10 @@ body:before{
     grid-area:identity;
     display:flex;
     align-items:center;
+    justify-content:center;
     gap:0;
     min-width:0;
+    align-self:center;
   }
 
   .channel-copy{
@@ -1383,6 +1385,8 @@ window.addEventListener('DOMContentLoaded',()=>{
     overflow-x:auto;
     overflow-y:hidden;
     justify-content:flex-start;
+    align-items:center;
+    align-self:center;
     gap:6px;
     padding-bottom:2px;
     overscroll-behavior-x:contain;
@@ -1616,12 +1620,13 @@ window.addEventListener('DOMContentLoaded',()=>{
   }
 
   .character-result{
-    grid-template-columns:32px minmax(0,1fr);
+    grid-template-columns:34px minmax(0,1fr) auto;
   }
   .character-result-group{
-    grid-column:2;
-    max-width:100%;
-    justify-self:start;
+    grid-column:auto;
+    max-width:78px;
+    justify-self:end;
+    text-align:right;
   }
 
   .identity-card{
@@ -1647,11 +1652,57 @@ window.addEventListener('DOMContentLoaded',()=>{
     align-self:start;
     height:auto;
     min-height:48px;
+    grid-template-columns:38px minmax(0,1fr) auto;
+    align-items:center;
+  }
+  .character-result-monogram{
+    align-self:center;
+    justify-self:center;
+    line-height:1;
+    text-align:center;
+  }
+  .character-result-copy{
+    min-width:0;
+    display:flex;
+    align-items:center;
+    align-self:stretch;
+  }
+  .character-result-copy strong{
+    width:100%;
+    line-height:1.2;
+  }
+  .character-result-group{
+    align-self:center;
+    justify-self:end;
+    line-height:1.2;
+    text-align:right;
   }
 
-  /* PROFILE is a phone-only mode control beside CHAT. */
+  /* PROFILE returns to the old phone identity/portrait slot, left of CHAT. */
   .mobile-profile-toggle{
-    display:inline-flex;
+    display:grid;
+    flex:0 0 42px;
+    width:42px;
+    height:42px;
+    padding:0;
+    place-items:center;
+    border:1px solid var(--line);
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 35% 28%,
+        color-mix(in srgb,var(--violet) 36%,var(--panel2)),
+        color-mix(in srgb,var(--panel) 94%,black) 68%);
+    color:var(--ink);
+    box-shadow:0 0 14px color-mix(in srgb,var(--violet) 16%,transparent);
+    cursor:pointer;
+    font:800 11px/1 ui-monospace,SFMono-Regular,Consolas,monospace;
+    letter-spacing:.04em;
+    touch-action:manipulation;
+  }
+  .mobile-profile-toggle span{
+    display:block;
+    line-height:1;
+    text-align:center;
   }
 
   /* Reuse the actual portrait/sidebar area as a top drawer. */
@@ -1733,7 +1784,11 @@ window.addEventListener('DOMContentLoaded',()=>{
   .mobile-profile-toggle.active{
     color:var(--ink);
     border-color:var(--violet);
-    background:color-mix(in srgb,var(--panel2) 72%,var(--violet));
+    background:
+      radial-gradient(circle at 35% 28%,
+        color-mix(in srgb,var(--cyan) 32%,var(--violet)),
+        color-mix(in srgb,var(--panel2) 72%,var(--violet)) 70%);
+    box-shadow:0 0 18px color-mix(in srgb,var(--violet) 28%,transparent);
   }
 }
 
@@ -1776,9 +1831,8 @@ window.addEventListener('DOMContentLoaded',()=>{
     <div class="profile"><div><span id="characterDirectoryLabel">WORLD DIRECTORY</span></div><div class="online">ONLINE</div></div>
   </aside>
   <section class="chat">
-    <header class="chat-head"><div class="channel-info"><div class="channel-copy"><b id="channelTitle">COMPANION CHANNEL</b><small id="channel">channel: loading // initializing</small></div></div><div class="mode-tabs" aria-label="Interface mode">
+    <header class="chat-head"><div class="channel-info"><button class="mobile-profile-toggle" id="mobileProfileBtn" type="button" aria-expanded="false" aria-label="Open character profile"><span id="mobileProfileInitials">--</span></button><div class="channel-copy"><b id="channelTitle">COMPANION CHANNEL</b><small id="channel">channel: loading // initializing</small></div></div><div class="mode-tabs" aria-label="Interface mode">
   <button class="mode-tab active" id="chatModeBtn" type="button">CHAT</button>
-  <button class="mode-tab mobile-profile-toggle" id="mobileProfileBtn" type="button" aria-expanded="false">PROFILE</button>
   <button class="mode-tab" id="topicsModeBtn" type="button">TOPICS</button>
   <span id="specialModuleNav"></span>
 </div>
@@ -1999,6 +2053,7 @@ function applyCharacter(c){
   document.title=c.name+' — Companion Terminal';
   document.querySelector('#sigil').textContent=c.initials;
   document.querySelector('#characterMonogram').textContent=c.initials;
+  if(mobileProfileInitials)mobileProfileInitials.textContent=IDENTITIES[activeIdentity]?.initials||'--';
   document.querySelector('#brandTitle').textContent=c.brand;
   document.querySelector('#brandSubtitle').textContent=c.brandSubtitle;
   document.querySelector('#characterName').textContent=c.name;
@@ -2687,6 +2742,7 @@ window.addEventListener('error',()=>{
 });
 
 window.addEventListener('DOMContentLoaded',()=>{
+  syncMobileProfileInitials();
   startIdleCountdown();
 },{once:true});
 
@@ -3327,6 +3383,7 @@ const libraryBtn=document.querySelector('#libraryBtn');
 const chatPanel=document.querySelector('.chat');
 const chatModeBtn=document.querySelector('#chatModeBtn');
 const mobileProfileBtn=document.querySelector('#mobileProfileBtn');
+const mobileProfileInitials=document.querySelector('#mobileProfileInitials');
 const mobileProfileCloseBtn=document.querySelector('#mobileProfileCloseBtn');
 const profileSidebar=document.querySelector('#profileSidebar');
 const topicsModeBtn=document.querySelector('#topicsModeBtn');
@@ -3424,6 +3481,12 @@ function episodeQuickStartTrigger(record){
   if((episode?.identity||DEFAULT_IDENTITY)!==activeIdentity)return '';
   if(!episodeIsEligible(episode))return '';
   return String(episode?.triggers?.[0]||'').trim();
+}
+
+function syncMobileProfileInitials(){
+  if(mobileProfileInitials){
+    mobileProfileInitials.textContent=IDENTITIES[activeIdentity]?.initials||'--';
+  }
 }
 
 function setMobileProfileOpen(open){

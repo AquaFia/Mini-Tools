@@ -53,7 +53,7 @@
     },
     {
       "title": "Aria Matsuda Companion Chat Box",
-      "file": "tools/apps/aria test/aria_companion.html",
+      "file": "tools/apps/companion/aria test/aria_companion.html",
       "icon": "▧",
       "accent": "#4cc9f0",
       "description": "The Aria Companion Test.",

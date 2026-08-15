@@ -179,13 +179,70 @@ body:before{
   box-shadow:0 0 14px color-mix(in srgb,var(--violet) 22%,transparent)
 }
 #specialModuleNav:empty{display:none}
+.topics-mount,
 .special-module-mount{
   display:none;
   min-height:0;
   overflow:auto;
 }
+.chat.topics-active,
 .chat.special-module-active{
   grid-template-rows:auto minmax(0,1fr);
+}
+.chat.topics-active .log,
+.chat.topics-active .composer,
+.chat.topics-active .special-module-mount{
+  display:none;
+}
+.chat.topics-active .topics-mount{
+  display:block;
+}
+.topics-shell{
+  box-sizing:border-box;
+  min-height:100%;
+  padding:18px;
+  display:grid;
+  align-content:start;
+  gap:16px;
+}
+.topics-heading{
+  display:grid;
+  gap:6px;
+  padding-bottom:13px;
+  border-bottom:1px solid var(--line);
+}
+.topics-heading strong{
+  color:var(--ink);
+  font:800 13px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;
+  letter-spacing:.13em;
+}
+.topics-heading span{
+  color:var(--muted);
+  font:500 11px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;
+}
+.topics-list{
+  display:flex;
+  flex-wrap:wrap;
+  align-content:flex-start;
+  gap:10px;
+}
+.topic-quickstart{
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:color-mix(in srgb,var(--panel2) 82%,var(--violet));
+  color:var(--ink);
+  padding:10px 14px;
+  cursor:pointer;
+  font:700 11px/1.25 ui-monospace,SFMono-Regular,Consolas,monospace;
+}
+.topic-quickstart:hover{
+  border-color:var(--violet);
+  box-shadow:0 0 14px color-mix(in srgb,var(--violet) 22%,transparent);
+}
+.special-module-mount{
+  display:none;
+  min-height:0;
+  overflow:auto;
 }
 .chat.special-module-active .log,
 .chat.special-module-active .composer{
@@ -634,16 +691,7 @@ body:before{
 .character-switch-btn{align-self:flex-start;border:1px solid var(--violet);border-radius:999px;background:transparent;color:var(--ink);padding:10px 14px;font:700 10px/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.12em;cursor:pointer}
 .character-switch-btn:hover{background:color-mix(in srgb,var(--violet) 15%,transparent)}
 .character-card-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:relative}
-.topic-picker-wrap{position:relative}
-.mode-topic-wrap{display:flex;align-items:center}
-.topic-picker-btn{border-color:color-mix(in srgb,var(--cyan) 70%,var(--line))}
-.topic-picker-btn:hover,.topic-picker-btn.active{border-color:var(--cyan);background:color-mix(in srgb,var(--panel2) 72%,var(--cyan));box-shadow:0 0 14px color-mix(in srgb,var(--cyan) 22%,transparent)}
-.topic-picker-btn:disabled{opacity:.45;cursor:not-allowed;background:color-mix(in srgb,var(--panel) 90%,black);box-shadow:none}
-.topic-picker-menu{position:absolute;left:50%;top:calc(100% + 10px);transform:translateX(-50%);z-index:65;width:min(340px,86vw);max-height:min(430px,58vh);overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;display:none;padding:8px;border:1px solid var(--line);border-radius:12px;background:var(--panel);box-shadow:0 18px 44px rgba(0,0,0,.5)}
-.topic-picker-menu.open{display:grid;gap:6px}
-.topic-quick-start{width:100%;border:1px solid var(--line);border-radius:9px;background:var(--panel2);color:var(--ink);padding:10px 12px;text-align:left;font:700 10px/1.3 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.04em;cursor:pointer;overflow-wrap:anywhere}
-.topic-quick-start:hover,.topic-quick-start:focus-visible{border-color:var(--cyan);background:color-mix(in srgb,var(--cyan) 10%,var(--panel2));outline:none}
-@media(max-width:700px){.topic-picker-menu{position:fixed;left:50%;top:auto;bottom:18px;transform:translateX(-50%);width:min(420px,calc(100vw - 24px));max-height:min(52vh,460px)}}
+@media(max-width:700px){}
 .character-picker{position:absolute;inset:0;z-index:80;display:none;place-items:center;background:rgba(3,4,8,.82);backdrop-filter:blur(12px);padding:20px}.character-picker.open{display:grid}
 .character-picker-card{width:min(720px,100%);max-height:min(760px,90vh);display:grid;grid-template-rows:auto auto 1fr;border:1px solid var(--violet);border-radius:20px;background:var(--panel);box-shadow:0 24px 80px rgba(0,0,0,.45);overflow:hidden}
 .character-picker-head{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid var(--line)}.character-picker-head h2{margin:0;font:800 14px/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.16em}
@@ -957,10 +1005,11 @@ body:before{
   }
 
   .toast{
-    top:144px;
-    left:14px;
+    top:auto;
+    bottom:max(18px,env(safe-area-inset-bottom));
+    left:auto;
     right:14px;
-    max-width:none;
+    max-width:min(340px,calc(100% - 28px));
     z-index:110;
   }
 
@@ -1439,8 +1488,9 @@ window.addEventListener('DOMContentLoaded',()=>{
   .topics-shell{
     box-sizing:border-box;
     min-height:100%;
-    padding:14px 12px 18px;
+    padding:12px 12px 18px;
     gap:13px;
+    align-content:start;
   }
   .topics-heading{
     padding-bottom:10px;
@@ -1605,10 +1655,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   <section class="chat">
     <header class="chat-head"><div class="channel-info"><div class="channel-copy"><b id="channelTitle">COMPANION CHANNEL</b><small id="channel">channel: loading // initializing</small></div></div><div class="mode-tabs" aria-label="Interface mode">
   <button class="mode-tab active" id="chatModeBtn" type="button">CHAT</button>
-  <div class="topic-picker-wrap mode-topic-wrap" id="topicPickerWrap">
-    <button class="mode-tab topic-picker-btn" id="topicPickerBtn" type="button" aria-haspopup="menu" aria-expanded="false">TOPICS</button>
-    <div class="topic-picker-menu" id="topicPickerMenu" role="menu" aria-label="Episode topics"></div>
-  </div>
+  <button class="mode-tab" id="topicsModeBtn" type="button">TOPICS</button>
   <span id="specialModuleNav"></span>
 </div>
 <div class="head-actions"><button class="icon-btn mobile-character-switch" id="mobileCharacterSwitchBtn" title="Switch character" aria-label="Switch character">⇄</button><button class="icon-btn" id="libraryBtn" title="Content library">▤</button><button class="icon-btn" id="dataLoadBtn" title="Load episode or memory JSON">↥</button><button class="icon-btn" id="memorySaveBtn" title="Export companion memory JSON">⇩</button><input id="dataFileInput" type="file" accept=".json,application/json" multiple hidden><button class="icon-btn" id="glitchBtn" title="Glitch">⌁</button><button class="icon-btn" id="dossierBtn" title="Classified dossier">⌘</button></div></header>
@@ -1625,6 +1672,15 @@ window.addEventListener('DOMContentLoaded',()=>{
     </div>
   </div>
   <div class="quick" id="quick"></div><form class="input-row" id="form" novalidate><input id="input" type="text" inputmode="text" enterkeyhint="send" autocomplete="off" autocapitalize="sentences" spellcheck="true" maxlength="1800" placeholder="Message companion…" aria-label="Message companion"><button class="send" id="sendBtn" type="button" aria-label="Send message">➤</button></form></div>
+    <div class="topics-mount" id="topicsMount" aria-live="polite">
+      <div class="topics-shell">
+        <div class="topics-heading">
+          <strong>EPISODE QUICK START</strong>
+          <span>Select a topic to send its trigger in chat.</span>
+        </div>
+        <div class="topics-list" id="topicsList"></div>
+      </div>
+    </div>
     <div class="special-module-mount" id="specialModuleMount" aria-live="polite"></div>
   </section>
   <div class="identity-overlay" id="identityOverlay" aria-hidden="true"><div class="identity-card"><div class="identity-kicker" id="identityKicker">AUTHENTICATION PHRASE RECOGNIZED</div><div class="identity-name" id="identityName">PROFILE</div><div class="identity-step" id="identityStep">Verifying…</div><div class="identity-bar"><i id="identityProgress"></i></div><div class="identity-belief" id="identityBelief"></div></div></div>
@@ -2397,8 +2453,6 @@ chatInput.addEventListener('focus',()=>{
    OPTIONAL SPECIAL MODULE BRIDGE
    One optional special_module.js file may register any character-specific UI.
    ========================================================= */
-const chatPanel=document.querySelector('.chat');
-const chatModeBtn=document.querySelector('#chatModeBtn');
 const specialModuleNav=document.querySelector('#specialModuleNav');
 const specialModuleMount=document.querySelector('#specialModuleMount');
 
@@ -2411,8 +2465,10 @@ const SpecialModuleRuntime=Object.freeze({
     content:specialModuleMount
   }),
   enterSpecialMode(){
+    closeTopicsMode({resume:false});
     chatPanel.classList.add('special-module-active');
     chatModeBtn.classList.remove('active');
+    topicsModeBtn.classList.remove('active');
     EpisodeOverlayController.suspend();
     return true;
   },
@@ -2449,6 +2505,7 @@ chatModeBtn.addEventListener('click',()=>{
   if(Framework.specialModule?.close){
     Framework.specialModule.close();
   }
+  closeTopicsMode();
 });
 
 SpecialModuleController.initialize();
@@ -3119,11 +3176,13 @@ const dataLoadBtn=document.querySelector('#dataLoadBtn');
 const memorySaveBtn=document.querySelector('#memorySaveBtn');
 const dataFileInput=document.querySelector('#dataFileInput');
 const libraryBtn=document.querySelector('#libraryBtn');
+const chatPanel=document.querySelector('.chat');
+const chatModeBtn=document.querySelector('#chatModeBtn');
+const topicsModeBtn=document.querySelector('#topicsModeBtn');
+const topicsMount=document.querySelector('#topicsMount');
+const topicsList=document.querySelector('#topicsList');
 const libraryPanel=document.querySelector('#libraryPanel');
 const closeLibraryBtn=document.querySelector('#closeLibraryBtn');
-const topicPickerBtn=document.querySelector('#topicPickerBtn');
-const topicPickerMenu=document.querySelector('#topicPickerMenu');
-const topicPickerWrap=document.querySelector('#topicPickerWrap');
 function normalizeTitle(value){return String(value||'').trim().toLocaleLowerCase();}
 function fileLabel(fileName){return String(fileName||'Message Bank').replace(/\.json$/i,'').replace(/[_-]+/g,' ').replace(/\s+/g,' ').trim();}
 
@@ -3216,57 +3275,75 @@ function episodeQuickStartTrigger(record){
   return String(episode?.triggers?.[0]||'').trim();
 }
 
-function closeTopicPicker(){
-  topicPickerMenu?.classList.remove('open');
-  topicPickerBtn?.classList.remove('active');
-  topicPickerBtn?.setAttribute('aria-expanded','false');
-}
-
 function renderTopicSelector(){
-  if(!topicPickerBtn || !topicPickerMenu)return;
-  topicPickerMenu.replaceChildren();
+  if(!topicsModeBtn || !topicsList)return;
+  topicsList.replaceChildren();
 
   const topics=EpisodeManager.list()
     .map(record=>({record,trigger:episodeQuickStartTrigger(record)}))
     .filter(item=>item.trigger);
 
-  topicPickerBtn.disabled=!topics.length;
-  topicPickerBtn.title=topics.length?'Start a conversation topic':'No episode topics available';
+  topicsModeBtn.disabled=!topics.length;
+  topicsModeBtn.title=topics.length?'Browse conversation topics':'No episode topics available';
 
   for(const {trigger} of topics){
     const button=document.createElement('button');
     button.type='button';
-    button.className='topic-quick-start';
-    button.role='menuitem';
+    button.className='topic-quickstart';
     button.textContent=trigger;
     button.addEventListener('click',()=>{
-      closeTopicPicker();
       if(episodeState.mode!==EpisodeMode.IDLE){
         showToast('FINISH OR LEAVE THE CURRENT EPISODE FIRST');
         return;
       }
+      closeTopicsMode({resume:false});
       send(trigger);
     });
-    topicPickerMenu.append(button);
+    topicsList.append(button);
   }
 
-  if(!topics.length)closeTopicPicker();
+  if(!topics.length)closeTopicsMode();
 }
 
-const TopicSelector=Object.freeze({render:renderTopicSelector,close:closeTopicPicker});
+function closeTopicsMode({resume=true}={}){
+  if(!chatPanel.classList.contains('topics-active'))return false;
+  chatPanel.classList.remove('topics-active');
+  topicsModeBtn.classList.remove('active');
+  if(!chatPanel.classList.contains('special-module-active')){
+    chatModeBtn.classList.add('active');
+  }
+  if(resume)Framework.resume({source:'episode-topics'});
+  return true;
+}
+
+function openTopicsMode(){
+  if(topicsModeBtn.disabled)return false;
+  if(Framework.specialModule?.close){
+    Framework.specialModule.close();
+  }
+  chatPanel.classList.remove('special-module-active');
+  chatPanel.classList.add('topics-active');
+  chatModeBtn.classList.remove('active');
+  topicsModeBtn.classList.add('active');
+  EpisodeOverlayController.suspend();
+  renderTopicSelector();
+  return true;
+}
+
+const TopicSelector=Object.freeze({
+  render:renderTopicSelector,
+  close:closeTopicsMode,
+  open:openTopicsMode
+});
 window.TopicSelector=TopicSelector;
 
-topicPickerBtn?.addEventListener('click',event=>{
-  event.stopPropagation();
-  if(topicPickerBtn.disabled)return;
-  const open=!topicPickerMenu.classList.contains('open');
-  topicPickerMenu.classList.toggle('open',open);
-  topicPickerBtn.classList.toggle('active',open);
-  topicPickerBtn.setAttribute('aria-expanded',String(open));
+topicsModeBtn?.addEventListener('click',()=>{
+  if(chatPanel.classList.contains('topics-active')){
+    closeTopicsMode();
+  }else{
+    openTopicsMode();
+  }
 });
-topicPickerMenu?.addEventListener('click',event=>event.stopPropagation());
-document.addEventListener('click',closeTopicPicker);
-document.addEventListener('keydown',event=>{if(event.key==='Escape')closeTopicPicker();});
 
 function refreshContentUI(){renderLibrary();renderTopicSelector();}
 function setLibraryOpen(open){libraryPanel.classList.toggle('open',open);libraryPanel.setAttribute('aria-hidden',String(!open));if(open)dossier.classList.remove('open');}

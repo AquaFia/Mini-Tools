@@ -59,7 +59,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;background-ima
   line-height:1.2;
   cursor:pointer;
 }.chip:hover{border-color:#8e61cc;color:#fff}.input-row{display:grid;grid-template-columns:1fr 46px;gap:10px}.input-row input{min-width:0;padding:13px 15px;border-radius:14px;border:1px solid #3b2850;outline:none;background:#0e0c17;color:white;font:14px inherit}.input-row input:focus{border-color:var(--violet);box-shadow:0 0 0 3px rgba(169,112,255,.12)}.send{border:0;border-radius:14px;color:white;font-size:18px;cursor:pointer;background:linear-gradient(135deg,var(--violet),var(--blue));box-shadow:0 8px 24px rgba(88,82,255,.25)}
-.toast{position:absolute;right:18px;top:76px;z-index:12;max-width:min(320px,calc(100% - 36px));padding:10px 13px;border:1px solid #4f3970;border-radius:12px;background:rgba(15,12,25,.94);box-shadow:0 12px 35px rgba(0,0,0,.35),0 0 18px rgba(169,112,255,.18);font:700 10px/1.35 ui-monospace,monospace;letter-spacing:.08em;color:#e9ddff;opacity:0;transform:translateY(-8px);pointer-events:none;transition:.25s}.toast.show{opacity:1;transform:none}.dossier{position:absolute;inset:0 0 0 auto;width:min(430px,100%);z-index:9;background:rgba(10,8,17,.97);border-left:1px solid #59306e;backdrop-filter:blur(16px);padding:24px;transform:translateX(101%);transition:.35s;overflow:auto}.dossier.open{transform:none}.dossier h2{font-size:16px;letter-spacing:.12em}.codebox{padding:14px;border:1px solid #3c2850;border-radius:13px;background:#0c0b13;font:11px/1.7 ui-monospace,monospace;color:#a99bc3}.redacted{background:#e7dff4;color:#e7dff4;border-radius:2px;padding:0 3px}.warning{color:#ff6b8c}.close{float:right}
+.toast{position:absolute;right:14px;top:76px;z-index:110;max-width:min(360px,calc(100% - 28px));padding:10px 13px;border:1px solid #4f3970;border-radius:12px;background:rgba(15,12,25,.94);box-shadow:0 12px 35px rgba(0,0,0,.35),0 0 18px rgba(169,112,255,.18);font:700 10px/1.35 ui-monospace,monospace;letter-spacing:.08em;color:#e9ddff;opacity:0;transform:translateY(-8px);pointer-events:none;transition:.25s}.toast.show{opacity:1;transform:none}.dossier{position:absolute;inset:0 0 0 auto;width:min(430px,100%);z-index:9;background:rgba(10,8,17,.97);border-left:1px solid #59306e;backdrop-filter:blur(16px);padding:24px;transform:translateX(101%);transition:.35s;overflow:auto}.dossier.open{transform:none}.dossier h2{font-size:16px;letter-spacing:.12em}.codebox{padding:14px;border:1px solid #3c2850;border-radius:13px;background:#0c0b13;font:11px/1.7 ui-monospace,monospace;color:#a99bc3}.redacted{background:#e7dff4;color:#e7dff4;border-radius:2px;padding:0 3px}.warning{color:#ff6b8c}.close{float:right}
 .glitch{animation:glitch .22s linear 2}@keyframes glitch{25%{transform:translateX(2px);text-shadow:-2px 0 #5eeaff,2px 0 #ff3a69}50%{transform:translateX(-2px)}75%{transform:none;text-shadow:2px 0 #5eeaff,-2px 0 #ff3a69}}
 
 
@@ -252,9 +252,7 @@ body:before{
 .chat.special-module-active .special-module-mount{
   display:block;
 }
-@media(max-width:700px){
-  .mode-tab{padding:7px 9px;font-size:9px}
-}
+
 
 .mode-tabs,.mode-tab{position:relative;z-index:20;pointer-events:auto}
 .chat-head{position:relative;z-index:15}
@@ -674,25 +672,13 @@ body:before{
   color:var(--violet)
 }
 .character-card.birthday-active:after{content:"PROFILE // BIRTHDAY"}
-@media(max-width:700px){
-  .character-card{min-height:auto;padding:16px}
-  .character-monogram{font-size:76px}
-  .core-profile-facts{grid-template-columns:1fr}
-  .core-profile-row,.core-profile-row:not(:first-child){
-    padding:9px 0;
-    grid-template-columns:92px minmax(0,1fr);
-    gap:10px;
-    border-right:0;
-    border-bottom:1px solid color-mix(in srgb,var(--line) 45%,transparent)
-  }
-  .core-profile-row:last-child{border-bottom:0}
-}
+
 
 .dossier-group{margin:0 0 20px}.dossier-group:last-child{margin-bottom:0}.dossier-group h3{margin:0 0 10px;color:var(--cyan);font:800 10px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.16em}.dossier-field{display:grid;grid-template-columns:minmax(110px,.9fr) 1.1fr;gap:12px;padding:8px 0;border-bottom:1px solid color-mix(in srgb,var(--line) 65%,transparent);font:11px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace}.dossier-field:last-child{border-bottom:0}.dossier-field-label{color:var(--muted)}.dossier-field-value{color:var(--ink);overflow-wrap:anywhere}
 .character-switch-btn{align-self:flex-start;border:1px solid var(--violet);border-radius:999px;background:transparent;color:var(--ink);padding:10px 14px;font:700 10px/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.12em;cursor:pointer}
 .character-switch-btn:hover{background:color-mix(in srgb,var(--violet) 15%,transparent)}
 .character-card-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:relative}
-@media(max-width:700px){}
+
 .character-picker{position:absolute;inset:0;z-index:80;display:none;place-items:center;background:rgba(3,4,8,.82);backdrop-filter:blur(12px);padding:20px}.character-picker.open{display:grid}
 .character-picker-card{width:min(720px,100%);max-height:min(760px,90vh);display:grid;grid-template-rows:auto auto 1fr;border:1px solid var(--violet);border-radius:20px;background:var(--panel);box-shadow:0 24px 80px rgba(0,0,0,.45);overflow:hidden}
 .character-picker-head{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid var(--line)}.character-picker-head h2{margin:0;font:800 14px/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.16em}
@@ -704,7 +690,7 @@ body:before{
 .character-results{overflow:auto;padding:0 20px 20px;display:grid;gap:8px}.character-result{display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:12px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);color:var(--ink);cursor:pointer;text-align:left}.character-result:hover,.character-result.active{border-color:var(--violet)}
 .character-result-monogram{font:800 16px/1 ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--violet)}.character-result-copy{min-width:0}.character-result-copy strong{font-size:13px}.character-result-group{font-size:10px;color:var(--muted)}
 .character-empty{padding:28px;text-align:center;color:var(--muted)}
-@media(max-width:700px){.character-card{min-height:auto;padding:14px}.character-monogram{font-size:34px}.character-picker{padding:10px}.character-search{margin:12px 14px 9px}.character-sort{padding:0 14px 10px}.character-results{padding:0 14px 14px}}
+
 
 </style>
 
@@ -800,506 +786,17 @@ body:before{
 @media(prefers-reduced-motion:reduce){.library-panel,.library-panel.open{transition:opacity .16s ease,visibility 0s linear 0s;transform:none}}
 
 /* TABLET ONLY */
-@media
-  (min-width:701px)
-  and (max-width:1400px)
-  and (orientation:landscape)
-  and (pointer:coarse)
-  and (hover:none){
-  html{
-    width:100%;
-    height:100%;
-    min-height:0;
-    overflow:hidden;
-  }
 
-  body{
-    width:100%;
-    height:var(--tablet-visible-height,100svh);
-    min-height:0;
-    overflow:hidden;
-    padding:
-      env(safe-area-inset-top)
-      max(12px,env(safe-area-inset-right))
-      env(safe-area-inset-bottom)
-      max(12px,env(safe-area-inset-left));
-    place-items:center;
-  }
-
-  .terminal{
-    width:min(1180px,94vw);
-    height:calc(var(--tablet-visible-height,100svh) - 16px);
-    max-width:1180px;
-    max-height:calc(var(--tablet-visible-height,100svh) - 16px);
-    min-height:0;
-    margin:8px auto;
-    grid-template-columns:clamp(250px,25vw,300px) minmax(0,1fr);
-    border-radius:18px;
-    border-left:1px solid color-mix(in srgb,var(--violet) 48%,var(--line));
-    border-right:1px solid color-mix(in srgb,var(--violet) 48%,var(--line));
-  }
-
-  .sidebar{
-    padding:14px;
-  }
-
-  .chat-head{
-    min-height:64px;
-    height:auto;
-    padding:8px 14px;
-    gap:8px;
-    flex-wrap:wrap;
-  }
-
-  .channel-info{
-    min-width:180px;
-    flex:1 1 auto;
-  }
-
-  .mode-tabs{
-    order:3;
-    width:100%;
-    justify-content:center;
-  }
-
-  .mode-tab{
-    padding:7px 10px;
-    letter-spacing:.08em;
-  }
-
-  .head-actions{
-    margin-left:auto;
-    gap:6px;
-    flex-wrap:nowrap;
-  }
-
-  .icon-btn{
-    width:32px;
-    height:32px;
-  }
-
-  .log{
-    padding:16px 14px;
-  }
-
-  .bubble{
-    max-width:min(88%,760px);
-    font-size:14px;
-  }
-
-  .composer{
-    padding:12px 14px 14px;
-  }
-}
 
 
 
 /* TABLET PORTRAIT — enlarged phone-style presentation */
-@media
-  (min-width:701px)
-  and (max-width:1100px)
-  and (orientation:portrait)
-  and (pointer:coarse)
-  and (hover:none){
 
-  html,
-  body{
-    width:100%;
-    height:100%;
-    min-height:0;
-    overflow:hidden;
-  }
-
-  body{
-    height:var(--tablet-visible-height,100svh);
-    min-height:0;
-    padding:
-      env(safe-area-inset-top)
-      env(safe-area-inset-right)
-      env(safe-area-inset-bottom)
-      env(safe-area-inset-left);
-    place-items:stretch;
-  }
-
-  .terminal{
-    width:100%;
-    height:100%;
-    max-width:none;
-    max-height:100%;
-    min-height:0;
-    display:block;
-    border:0;
-    border-radius:0;
-  }
-
-  .sidebar{
-    display:none;
-  }
-
-  .chat{
-    width:100%;
-    height:100%;
-    min-height:0;
-  }
-
-  .chat-head{
-    min-height:0;
-    height:auto;
-    padding:12px 14px;
-    gap:10px 14px;
-    display:grid;
-    grid-template-columns:minmax(82px,auto) minmax(0,1fr);
-    grid-template-areas:
-      "identity modes"
-      "identity tools";
-    align-items:center;
-  }
-
-  .channel-info{
-    grid-area:identity;
-    display:flex;
-    align-items:center;
-    min-width:0;
-  }
-
-  .channel-copy{
-    display:none;
-  }
-
-  .mode-tabs{
-    grid-area:modes;
-    display:flex;
-    justify-content:flex-end;
-    gap:8px;
-    min-width:0;
-  }
-
-  .mode-tab{
-    padding:9px 13px;
-    font-size:10px;
-    letter-spacing:.08em;
-  }
-
-  .head-actions{
-    grid-area:tools;
-    width:100%;
-    display:flex;
-    justify-content:flex-end;
-    gap:8px;
-    overflow-x:auto;
-    overflow-y:hidden;
-    padding:2px 0 5px;
-    scrollbar-gutter:auto;
-    overscroll-behavior-x:contain;
-    -webkit-overflow-scrolling:touch;
-  }
-
-  .mobile-character-switch{display:inline-grid !important}
-
-  .head-actions .icon-btn{
-    display:inline-grid !important;
-    flex:0 0 38px;
-    width:38px;
-    height:38px;
-    place-items:center;
-    border-radius:10px;
-  }
-
-  .toast{
-    top:auto;
-    bottom:max(18px,env(safe-area-inset-bottom));
-    left:auto;
-    right:14px;
-    max-width:min(340px,calc(100% - 28px));
-    z-index:110;
-  }
-
-  .log{
-    padding:18px 14px;
-  }
-
-  .bubble{
-    max-width:94%;
-    padding:12px 14px;
-    font-size:14px;
-    line-height:1.48;
-  }
-
-  .composer{
-    padding:12px 14px 14px;
-  }
-
-  .quick{
-    gap:7px;
-    padding-bottom:10px;
-  }
-
-  .chip{
-    padding:9px 12px;
-    font-size:11px;
-  }
-
-  .input-row{
-    grid-template-columns:minmax(0,1fr) 46px;
-    gap:9px;
-  }
-
-  .input-row input{
-    padding:13px 14px;
-    font-size:14px;
-  }
-
-  .episode-overlay{
-    padding:12px 14px;
-    gap:11px;
-  }
-
-  .episode-options{
-    min-height:44px;
-    padding:8px 2px;
-  }
-
-  .episode-choice{
-    padding:10px 13px;
-    font-size:11px;
-  }
-  .library-panel,
-  .dossier{
-    width:100%;
-    padding-left:18px;
-    padding-right:18px;
-  }
-}
 
 /* PHONE ONLY */
-@media (max-width:700px){
-  html{
-    width:100%;
-    height:100%;
-    min-height:-webkit-fill-available;
-    overflow:hidden;
-  }
 
-  body{
-    width:100%;
-    height:100dvh;
-    min-height:-webkit-fill-available;
-    overflow:hidden;
-    padding:
-      calc(env(safe-area-inset-top) + 2px)
-      env(safe-area-inset-right)
-      calc(env(safe-area-inset-bottom) + 2px)
-      env(safe-area-inset-left);
-    place-items:stretch;
-  }
 
-  .terminal{
-    width:100%;
-    height:100%;
-    max-width:none;
-    max-height:100%;
-    min-height:0;
-    display:block;
-    border:0;
-    border-radius:0;
-  }
 
-  .sidebar{
-    display:none;
-  }
-
-  .chat{
-    width:100%;
-    height:100%;
-    min-height:0;
-  }
-
-  .chat-head{
-    min-height:0;
-    height:auto;
-    padding:9px;
-    gap:7px 9px;
-    display:grid;
-    grid-template-columns:minmax(62px,auto) minmax(0,1fr);
-    grid-template-areas:
-      "identity modes"
-      "identity tools";
-    align-items:center;
-  }
-
-  .channel-info{
-    grid-area:identity;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:0;
-    min-width:0;
-    align-self:center;
-  }
-
-  .channel-copy{
-    display:none;
-  }
-
-  .mode-tabs{
-    grid-area:modes;
-    display:flex;
-    justify-content:flex-end;
-    gap:5px;
-    min-width:0;
-  }
-
-  .mode-tab{
-    flex:0 1 auto;
-    padding:7px 9px;
-    font-size:8px;
-    letter-spacing:.06em;
-  }
-
-  .head-actions{
-    grid-area:tools;
-    width:100%;
-    display:flex;
-    justify-content:flex-end;
-    gap:6px;
-    overflow-x:auto;
-    overflow-y:hidden;
-    padding:1px 0 4px;
-    scrollbar-gutter:auto;
-    overscroll-behavior-x:contain;
-    -webkit-overflow-scrolling:touch;
-  }
-
-  .mobile-character-switch{display:inline-grid !important}
-
-  .head-actions .icon-btn{
-    display:inline-grid !important;
-    flex:0 0 34px;
-    width:34px;
-    height:34px;
-    place-items:center;
-    border-radius:9px;
-  }
-
-  .toast{
-    top:116px;
-    left:9px;
-    right:9px;
-    max-width:none;
-    z-index:110;
-  }
-
-  .log{
-    padding:11px 8px;
-  }
-
-  .message{
-    margin-bottom:12px;
-  }
-
-  .bubble{
-    max-width:96%;
-    padding:10px 11px;
-    font-size:13px;
-    line-height:1.42;
-  }
-
-  .composer{
-    padding:8px;
-  }
-
-  .quick{
-    gap:5px;
-    padding-bottom:7px;
-  }
-
-  .chip{
-    padding:7px 9px;
-    font-size:10px;
-  }
-
-  .input-row{
-    grid-template-columns:minmax(0,1fr) 42px;
-    gap:7px;
-  }
-
-  .input-row input{
-    padding:11px 12px;
-    font-size:13px;
-  }
-
-  .send{
-    border-radius:11px;
-  }
-
-  .episode-overlay{
-    padding:10px 9px;
-    gap:9px;
-  }
-
-  .episode-options{
-    min-height:40px;
-    padding:7px 1px;
-  }
-
-  .episode-choice{
-    padding:8px 10px;
-    font-size:10px;
-  }
-
-  .episode-message-row{
-    grid-template-columns:minmax(0,1fr) auto;
-    gap:7px;
-  }
-
-  .episode-title-field{
-    min-height:40px;
-    padding:8px 9px;
-  }
-
-  .episode-title-field strong{
-    font-size:10px;
-  }
-
-  .episode-message-row>button{
-    min-height:40px;
-    padding:0 9px;
-    font-size:8px;
-  }
-  .library-panel,
-  .dossier{
-    width:100%;
-    padding-left:14px;
-    padding-right:14px;
-  }
-}
-
-@media (max-width:420px){
-
-  .toast{
-    top:108px;
-  }
-
-  .mode-tab{
-    padding:6px 7px;
-    font-size:7.5px;
-  }
-
-  .head-actions .icon-btn{
-    flex-basis:32px;
-    width:32px;
-    height:32px;
-  }
-
-  .bubble{
-    max-width:98%;
-    font-size:12.5px;
-  }
-
-  .chip{
-    font-size:9px;
-  }
-}
 </style>
 
 <script src="character_list.js"></script>
@@ -1313,114 +810,453 @@ window.addEventListener('DOMContentLoaded',()=>{
 });
 </script>
 
-<style id="akc-mobile-polish-v142">
+
+
+
+
+
+
+
+
+
+<style id="responsive-layout-styles">
 /* =========================================================
-   AKC MOBILE POLISH
-   Narrow-screen overrides only. Desktop layout is untouched.
+   RESPONSIVE LAYOUT
+   Canonical tablet and phone rules.
    ========================================================= */
 
-/* Tablet portrait: keep mode tabs reachable when a module adds a tab. */
-@media
-  (min-width:701px)
-  and (max-width:1100px)
-  and (orientation:portrait)
-  and (pointer:coarse)
-  and (hover:none){
-
+/* TABLET — LANDSCAPE */
+@media (min-width:701px) and (max-width:1400px) and (orientation:landscape) and (pointer:coarse) and (hover:none){
+  html{
+    width:100%;
+    height:100%;
+    min-height:0;
+    overflow:hidden;
+  }
+  body{
+    width:100%;
+    height:var(--tablet-visible-height,100svh);
+    min-height:0;
+    overflow:hidden;
+    padding:env(safe-area-inset-top)
+      max(12px,env(safe-area-inset-right))
+      env(safe-area-inset-bottom)
+      max(12px,env(safe-area-inset-left));
+    place-items:center;
+  }
+  .terminal{
+    width:min(1180px,94vw);
+    height:calc(var(--tablet-visible-height,100svh) - 16px);
+    max-width:1180px;
+    max-height:calc(var(--tablet-visible-height,100svh) - 16px);
+    min-height:0;
+    margin:8px auto;
+    grid-template-columns:clamp(250px,25vw,300px) minmax(0,1fr);
+    border-radius:18px;
+    border-left:1px solid color-mix(in srgb,var(--violet) 48%,var(--line));
+    border-right:1px solid color-mix(in srgb,var(--violet) 48%,var(--line));
+  }
+  .sidebar{
+    padding:14px;
+  }
+  .mode-tab{
+    padding:7px 10px;
+    letter-spacing:.08em;
+  }
+  .icon-btn{
+    width:32px;
+    height:32px;
+  }
+  .log{
+    padding:16px 14px;
+  }
+  .bubble{
+    max-width:min(88%,760px);
+    font-size:14px;
+  }
+  .composer{
+    padding:12px 14px 14px;
+  }
+  .chat-head{
+    height:auto;
+    flex-wrap:wrap;
+    display:grid !important;
+    grid-template-columns:minmax(150px,1fr) auto auto !important;
+    grid-template-areas:"identity modes tools" !important;
+    align-items:center !important;
+    gap:10px !important;
+    min-height:64px;
+    padding:8px 14px;
+  }
+  .channel-info{
+    flex:1 1 auto;
+    grid-area:identity !important;
+    align-self:center !important;
+    min-width:0 !important;
+  }
   .mode-tabs{
+    grid-area:modes !important;
+    width:auto !important;
+    order:initial !important;
+    display:flex !important;
+    align-items:center !important;
+    align-self:center !important;
+    justify-content:center !important;
+    gap:7px !important;
     overflow-x:auto;
     overflow-y:hidden;
-    justify-content:flex-start;
-    overscroll-behavior-x:contain;
-    -webkit-overflow-scrolling:touch;
     scrollbar-width:none;
   }
-  .mode-tabs::-webkit-scrollbar{display:none}
-  .mode-tabs .mode-tab,
-  #specialModuleNav .mode-tab{
-    flex:0 0 auto;
-    min-height:38px;
+  .mode-tabs::-webkit-scrollbar{
+    display:none;
   }
-
   .head-actions{
-    overflow:visible;
-    flex-wrap:wrap;
-    justify-content:flex-end;
+    margin-left:auto;
+    grid-area:tools !important;
+    width:auto !important;
+    margin:0 !important;
+    padding:0 !important;
+    display:flex !important;
+    align-items:center !important;
+    align-self:center !important;
+    justify-content:flex-end !important;
+    flex-wrap:nowrap !important;
+    gap:6px !important;
+    overflow:visible !important;
   }
+  .head-actions .icon-btn{
+    flex:0 0 32px;
+    width:32px;
+    height:32px;
+    align-self:center;
+  }
+  .toast{
+    position:absolute !important;
+    top:76px !important;
+    right:14px !important;
+    bottom:auto !important;
+    left:auto !important;
+    max-width:min(360px,calc(100% - 28px)) !important;
+    z-index:110 !important;
+  }
+}
 
-  .topics-mount,
-  .special-module-mount{
+/* TABLET — PORTRAIT */
+@media (min-width:701px) and (max-width:1100px) and (orientation:portrait) and (pointer:coarse) and (hover:none){
+  html, body{
+    width:100%;
+    height:100%;
+    min-height:0;
+    overflow:hidden;
+  }
+  body{
+    height:var(--tablet-visible-height,100svh);
+    min-height:0;
+    padding:env(safe-area-inset-top)
+      env(safe-area-inset-right)
+      env(safe-area-inset-bottom)
+      env(safe-area-inset-left);
+    place-items:stretch;
+  }
+  .terminal{
+    width:100%;
+    height:100%;
+    max-width:none;
+    max-height:100%;
+    min-height:0;
+    display:block;
+    border:0;
+    border-radius:0;
+  }
+  .sidebar{
+    display:none;
+  }
+  .chat{
+    width:100%;
+    height:100%;
+    min-height:0;
+  }
+  .channel-copy{
+    display:none;
+  }
+  .mode-tab{
+    padding:9px 13px;
+    font-size:10px;
+    letter-spacing:.08em;
+  }
+  .mobile-character-switch{
+    display:inline-grid !important;
+  }
+  .log{
+    padding:18px 14px;
+  }
+  .bubble{
+    max-width:94%;
+    padding:12px 14px;
+    font-size:14px;
+    line-height:1.48;
+  }
+  .composer{
+    padding:12px 14px 14px;
+  }
+  .quick{
+    gap:7px;
+    padding-bottom:10px;
+  }
+  .chip{
+    padding:9px 12px;
+    font-size:11px;
+  }
+  .input-row{
+    grid-template-columns:minmax(0,1fr) 46px;
+    gap:9px;
+  }
+  .input-row input{
+    padding:13px 14px;
+    font-size:14px;
+  }
+  .episode-overlay{
+    padding:12px 14px;
+    gap:11px;
+  }
+  .episode-options{
+    min-height:44px;
+    padding:8px 2px;
+  }
+  .episode-choice{
+    padding:10px 13px;
+    font-size:11px;
+  }
+  .library-panel, .dossier{
+    width:100%;
+    padding-left:18px;
+    padding-right:18px;
+  }
+  .topics-mount, .special-module-mount{
     min-height:0;
     height:100%;
     overscroll-behavior:contain;
     -webkit-overflow-scrolling:touch;
   }
-
   .topics-shell{
     box-sizing:border-box;
     min-height:100%;
     padding:18px;
   }
-
-  .dossier,
-  .library-panel{
+  .dossier, .library-panel{
     inset:0;
     max-width:none;
     border-left:0;
   }
-
   .identity-card{
     width:min(560px,calc(100% - 36px));
     max-height:calc(100% - 36px);
     box-sizing:border-box;
     overflow:auto;
   }
-}
-
-/* Phones */
-@media (max-width:700px){
-
-  /* Mode tabs can grow when a character supplies a module tab. */
-  .mode-tabs{
-    overflow-x:auto;
-    overflow-y:hidden;
-    justify-content:flex-start;
+  .chat-head{
+    height:auto;
+    display:grid !important;
+    grid-template-columns:auto minmax(0,1fr) auto !important;
+    grid-template-areas:"identity modes tools" !important;
+    align-items:center !important;
+    gap:10px !important;
+    min-height:64px;
+    padding:10px 14px;
+  }
+  .channel-info{
+    display:flex;
     align-items:center;
-    align-self:center;
-    gap:6px;
-    padding-bottom:2px;
+    grid-area:identity !important;
+    align-self:center !important;
+    min-width:0 !important;
+  }
+  .mode-tabs{
+    min-width:0;
     overscroll-behavior-x:contain;
     -webkit-overflow-scrolling:touch;
+    grid-area:modes !important;
+    width:auto !important;
+    display:flex !important;
+    align-items:center !important;
+    align-self:center !important;
+    justify-content:flex-start !important;
+    gap:7px !important;
+    padding:0 !important;
+    overflow-x:auto !important;
+    overflow-y:hidden !important;
     scrollbar-width:none;
   }
-  .mode-tabs::-webkit-scrollbar{display:none}
-  .mode-tabs .mode-tab,
-  #specialModuleNav .mode-tab{
+  .mode-tabs::-webkit-scrollbar{
+    display:none;
+  }
+  .mode-tabs .mode-tab, #specialModuleNav .mode-tab{
     flex:0 0 auto;
-    min-height:34px;
-    padding:8px 10px;
-    touch-action:manipulation;
+    min-height:36px;
   }
-
-  /*
-   * The phone tool row is short enough to fit normal devices.
-   * Wrap instead of forcing a sideways-scroll strip.
-   */
   .head-actions{
-    overflow:visible;
-    flex-wrap:wrap;
-    justify-content:flex-end;
-    align-content:center;
-    padding:0;
+    overflow-x:auto;
+    overflow-y:hidden;
+    scrollbar-gutter:auto;
+    overscroll-behavior-x:contain;
+    -webkit-overflow-scrolling:touch;
+    grid-area:tools !important;
+    width:auto !important;
+    margin:0 !important;
+    padding:0 !important;
+    display:flex !important;
+    align-items:center !important;
+    align-self:center !important;
+    justify-content:flex-end !important;
+    flex-wrap:nowrap !important;
+    gap:7px !important;
+    overflow:visible !important;
   }
-
   .head-actions .icon-btn{
-    min-width:34px;
-    min-height:34px;
-    touch-action:manipulation;
+    display:inline-grid !important;
+    place-items:center;
+    border-radius:10px;
+    flex:0 0 36px !important;
+    width:36px !important;
+    height:36px !important;
+    min-width:36px !important;
+    min-height:36px !important;
+    align-self:center !important;
   }
+  .toast{
+    position:absolute !important;
+    top:78px !important;
+    right:14px !important;
+    bottom:auto !important;
+    left:auto !important;
+    max-width:min(360px,calc(100% - 28px)) !important;
+    z-index:110 !important;
+  }
+}
 
-  /* Character picker behaves like a proper mobile sheet. */
+/* PHONE */
+@media (max-width:700px){
+  .core-profile-facts{
+    grid-template-columns:1fr;
+  }
+  .core-profile-row,.core-profile-row:not(:first-child){
+    padding:9px 0;
+    grid-template-columns:92px minmax(0,1fr);
+    gap:10px;
+    border-right:0;
+    border-bottom:1px solid color-mix(in srgb,var(--line) 45%,transparent);
+  }
+  .core-profile-row:last-child{
+    border-bottom:0;
+  }
+  .character-card{
+    min-height:auto;
+    padding:14px;
+  }
+  .character-monogram{
+    font-size:34px;
+  }
+  html{
+    width:100%;
+    height:100%;
+    min-height:-webkit-fill-available;
+    overflow:hidden;
+  }
+  body{
+    width:100%;
+    height:100dvh;
+    min-height:-webkit-fill-available;
+    overflow:hidden;
+    padding:calc(env(safe-area-inset-top) + 2px)
+      env(safe-area-inset-right)
+      calc(env(safe-area-inset-bottom) + 2px)
+      env(safe-area-inset-left);
+    place-items:stretch;
+  }
+  .chat{
+    width:100%;
+    height:100%;
+    min-height:0;
+  }
+  .channel-copy{
+    display:none;
+  }
+  .mode-tab{
+    flex:0 1 auto;
+    padding:7px 9px;
+    font-size:8px;
+    letter-spacing:.06em;
+  }
+  .mobile-character-switch{
+    display:inline-grid !important;
+  }
+  .log{
+    padding:11px 8px;
+  }
+  .message{
+    margin-bottom:12px;
+  }
+  .bubble{
+    max-width:96%;
+    padding:10px 11px;
+    font-size:13px;
+    line-height:1.42;
+  }
+  .composer{
+    padding:8px;
+  }
+  .quick{
+    gap:5px;
+    padding-bottom:7px;
+  }
+  .chip{
+    padding:7px 9px;
+    font-size:10px;
+  }
+  .input-row{
+    grid-template-columns:minmax(0,1fr) 42px;
+    gap:7px;
+  }
+  .input-row input{
+    padding:11px 12px;
+    font-size:13px;
+  }
+  .send{
+    border-radius:11px;
+  }
+  .episode-overlay{
+    padding:10px 9px;
+    gap:9px;
+  }
+  .episode-options{
+    min-height:40px;
+    padding:7px 1px;
+  }
+  .episode-choice{
+    padding:8px 10px;
+    font-size:10px;
+  }
+  .episode-message-row{
+    grid-template-columns:minmax(0,1fr) auto;
+    gap:7px;
+  }
+  .episode-title-field{
+    min-height:40px;
+    padding:8px 9px;
+  }
+  .episode-title-field strong{
+    font-size:10px;
+  }
+  .episode-message-row>button{
+    min-height:40px;
+    padding:0 9px;
+    font-size:8px;
+  }
+  .library-panel, .dossier{
+    width:100%;
+    padding-left:14px;
+    padding-right:14px;
+  }
   .character-picker{
     padding:8px;
     align-items:stretch;
@@ -1452,38 +1288,10 @@ window.addEventListener('DOMContentLoaded',()=>{
     min-height:34px;
     padding:8px 11px;
   }
-  .character-results{
-    min-height:0;
-    padding:0 12px 12px;
-    overscroll-behavior:contain;
-    -webkit-overflow-scrolling:touch;
-  }
-  .character-result{
-    grid-template-columns:38px minmax(0,1fr) auto;
-    gap:9px;
-    min-height:48px;
-    padding:10px;
-  }
-  .character-result-monogram{
-    font-size:14px;
-  }
-  .character-result-copy strong{
-    font-size:12px;
-  }
-  .character-result-group{
-    max-width:92px;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-  }
-
-  /* Topics and custom modules own the available chat body. */
-  .chat.topics-active,
-  .chat.special-module-active{
+  .chat.topics-active, .chat.special-module-active{
     grid-template-rows:auto minmax(0,1fr);
   }
-  .topics-mount,
-  .special-module-mount{
+  .topics-mount, .special-module-mount{
     min-height:0;
     height:100%;
     overflow:auto;
@@ -1508,11 +1316,6 @@ window.addEventListener('DOMContentLoaded',()=>{
     padding:9px 11px;
     touch-action:manipulation;
   }
-
-  /*
-   * Modules can be wildly different. The framework only guarantees
-   * a clean, full-width scrolling canvas and inherited character colors.
-   */
   .special-module-mount{
     box-sizing:border-box;
     width:100%;
@@ -1522,25 +1325,20 @@ window.addEventListener('DOMContentLoaded',()=>{
     box-sizing:border-box;
     max-width:100%;
   }
-
-  /* Dossier + Library become true full-screen mobile panels. */
-  .dossier,
-  .library-panel{
+  .dossier, .library-panel{
     inset:0;
     width:100%;
     max-width:none;
     height:100%;
     border-left:0;
     border-radius:0;
-    padding:
-      max(12px,env(safe-area-inset-top))
+    padding:max(12px,env(safe-area-inset-top))
       14px
       max(16px,env(safe-area-inset-bottom));
     overscroll-behavior:contain;
     -webkit-overflow-scrolling:touch;
   }
-  .dossier .close,
-  .library-head{
+  .dossier .close, .library-head{
     top:0;
   }
   .dossier h2{
@@ -1560,11 +1358,8 @@ window.addEventListener('DOMContentLoaded',()=>{
     grid-template-columns:minmax(0,1fr) auto;
     padding:10px;
   }
-
-  /* Identity transitions must never overflow a small phone. */
   .identity-overlay{
-    padding:
-      max(12px,env(safe-area-inset-top))
+    padding:max(12px,env(safe-area-inset-top))
       12px
       max(12px,env(safe-area-inset-bottom));
     box-sizing:border-box;
@@ -1593,62 +1388,17 @@ window.addEventListener('DOMContentLoaded',()=>{
   .identity-belief{
     font-size:11px;
   }
-}
-
-/* Very narrow phones */
-@media (max-width:420px){
-  .chat-head{
-    grid-template-columns:minmax(54px,auto) minmax(0,1fr);
-  }
-
-  .mode-tabs .mode-tab,
-  #specialModuleNav .mode-tab{
-    min-height:32px;
-    padding:7px 8px;
-    font-size:7.5px;
-  }
-
-  .head-actions{
-    gap:5px;
-  }
-  .head-actions .icon-btn{
-    flex-basis:31px;
-    width:31px;
-    height:31px;
-    min-width:31px;
-    min-height:31px;
-  }
-
-  .character-result{
-    grid-template-columns:34px minmax(0,1fr) auto;
-  }
-  .character-result-group{
-    grid-column:auto;
-    max-width:78px;
-    justify-self:end;
-    text-align:right;
-  }
-
-  .identity-card{
-    padding:17px 14px;
-  }
-}
-</style>
-
-
-<style id="akc-phone-profile-v145">
-/* =========================================================
-   PHONE PROFILE DRAWER + COMPACT CHARACTER PICKER
-   Phone-only. Tablet and desktop remain unchanged.
-   ========================================================= */
-@media (max-width:700px){
-
-  /* Prevent the full-height picker grid from stretching character rows. */
   .character-results{
+    min-height:0;
+    padding:0 12px 12px;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
     align-content:start;
     grid-auto-rows:max-content;
   }
   .character-result{
+    gap:9px;
+    padding:10px;
     align-self:start;
     height:auto;
     min-height:48px;
@@ -1656,6 +1406,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     align-items:center;
   }
   .character-result-monogram{
+    font-size:14px;
     align-self:center;
     justify-self:center;
     line-height:1;
@@ -1668,61 +1419,48 @@ window.addEventListener('DOMContentLoaded',()=>{
     align-self:stretch;
   }
   .character-result-copy strong{
+    font-size:12px;
     width:100%;
     line-height:1.2;
   }
   .character-result-group{
+    max-width:92px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
     align-self:center;
     justify-self:end;
     line-height:1.2;
     text-align:right;
-  }
-
-  /* PROFILE returns to the old phone identity/portrait slot, left of CHAT. */
-  .mobile-profile-toggle{
-    display:grid;
-    flex:0 0 42px;
-    width:42px;
-    height:42px;
-    padding:0;
-    place-items:center;
-    border:1px solid var(--line);
-    border-radius:50%;
-    background:
-      radial-gradient(circle at 35% 28%,
-        color-mix(in srgb,var(--violet) 36%,var(--panel2)),
-        color-mix(in srgb,var(--panel) 94%,black) 68%);
-    color:var(--ink);
-    box-shadow:0 0 14px color-mix(in srgb,var(--violet) 16%,transparent);
-    cursor:pointer;
-    font:800 11px/1 ui-monospace,SFMono-Regular,Consolas,monospace;
-    letter-spacing:.04em;
-    touch-action:manipulation;
   }
   .mobile-profile-toggle span{
     display:block;
     line-height:1;
     text-align:center;
   }
-
-  /* Reuse the actual portrait/sidebar area as a top drawer. */
   .terminal{
+    width:100%;
+    height:100%;
+    max-width:none;
+    max-height:100%;
+    min-height:0;
+    display:block;
+    border:0;
+    border-radius:0;
     position:relative;
   }
   .sidebar{
     display:flex;
     position:absolute;
     z-index:170;
-    inset:
-      0
+    inset:0
       0
       auto
       0;
     width:100%;
     max-height:min(78dvh,680px);
     box-sizing:border-box;
-    padding:
-      max(12px,env(safe-area-inset-top))
+    padding:max(12px,env(safe-area-inset-top))
       14px
       16px;
     border-right:0;
@@ -1735,12 +1473,10 @@ window.addEventListener('DOMContentLoaded',()=>{
     visibility:hidden;
     opacity:0;
     pointer-events:none;
-    transition:
-      transform .34s cubic-bezier(.22,.8,.26,1),
+    transition:transform .34s cubic-bezier(.22,.8,.26,1),
       opacity .22s ease,
       visibility 0s linear .34s;
-    box-shadow:
-      0 22px 60px rgba(0,0,0,.5),
+    box-shadow:0 22px 60px rgba(0,0,0,.5),
       0 0 28px color-mix(in srgb,var(--violet) 22%,transparent);
   }
   .sidebar.mobile-profile-open{
@@ -1748,15 +1484,11 @@ window.addEventListener('DOMContentLoaded',()=>{
     visibility:visible;
     opacity:1;
     pointer-events:auto;
-    transition:
-      transform .34s cubic-bezier(.22,.8,.26,1),
+    transition:transform .34s cubic-bezier(.22,.8,.26,1),
       opacity .22s ease,
       visibility 0s linear 0s;
   }
-
-  /* The drawer is for the portrait/profile area, not duplicate terminal branding. */
-  .sidebar .brand,
-  .sidebar .profile{
+  .sidebar .brand, .sidebar .profile{
     display:none;
   }
   .sidebar .character-card{
@@ -1765,7 +1497,6 @@ window.addEventListener('DOMContentLoaded',()=>{
     margin:0;
     box-sizing:border-box;
   }
-
   .mobile-profile-close{
     display:grid;
     position:sticky;
@@ -1780,194 +1511,16 @@ window.addEventListener('DOMContentLoaded',()=>{
     background:color-mix(in srgb,var(--panel) 94%,black);
     box-shadow:0 5px 16px rgba(0,0,0,.28);
   }
-
   .mobile-profile-toggle.active{
     color:var(--ink);
     border-color:var(--violet);
-    background:
-      radial-gradient(circle at 35% 28%,
+    background:radial-gradient(circle at 35% 28%,
         color-mix(in srgb,var(--cyan) 32%,var(--violet)),
         color-mix(in srgb,var(--panel2) 72%,var(--violet)) 70%);
     box-shadow:0 0 18px color-mix(in srgb,var(--violet) 28%,transparent);
   }
-}
-
-@media (max-width:420px){
-  .character-result{
-    min-height:44px;
-    padding:9px;
-  }
-
-  .sidebar{
-    max-height:82dvh;
-    padding-left:11px;
-    padding-right:11px;
-  }
-}
-</style>
-
-
-
-<style id="akc-responsive-header-v149">
-/* =========================================================
-   RESPONSIVE HEADER
-   One row on tablet + phone. Desktop remains unchanged.
-   ========================================================= */
-
-/* Tablet landscape: identity text | modes | tools */
-@media
-  (min-width:701px)
-  and (max-width:1400px)
-  and (orientation:landscape)
-  and (pointer:coarse)
-  and (hover:none){
-
   .chat-head{
-    display:grid !important;
-    grid-template-columns:minmax(150px,1fr) auto auto !important;
-    grid-template-areas:"identity modes tools" !important;
-    align-items:center !important;
-    gap:10px !important;
-    min-height:64px;
-    padding:8px 14px;
-  }
-
-  .channel-info{
-    grid-area:identity !important;
-    align-self:center !important;
-    min-width:0 !important;
-  }
-
-  .mode-tabs{
-    grid-area:modes !important;
-    width:auto !important;
-    order:initial !important;
-    display:flex !important;
-    align-items:center !important;
-    align-self:center !important;
-    justify-content:center !important;
-    gap:7px !important;
-    overflow-x:auto;
-    overflow-y:hidden;
-    scrollbar-width:none;
-  }
-  .mode-tabs::-webkit-scrollbar{display:none}
-
-  .head-actions{
-    grid-area:tools !important;
-    width:auto !important;
-    margin:0 !important;
-    padding:0 !important;
-    display:flex !important;
-    align-items:center !important;
-    align-self:center !important;
-    justify-content:flex-end !important;
-    flex-wrap:nowrap !important;
-    gap:6px !important;
-    overflow:visible !important;
-  }
-
-  .head-actions .icon-btn{
-    flex:0 0 32px;
-    width:32px;
-    height:32px;
-    align-self:center;
-  }
-
-  /* Restore the normal top-right notification position, below the one-row header. */
-  .toast{
-    position:absolute !important;
-    top:76px !important;
-    right:14px !important;
-    bottom:auto !important;
-    left:auto !important;
-    max-width:min(360px,calc(100% - 28px)) !important;
-    z-index:110 !important;
-  }
-}
-
-/* Tablet portrait: switch | modes | tools, all on one row. */
-@media
-  (min-width:701px)
-  and (max-width:1100px)
-  and (orientation:portrait)
-  and (pointer:coarse)
-  and (hover:none){
-
-  .chat-head{
-    display:grid !important;
-    grid-template-columns:auto minmax(0,1fr) auto !important;
-    grid-template-areas:"identity modes tools" !important;
-    align-items:center !important;
-    gap:10px !important;
-    min-height:64px;
-    padding:10px 14px;
-  }
-
-  .channel-info{
-    grid-area:identity !important;
-    align-self:center !important;
-    min-width:0 !important;
-  }
-
-  .mode-tabs{
-    grid-area:modes !important;
-    width:auto !important;
-    display:flex !important;
-    align-items:center !important;
-    align-self:center !important;
-    justify-content:flex-start !important;
-    gap:7px !important;
-    padding:0 !important;
-    overflow-x:auto !important;
-    overflow-y:hidden !important;
-    scrollbar-width:none;
-  }
-  .mode-tabs::-webkit-scrollbar{display:none}
-  .mode-tabs .mode-tab,
-  #specialModuleNav .mode-tab{
-    flex:0 0 auto;
-    min-height:36px;
-  }
-
-  .head-actions{
-    grid-area:tools !important;
-    width:auto !important;
-    margin:0 !important;
-    padding:0 !important;
-    display:flex !important;
-    align-items:center !important;
-    align-self:center !important;
-    justify-content:flex-end !important;
-    flex-wrap:nowrap !important;
-    gap:7px !important;
-    overflow:visible !important;
-  }
-
-  .head-actions .icon-btn{
-    flex:0 0 36px !important;
-    width:36px !important;
-    height:36px !important;
-    min-width:36px !important;
-    min-height:36px !important;
-    align-self:center !important;
-  }
-
-  .toast{
-    position:absolute !important;
-    top:78px !important;
-    right:14px !important;
-    bottom:auto !important;
-    left:auto !important;
-    max-width:min(360px,calc(100% - 28px)) !important;
-    z-index:110 !important;
-  }
-}
-
-/* Phone: profile | modes | tools, all on one row. */
-@media (max-width:700px){
-
-  .chat-head{
+    height:auto;
     display:grid !important;
     grid-template-columns:auto minmax(0,1fr) auto !important;
     grid-template-areas:"identity modes tools" !important;
@@ -1976,19 +1529,39 @@ window.addEventListener('DOMContentLoaded',()=>{
     min-height:58px;
     padding:8px 9px !important;
   }
-
   .channel-info{
+    display:flex;
+    align-items:center;
+    gap:0;
     grid-area:identity !important;
     align-self:center !important;
     justify-content:center !important;
     min-width:0 !important;
   }
-
   .mobile-profile-toggle{
+    display:grid;
+    flex:0 0 42px;
+    width:42px;
+    height:42px;
+    padding:0;
+    place-items:center;
+    border:1px solid var(--line);
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 28%,
+        color-mix(in srgb,var(--violet) 36%,var(--panel2)),
+        color-mix(in srgb,var(--panel) 94%,black) 68%);
+    color:var(--ink);
+    box-shadow:0 0 14px color-mix(in srgb,var(--violet) 16%,transparent);
+    cursor:pointer;
+    font:800 11px/1 ui-monospace,SFMono-Regular,Consolas,monospace;
+    letter-spacing:.04em;
+    touch-action:manipulation;
     align-self:center !important;
   }
-
   .mode-tabs{
+    padding-bottom:2px;
+    overscroll-behavior-x:contain;
+    -webkit-overflow-scrolling:touch;
     grid-area:modes !important;
     width:auto !important;
     min-width:0 !important;
@@ -2002,16 +1575,22 @@ window.addEventListener('DOMContentLoaded',()=>{
     overflow-y:hidden !important;
     scrollbar-width:none;
   }
-  .mode-tabs::-webkit-scrollbar{display:none}
-
-  .mode-tabs .mode-tab,
-  #specialModuleNav .mode-tab{
+  .mode-tabs::-webkit-scrollbar{
+    display:none;
+  }
+  .mode-tabs .mode-tab, #specialModuleNav .mode-tab{
+    touch-action:manipulation;
     flex:0 0 auto;
     min-height:32px;
     padding:7px 8px;
   }
-
   .head-actions{
+    overflow-x:auto;
+    overflow-y:hidden;
+    scrollbar-gutter:auto;
+    overscroll-behavior-x:contain;
+    -webkit-overflow-scrolling:touch;
+    align-content:center;
     grid-area:tools !important;
     width:auto !important;
     margin:0 !important;
@@ -2024,13 +1603,14 @@ window.addEventListener('DOMContentLoaded',()=>{
     gap:5px !important;
     overflow:visible !important;
   }
-
-  /* Switching already lives inside the phone profile drawer. */
   .head-actions .mobile-character-switch{
     display:none !important;
   }
-
   .head-actions .icon-btn{
+    display:inline-grid !important;
+    place-items:center;
+    border-radius:9px;
+    touch-action:manipulation;
     flex:0 0 32px !important;
     width:32px !important;
     height:32px !important;
@@ -2038,9 +1618,8 @@ window.addEventListener('DOMContentLoaded',()=>{
     min-height:32px !important;
     align-self:center !important;
   }
-
-  /* Keep the phone toast in its familiar top-right area under the single row. */
   .toast{
+    z-index:110;
     top:68px !important;
     right:9px !important;
     left:auto !important;
@@ -2049,29 +1628,56 @@ window.addEventListener('DOMContentLoaded',()=>{
   }
 }
 
+/* PHONE — NARROW */
 @media (max-width:420px){
+  .mode-tab{
+    padding:6px 7px;
+    font-size:7.5px;
+  }
+  .bubble{
+    max-width:98%;
+    font-size:12.5px;
+  }
+  .chip{
+    font-size:9px;
+  }
+  .character-result-group{
+    grid-column:auto;
+    max-width:78px;
+    justify-self:end;
+    text-align:right;
+  }
+  .identity-card{
+    padding:17px 14px;
+  }
+  .character-result{
+    grid-template-columns:34px minmax(0,1fr) auto;
+    min-height:44px;
+    padding:9px;
+  }
+  .sidebar{
+    max-height:82dvh;
+    padding-left:11px;
+    padding-right:11px;
+  }
   .chat-head{
     grid-template-columns:42px minmax(0,1fr) auto !important;
     gap:5px !important;
     padding:7px !important;
   }
-
   .mobile-profile-toggle{
     width:38px;
     height:38px;
     flex-basis:38px;
   }
-
   .mode-tabs{
     gap:4px !important;
   }
-  .mode-tabs .mode-tab,
-  #specialModuleNav .mode-tab{
+  .mode-tabs .mode-tab, #specialModuleNav .mode-tab{
     min-height:30px;
     padding:6px 7px;
     font-size:7.5px;
   }
-
   .head-actions{
     gap:4px !important;
   }
@@ -2082,7 +1688,6 @@ window.addEventListener('DOMContentLoaded',()=>{
     min-width:29px !important;
     min-height:29px !important;
   }
-
   .toast{
     top:64px !important;
   }

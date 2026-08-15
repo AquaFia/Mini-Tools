@@ -45,6 +45,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;background-ima
 .profile{margin-top:12px;display:flex;justify-content:space-between;align-items:end}.profile strong{font-size:18px}.profile span{display:block;color:var(--muted);font-size:11px}.online{font:700 9px ui-monospace,monospace;color:#7ef7c1}.online:before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#7ef7c1;margin-right:6px;box-shadow:0 0 10px #7ef7c1}
 .chat{display:grid;grid-template-rows:auto minmax(0,1fr) auto;min-height:0;overflow:hidden;background:linear-gradient(180deg,rgba(16,14,28,.95),rgba(9,9,16,.98));min-width:0}.chat-head{height:clamp(64px,5vw,76px);padding:0 clamp(18px,1.6vw,28px);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #2e203d}.chat-head b{letter-spacing:.08em;font-size:13px}.chat-head small{display:block;color:var(--muted);font-family:ui-monospace,monospace;font-size:9px;margin-top:3px}.head-actions{display:flex;gap:8px}.icon-btn{border:1px solid #3b2850;background:#151020;color:#cfc3e9;width:34px;height:34px;border-radius:10px;cursor:pointer}
 .mobile-character-switch{display:none}
+.mobile-profile-toggle,.mobile-profile-close{display:none}
 .icon-btn:hover{border-color:var(--violet);color:#fff}.icon-btn.toggle-on{border-color:var(--cyan);color:#fff;box-shadow:0 0 14px rgba(102,232,255,.22);background:#13212b}.icon-btn.toggle-on:after{content:"";position:absolute;width:6px;height:6px;border-radius:50%;background:#7ef7c1;box-shadow:0 0 8px #7ef7c1;transform:translate(4px,-10px)}.icon-btn{position:relative}
 .log{padding:clamp(18px,1.7vw,30px);min-height:0;overflow-y:auto;overflow-x:hidden;scroll-behavior:smooth;overscroll-behavior:contain;scrollbar-gutter:stable}.message{display:flex;gap:10px;margin:0 0 17px;animation:rise .28s ease both}@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}.message.user{justify-content:flex-end}.bubble{max-width:min(78%,760px);padding:clamp(12px,.9vw,16px) clamp(14px,1vw,18px);border-radius:16px;font-size:clamp(14px,.8vw,16px);line-height:1.5;white-space:pre-wrap}.assistant .bubble{background:linear-gradient(135deg,#201431,#15152a);border:1px solid #4a2b68;border-top-left-radius:5px}.user .bubble{background:linear-gradient(135deg,#263b78,#34235f);border:1px solid #5267ad;border-top-right-radius:5px}.name{font:800 9px ui-monospace,monospace;letter-spacing:.12em;color:#bd9cff;margin:0 0 5px}.stamp{font:8px ui-monospace,monospace;color:#716b82;margin-top:6px}.typing{display:inline-flex;gap:4px;align-items:center}.typing i{width:5px;height:5px;border-radius:50%;background:#b990ff;animation:dot 1s infinite}.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}@keyframes dot{50%{transform:translateY(-4px);opacity:.45}}
 .composer{padding:clamp(14px,1.15vw,20px) clamp(18px,1.5vw,26px) clamp(18px,1.5vw,26px);border-top:1px solid #2d203a;background:rgba(8,8,15,.82)}.quick{display:flex;gap:7px;overflow:auto;padding-bottom:10px}.chip{
@@ -1629,10 +1630,132 @@ window.addEventListener('DOMContentLoaded',()=>{
 }
 </style>
 
+
+<style id="akc-phone-profile-v145">
+/* =========================================================
+   PHONE PROFILE DRAWER + COMPACT CHARACTER PICKER
+   Phone-only. Tablet and desktop remain unchanged.
+   ========================================================= */
+@media (max-width:700px){
+
+  /* Prevent the full-height picker grid from stretching character rows. */
+  .character-results{
+    align-content:start;
+    grid-auto-rows:max-content;
+  }
+  .character-result{
+    align-self:start;
+    height:auto;
+    min-height:48px;
+  }
+
+  /* PROFILE is a phone-only mode control beside CHAT. */
+  .mobile-profile-toggle{
+    display:inline-flex;
+  }
+
+  /* Reuse the actual portrait/sidebar area as a top drawer. */
+  .terminal{
+    position:relative;
+  }
+  .sidebar{
+    display:flex;
+    position:absolute;
+    z-index:170;
+    inset:
+      0
+      0
+      auto
+      0;
+    width:100%;
+    max-height:min(78dvh,680px);
+    box-sizing:border-box;
+    padding:
+      max(12px,env(safe-area-inset-top))
+      14px
+      16px;
+    border-right:0;
+    border-bottom:1px solid color-mix(in srgb,var(--violet) 52%,var(--line));
+    border-radius:0 0 18px 18px;
+    overflow:auto;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+    transform:translateY(-105%);
+    visibility:hidden;
+    opacity:0;
+    pointer-events:none;
+    transition:
+      transform .34s cubic-bezier(.22,.8,.26,1),
+      opacity .22s ease,
+      visibility 0s linear .34s;
+    box-shadow:
+      0 22px 60px rgba(0,0,0,.5),
+      0 0 28px color-mix(in srgb,var(--violet) 22%,transparent);
+  }
+  .sidebar.mobile-profile-open{
+    transform:translateY(0);
+    visibility:visible;
+    opacity:1;
+    pointer-events:auto;
+    transition:
+      transform .34s cubic-bezier(.22,.8,.26,1),
+      opacity .22s ease,
+      visibility 0s linear 0s;
+  }
+
+  /* The drawer is for the portrait/profile area, not duplicate terminal branding. */
+  .sidebar .brand,
+  .sidebar .profile{
+    display:none;
+  }
+  .sidebar .character-card{
+    width:100%;
+    min-height:0;
+    margin:0;
+    box-sizing:border-box;
+  }
+
+  .mobile-profile-close{
+    display:grid;
+    position:sticky;
+    top:0;
+    z-index:3;
+    align-self:flex-end;
+    flex:0 0 auto;
+    margin:0 0 8px auto;
+    place-items:center;
+    width:34px;
+    height:34px;
+    background:color-mix(in srgb,var(--panel) 94%,black);
+    box-shadow:0 5px 16px rgba(0,0,0,.28);
+  }
+
+  .mobile-profile-toggle.active{
+    color:var(--ink);
+    border-color:var(--violet);
+    background:color-mix(in srgb,var(--panel2) 72%,var(--violet));
+  }
+}
+
+@media (max-width:420px){
+  .character-result{
+    min-height:44px;
+    padding:9px;
+  }
+
+  .sidebar{
+    max-height:82dvh;
+    padding-left:11px;
+    padding-right:11px;
+  }
+}
+</style>
+
 </head>
 <body>
 <main class="terminal" id="terminal">
-  <aside class="sidebar">
+  <aside class="sidebar" id="profileSidebar">
+    <button class="icon-btn mobile-profile-close" id="mobileProfileCloseBtn" type="button" aria-label="Close profile">×</button>
     <div class="brand"><div class="sigil" id="sigil">--</div><div><h1 id="brandTitle">COMPANION//LINK</h1><small id="brandSubtitle">COMPANION TERMINAL</small></div></div>
     <div class="character-card" id="characterCard">
       <div class="character-monogram" id="characterMonogram">--</div>
@@ -1655,6 +1778,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   <section class="chat">
     <header class="chat-head"><div class="channel-info"><div class="channel-copy"><b id="channelTitle">COMPANION CHANNEL</b><small id="channel">channel: loading // initializing</small></div></div><div class="mode-tabs" aria-label="Interface mode">
   <button class="mode-tab active" id="chatModeBtn" type="button">CHAT</button>
+  <button class="mode-tab mobile-profile-toggle" id="mobileProfileBtn" type="button" aria-expanded="false">PROFILE</button>
   <button class="mode-tab" id="topicsModeBtn" type="button">TOPICS</button>
   <span id="specialModuleNav"></span>
 </div>
@@ -2481,6 +2605,7 @@ const SpecialModuleRuntime=Object.freeze({
     content:specialModuleMount
   }),
   enterSpecialMode(){
+    setMobileProfileOpen(false);
     closeTopicsMode({resume:false});
     chatPanel.classList.add('special-module-active');
     chatModeBtn.classList.remove('active');
@@ -2518,6 +2643,7 @@ const SpecialModuleController={
 };
 
 chatModeBtn.addEventListener('click',()=>{
+  setMobileProfileOpen(false);
   if(Framework.specialModule?.close){
     Framework.specialModule.close();
   }
@@ -3200,6 +3326,9 @@ const dataFileInput=document.querySelector('#dataFileInput');
 const libraryBtn=document.querySelector('#libraryBtn');
 const chatPanel=document.querySelector('.chat');
 const chatModeBtn=document.querySelector('#chatModeBtn');
+const mobileProfileBtn=document.querySelector('#mobileProfileBtn');
+const mobileProfileCloseBtn=document.querySelector('#mobileProfileCloseBtn');
+const profileSidebar=document.querySelector('#profileSidebar');
 const topicsModeBtn=document.querySelector('#topicsModeBtn');
 const topicsMount=document.querySelector('#topicsMount');
 const topicsList=document.querySelector('#topicsList');
@@ -3297,6 +3426,35 @@ function episodeQuickStartTrigger(record){
   return String(episode?.triggers?.[0]||'').trim();
 }
 
+function setMobileProfileOpen(open){
+  const allowed=window.matchMedia('(max-width:700px)').matches;
+  const next=Boolean(open&&allowed);
+
+  profileSidebar?.classList.toggle('mobile-profile-open',next);
+  mobileProfileBtn?.classList.toggle('active',next);
+  mobileProfileBtn?.setAttribute('aria-expanded',String(next));
+
+  if(next){
+    if(Framework.specialModule?.close)Framework.specialModule.close();
+    closeTopicsMode({resume:false});
+    chatModeBtn?.classList.remove('active');
+  }else if(!chatPanel.classList.contains('topics-active') &&
+           !chatPanel.classList.contains('special-module-active')){
+    chatModeBtn?.classList.add('active');
+  }
+}
+
+mobileProfileBtn?.addEventListener('click',()=>{
+  setMobileProfileOpen(!profileSidebar?.classList.contains('mobile-profile-open'));
+});
+mobileProfileCloseBtn?.addEventListener('click',()=>setMobileProfileOpen(false));
+
+window.addEventListener('resize',()=>{
+  if(!window.matchMedia('(max-width:700px)').matches){
+    setMobileProfileOpen(false);
+  }
+});
+
 function renderTopicSelector(){
   if(!topicsModeBtn || !topicsList)return;
   topicsList.replaceChildren();
@@ -3340,6 +3498,7 @@ function closeTopicsMode({resume=true}={}){
 
 function openTopicsMode(){
   if(topicsModeBtn.disabled)return false;
+  setMobileProfileOpen(false);
   if(Framework.specialModule?.close){
     Framework.specialModule.close();
   }
@@ -3738,6 +3897,7 @@ dossierBtn.onclick=function(event){
     render();
   }
   function open(event){
+    setMobileProfileOpen(false);
     lastOpenBtn=event?.currentTarget||openBtn||mobileOpenBtn;
     picker.classList.add('open');
     picker.setAttribute('aria-hidden','false');

@@ -21,7 +21,9 @@
     button { color: inherit; }
     .scene { position: relative; width: 100%; min-height: 100vh; overflow: hidden; background: #090605; }
     .scene > img { display: block; width: 100%; height: 100vh; object-fit: contain; object-position: center; user-select: none; -webkit-user-drag: none; }
-    .hotspot { position: absolute; left: 76.5%; top: 23%; width: 20%; height: 55%; border: 2px solid transparent; border-radius: 18px; background: transparent; cursor: pointer; transition: .2s ease; }
+    .hotspot { position: absolute; top: 23%; height: 55%; border: 2px solid transparent; border-radius: 18px; background: transparent; cursor: pointer; transition: .2s ease; }
+    .hotspot-memory { left: 76.5%; width: 20%; }
+    .hotspot-books { left: 2.5%; width: 17.5%; }
     .hotspot:hover, .hotspot:focus-visible { outline: none; border-color: rgba(255,206,116,.9); background: rgba(216,162,74,.08); box-shadow: 0 0 0 8px rgba(216,162,74,.08), inset 0 0 45px rgba(216,162,74,.1); }
     .hint { position: absolute; right: 2rem; bottom: 1.4rem; padding: .75rem 1rem; border: 1px solid var(--gold-soft); border-radius: 999px; background: rgba(10,7,6,.74); backdrop-filter: blur(10px); color: #f3d9a7; pointer-events: none; }
     .archive-shell { position: fixed; inset: 0; z-index: 20; display: none; overflow: auto; background:
@@ -71,6 +73,8 @@
     .book-cover::after { content: ""; position: absolute; left: 18px; right: 18px; top: 20px; bottom: 20px; border-top: 2px solid rgba(233,204,132,.55); border-bottom: 2px solid rgba(233,204,132,.55); pointer-events: none; }
     .book-cover:hover, .book-cover:focus-visible { z-index: 4; outline: none; transform: translateY(-10px) rotate(var(--tilt)) scale(1.025); filter: brightness(1.12); box-shadow: -9px 18px 20px rgba(0,0,0,.62), inset 1px 0 rgba(255,255,255,.2), inset -3px 0 rgba(0,0,0,.32); }
     .book-cover-title.title-compact { letter-spacing: 0; }
+    .book-source { position:absolute; left:14px; right:14px; bottom:28px; z-index:2; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:center; font-size:.68rem; letter-spacing:.04em; color:rgba(243,217,167,.78); text-shadow:0 1px 2px #1b0d08; }
+    .collection-book .book-cover-title { inset: 30px 13px 54px; }
     .book-cover-title { position: absolute; inset: 30px 13px; display: flex; align-items: center; justify-content: center; overflow: hidden; text-align: center; font-family: Georgia, serif; font-size: var(--title-size, .9rem); font-weight: 800; line-height: var(--title-line, 1.12); letter-spacing: .012em; text-wrap: balance; overflow-wrap: normal; word-break: normal; hyphens: none; text-shadow: 0 2px 2px rgba(40,19,5,.8); }
     .empty-shelf { width: 100%; align-self: center; text-align: center; color: #bca990; font-style: italic; padding: 2rem; z-index: 2; }
 
@@ -127,11 +131,18 @@
     .columns { display: flex; gap: 1.3rem; align-items: flex-start; }
     .column { flex: 1 1 0; min-width: 0; }
     .child-page { margin: .5rem 0; padding: .65rem .8rem; border: 1px solid rgba(216,162,74,.18); border-radius: 8px; }
+    .book-synopsis { margin: 1rem 0 1.35rem; padding: 1rem 1.1rem; border: 1px solid rgba(123,82,48,.22); border-radius: 10px; background: rgba(117,77,45,.06); color: var(--ink); line-height: 1.65; white-space: pre-wrap; }
+    .chapter-list { display:grid; gap:.7rem; margin-top:1.2rem; }
+    .chapter-button { width:100%; text-align:left; padding:.8rem .9rem; border:1px solid rgba(216,162,74,.22); border-radius:8px; background:rgba(255,255,255,.025); color:var(--text); cursor:pointer; }
+    .chapter-button:hover, .chapter-button:focus-visible { background:rgba(216,162,74,.08); border-color:rgba(216,162,74,.4); }
+    .chapter-meta { display:block; margin-top:.25rem; color:var(--muted); font-size:.78rem; }
     .unsupported { color: var(--muted); font-family: Inter, sans-serif; font-size: .85rem; margin: .5rem 0; }
     .truncate-note { margin: 2rem 0; padding: .8rem 1rem; border: 1px solid rgba(255,180,169,.3); border-radius: 9px; color: var(--danger); }
     @media (max-width: 700px) {
       .hint { font-size: .8rem; right: .7rem; bottom: .7rem; }
-      .hotspot { left: 70%; top: 20%; width: 28%; height: 58%; }
+      .hotspot { top: 20%; height: 58%; }
+      .hotspot-memory { left: 70%; width: 28%; }
+      .hotspot-books { left: 2%; width: 25%; }
       .archive-inner { padding: .45rem; }
       .archive-head { grid-template-columns: auto 1fr; }
       .archive-actions { display: none; }
@@ -154,8 +165,9 @@
 <body>
   <main class="scene">
     <img src="library.png" alt="A dark library with floor-to-ceiling bookshelves" />
-    <button class="hotspot" id="bookshelfHotspot" aria-label="Open memory archive"></button>
-    <div class="hint">Click the right bookshelf to open the memory archive</div>
+    <button class="hotspot hotspot-books" id="bookCollectionHotspot" aria-label="Open book collection"></button>
+    <button class="hotspot hotspot-memory" id="bookshelfHotspot" aria-label="Open memory archive"></button>
+    <div class="hint">Left bookshelf: books · Right bookshelf: memories</div>
   </main>
 
   <section class="archive-shell" id="archiveShell" aria-hidden="true">
@@ -187,6 +199,26 @@
     </div>
   </section>
 
+  <section class="archive-shell" id="bookShell" aria-hidden="true">
+    <div class="archive-inner">
+      <header class="archive-head">
+        <button class="icon-btn" id="bookCloseBtn" type="button">← Library</button>
+        <h1 class="archive-title">Book Collection</h1>
+        <div class="archive-actions"><button class="icon-btn" id="bookRefreshBtn" type="button">Refresh</button></div>
+      </header>
+      <div class="archive-tools">
+        <div class="search-wrap">
+          <input id="bookSearchInput" type="search" placeholder="Search book titles…" />
+          <div class="filter-bar">
+            <div class="collection-filters" id="bookLabelFilters"></div>
+          </div>
+        </div>
+        <div class="status" id="bookStatus">Waiting to load.</div>
+      </div>
+      <div class="shelves" id="bookShelves"></div>
+    </div>
+  </section>
+
   <div class="reader-shell" id="readerShell" aria-hidden="true">
     <article class="reader" role="dialog" aria-modal="true" aria-labelledby="readerTitle">
       <div class="reader-top">
@@ -201,11 +233,21 @@
     </article>
   </div>
 
+  <script src="external_books.js"></script>
   <script>
     const API_ENDPOINT = "https://memory-scenes.aquafia1247.workers.dev/api/memories";
+    const BOOKS_API_ENDPOINT = "https://memory-scenes.aquafia1247.workers.dev/api/books";
 
     const archiveShell = document.getElementById("archiveShell");
     const hotspot = document.getElementById("bookshelfHotspot");
+    const bookHotspot = document.getElementById("bookCollectionHotspot");
+    const bookShell = document.getElementById("bookShell");
+    const bookCloseBtn = document.getElementById("bookCloseBtn");
+    const bookRefreshBtn = document.getElementById("bookRefreshBtn");
+    const bookSearchInput = document.getElementById("bookSearchInput");
+    const bookStatusEl = document.getElementById("bookStatus");
+    const bookShelvesEl = document.getElementById("bookShelves");
+    const bookLabelFilters = document.getElementById("bookLabelFilters");
     const closeBtn = document.getElementById("closeBtn");
     const refreshBtn = document.getElementById("refreshBtn");
     const searchInput = document.getElementById("searchInput");
@@ -222,8 +264,12 @@
     const notionLink = document.getElementById("notionLink");
 
     let memories = [];
+    let books = [];
+    let booksLoadedOnce = false;
     let loadedOnce = false;
     let activeRequest = 0;
+    let activeSeriesBook = null;
+    let selectedBookLabel = "all";
     let selectedCharacters = new Set();
     let selectedCollection = "all";
 
@@ -240,6 +286,19 @@
       document.body.style.overflow = "";
     }
 
+    function openBookCollection() {
+      bookShell.classList.add("open");
+      bookShell.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+      if (!booksLoadedOnce) loadBooks();
+    }
+
+    function closeBookCollection() {
+      bookShell.classList.remove("open");
+      bookShell.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    }
+
     function openReader() {
       readerShell.classList.add("open");
       readerShell.setAttribute("aria-hidden", "false");
@@ -250,7 +309,7 @@
       activeRequest += 1;
       readerShell.classList.remove("open");
       readerShell.setAttribute("aria-hidden", "true");
-      document.body.style.overflow = "";
+      document.body.style.overflow = (archiveShell.classList.contains("open") || bookShell.classList.contains("open")) ? "hidden" : "";
     }
 
     function escapeHtml(value = "") {
@@ -325,6 +384,48 @@
       </button>`;
     }
 
+    function collectionBookStyle(book) {
+      const base = bookStyle(book);
+      if (book.sourceKey === "akailem") {
+        return `${base};--book-h:225px;--book-w:145px`;
+      }
+      return base;
+    }
+
+    function akailemOrder(book) {
+      if (book.sourceKey !== "akailem") return Number.POSITIVE_INFINITY;
+      const match = String(book.title || "").match(/^Book\s+(\d+(?:\.\d+)?)/i);
+      return match ? Number(match[1]) : Number.POSITIVE_INFINITY;
+    }
+
+    function sortCollectionBooks(items) {
+      return items.map((book, index) => ({ book, index })).sort((a, b) => {
+        const aAkailem = a.book.sourceKey === "akailem";
+        const bAkailem = b.book.sourceKey === "akailem";
+        if (aAkailem && bAkailem) {
+          const orderDiff = akailemOrder(a.book) - akailemOrder(b.book);
+          if (Number.isFinite(orderDiff) && orderDiff !== 0) return orderDiff;
+          if (Number.isFinite(akailemOrder(a.book)) !== Number.isFinite(akailemOrder(b.book))) {
+            return Number.isFinite(akailemOrder(a.book)) ? -1 : 1;
+          }
+          return String(a.book.title || "").localeCompare(String(b.book.title || ""), undefined, { numeric: true });
+        }
+        return a.index - b.index;
+      }).map(entry => entry.book);
+    }
+
+    function renderCollectionBook(book) {
+      const style = `${collectionBookStyle(book)};${titleStyle(book)}`;
+      const title = book.title || "Untitled book";
+      const attrs = book.kind === "external"
+        ? `data-external-url="${escapeHtml(book.url || "")}"`
+        : `data-book-source="${escapeHtml(book.sourceKey || "")}" data-book-page="${escapeHtml(book.pageId || "")}"`;
+      return `<button class="book-cover collection-book" type="button" ${attrs} style="${style}" title="${escapeHtml(title)} — ${escapeHtml(book.source || "")}" aria-label="Open ${escapeHtml(title)}">
+        <span class="book-cover-title">${escapeHtml(title)}</span>
+        <span class="book-source">${escapeHtml(book.source || (book.kind === "external" ? "External" : "Notion"))}</span>
+      </button>`;
+    }
+
     function fitBookTitles(root = shelvesEl) {
       root.querySelectorAll(".book-cover-title").forEach(titleEl => {
         const book = titleEl.closest(".book-cover");
@@ -355,6 +456,10 @@
       return [118,132,145,156,168][(seed >>> 5) % 5] + 16;
     }
 
+    function getCollectionBookWidth(book) {
+      return book.sourceKey === "akailem" ? 145 + 16 : getBookWidth(book);
+    }
+
     function buildShelfRows(items) {
       if (!items.length) return ['<div class="shelf-row"><div class="empty-shelf">No memories match these filters.</div></div>'];
       const available = Math.max(280, shelvesEl.clientWidth - 60);
@@ -373,6 +478,179 @@
       }
       if (current.length) rows.push(current);
       return rows.map(row => `<div class="shelf-row">${row.map(renderBook).join("")}</div>`);
+    }
+
+    function buildBookShelfRows(items) {
+      if (!items.length) return ['<div class="shelf-row"><div class="empty-shelf">No books match these filters.</div></div>'];
+      const available = Math.max(280, bookShelvesEl.clientWidth - 60);
+      const rows = [];
+      let current = [];
+      let used = 0;
+      for (const book of items) {
+        const width = getCollectionBookWidth(book);
+        if (current.length && used + width > available) {
+          rows.push(current);
+          current = [];
+          used = 0;
+        }
+        current.push(book);
+        used += width;
+      }
+      if (current.length) rows.push(current);
+      return rows.map(row => `<div class="shelf-row">${row.map(renderCollectionBook).join("")}</div>`);
+    }
+
+    function bookLabel(book) {
+      return String(book.source || "Unlabelled").trim() || "Unlabelled";
+    }
+
+    function renderBookLabelFilters() {
+      const labels = [];
+      const seen = new Set();
+      for (const book of books) {
+        const label = bookLabel(book);
+        const key = label.toLowerCase();
+        if (!seen.has(key)) {
+          seen.add(key);
+          labels.push(label);
+        }
+      }
+
+      if (selectedBookLabel !== "all" && !seen.has(selectedBookLabel)) selectedBookLabel = "all";
+      bookLabelFilters.innerHTML = [
+        `<button class="collection-btn ${selectedBookLabel === "all" ? "active" : ""}" type="button" data-book-label="all">All</button>`,
+        ...labels.map(label => {
+          const key = label.toLowerCase();
+          return `<button class="collection-btn ${selectedBookLabel === key ? "active" : ""}" type="button" data-book-label="${escapeHtml(key)}">${escapeHtml(label)}</button>`;
+        })
+      ].join("");
+    }
+
+    function applyBookSearch() {
+      const q = bookSearchInput.value.trim().toLowerCase();
+      const filtered = sortCollectionBooks(books.filter(book => {
+        const matchesLabel = selectedBookLabel === "all" || bookLabel(book).toLowerCase() === selectedBookLabel;
+        const matchesSearch = !q || (book.title || "").toLowerCase().includes(q) || bookLabel(book).toLowerCase().includes(q);
+        return matchesLabel && matchesSearch;
+      }));
+      bookShelvesEl.innerHTML = buildBookShelfRows(filtered).join("");
+      requestAnimationFrame(() => fitBookTitles(bookShelvesEl));
+      bookStatusEl.textContent = `${filtered.length} of ${books.length} books shown.`;
+    }
+
+    function getExternalBooks() {
+      const configured = Array.isArray(window.EXTERNAL_BOOKS) ? window.EXTERNAL_BOOKS : [];
+      return configured
+        .filter(item => item && item.title && item.url)
+        .map((item, index) => ({
+          id: `external:${index}:${String(item.title)}`,
+          kind: "external",
+          title: String(item.title),
+          source: String(item.label || "External"),
+          url: String(item.url),
+          lastEdited: null
+        }));
+    }
+
+    async function loadBooks() {
+      bookStatusEl.classList.remove("error");
+      bookStatusEl.textContent = "Loading books…";
+      bookRefreshBtn.disabled = true;
+      try {
+        const response = await fetch(BOOKS_API_ENDPOINT, { cache: "no-store" });
+        if (!response.ok) throw new Error(`Request failed with ${response.status}`);
+        const data = await response.json();
+        const workerBooks = Array.isArray(data) ? data : data.books || [];
+        books = [...workerBooks, ...getExternalBooks()];
+        booksLoadedOnce = true;
+        renderBookLabelFilters();
+        applyBookSearch();
+      } catch (error) {
+        console.error(error);
+        bookStatusEl.classList.add("error");
+        bookStatusEl.textContent = `Could not load books: ${error.message}`;
+        bookShelvesEl.innerHTML = '<div class="empty-shelf">The book collection is unavailable right now.</div>';
+      } finally {
+        bookRefreshBtn.disabled = false;
+      }
+    }
+
+    async function loadBook(sourceKey, pageId) {
+      const requestId = ++activeRequest;
+      openReader();
+      activeSeriesBook = null;
+      readerBackBtn.textContent = "← Book Collection";
+      notionLink.textContent = "Open in Notion ↗";
+      notionLink.style.visibility = "hidden";
+      readerScroll.innerHTML = '<div class="reader-loading">Opening book…</div>';
+      try {
+        const response = await fetch(`${BOOKS_API_ENDPOINT}/${encodeURIComponent(sourceKey)}/${encodeURIComponent(pageId)}`, { cache: "no-store" });
+        if (!response.ok) {
+          const payload = await response.json().catch(() => ({}));
+          throw new Error(payload.detail || payload.error || `Request failed with ${response.status}`);
+        }
+        const data = await response.json();
+        if (requestId !== activeRequest) return;
+        if (Array.isArray(data.chapters)) {
+          activeSeriesBook = { sourceKey, pageId, title: data.book?.title || "Book" };
+          renderChapterList(data);
+        } else {
+          renderMemory(data);
+        }
+      } catch (error) {
+        if (requestId !== activeRequest) return;
+        console.error(error);
+        readerScroll.innerHTML = `<div class="reader-loading" style="color:var(--danger)">Could not open this book.<br><small>${escapeHtml(error.message)}</small></div>`;
+      }
+    }
+
+    function renderChapterList(data) {
+      const book = data.book || {};
+      notionLink.href = safeUrl(book.url || "#");
+      notionLink.style.visibility = "visible";
+      const chapters = data.chapters || [];
+      const chapterHtml = chapters.length
+        ? chapters.map(chapter => {
+            const number = chapter.number == null ? "" : `Chapter ${chapter.number}`;
+            const meta = [number, chapter.status].filter(Boolean).map(escapeHtml).join(" · ");
+            return `<button class="chapter-button" type="button" data-akailem-chapter="${escapeHtml(chapter.id || "")}">
+              <strong>${escapeHtml(chapter.title || "Untitled chapter")}</strong>
+              ${meta ? `<span class="chapter-meta">${meta}</span>` : ""}
+            </button>`;
+          }).join("")
+        : '<div class="empty-shelf">No chapters are available for this book yet.</div>';
+
+      readerScroll.innerHTML = `
+        <header class="page-head">
+          <h1 class="page-title" id="readerTitle">${escapeHtml(book.title || "Untitled book")}</h1>
+          <div class="page-meta">${escapeHtml(book.source || "Akailem")} · ${chapters.length} chapter${chapters.length === 1 ? "" : "s"}</div>
+        </header>
+        ${book.synopsis ? `<div class="book-synopsis">${escapeHtml(book.synopsis)}</div>` : ""}
+        <div class="chapter-list">${chapterHtml}</div>`;
+      readerScroll.scrollTop = 0;
+    }
+
+    async function loadAkailemChapter(chapterId) {
+      const requestId = ++activeRequest;
+      const series = activeSeriesBook;
+      readerBackBtn.textContent = series ? `← ${series.title}` : "← Book Collection";
+      notionLink.style.visibility = "hidden";
+      readerScroll.innerHTML = '<div class="reader-loading">Opening chapter…</div>';
+      try {
+        const response = await fetch(`${BOOKS_API_ENDPOINT}/akailem/chapters/${encodeURIComponent(chapterId)}`, { cache: "no-store" });
+        if (!response.ok) {
+          const payload = await response.json().catch(() => ({}));
+          throw new Error(payload.detail || payload.error || `Request failed with ${response.status}`);
+        }
+        const data = await response.json();
+        if (requestId !== activeRequest) return;
+        renderMemory(data);
+        readerBackBtn.textContent = series ? `← ${series.title}` : "← Book Collection";
+      } catch (error) {
+        if (requestId !== activeRequest) return;
+        console.error(error);
+        readerScroll.innerHTML = `<div class="reader-loading" style="color:var(--danger)">Could not open this chapter.<br><small>${escapeHtml(error.message)}</small></div>`;
+      }
     }
 
     function isRecent(memory) {
@@ -440,8 +718,11 @@
     }
 
     async function loadMemory(id) {
+      activeSeriesBook = null;
       const requestId = ++activeRequest;
       openReader();
+      readerBackBtn.textContent = "← Archive";
+      notionLink.textContent = "Open in Notion ↗";
       notionLink.style.visibility = "hidden";
       readerScroll.innerHTML = '<div class="reader-loading">Opening memory…</div>';
 
@@ -462,7 +743,7 @@
     }
 
     function renderMemory(data) {
-      const memory = data.memory || {};
+      const memory = data.memory || data.book || {};
       notionLink.href = safeUrl(memory.url || "#");
       notionLink.style.visibility = "visible";
 
@@ -472,7 +753,7 @@
           ? `<div class="page-icon"><img src="${escapeHtml(safeUrl(memory.icon.value))}" alt="" /></div>`
           : "";
       const cover = memory.cover?.url ? `<img class="cover" src="${escapeHtml(safeUrl(memory.cover.url))}" alt="" />` : "";
-      const meta = [memory.status, memory.date ? `Date: ${memory.date}` : "", memory.lastEdited ? `Updated ${new Date(memory.lastEdited).toLocaleString()}` : ""].filter(Boolean).map(escapeHtml).join(" · ");
+      const meta = [memory.source, memory.status, memory.date ? `Date: ${memory.date}` : "", memory.lastEdited ? `Updated ${new Date(memory.lastEdited).toLocaleString()}` : ""].filter(Boolean).map(escapeHtml).join(" · ");
 
       readerScroll.innerHTML = `
         ${cover}
@@ -591,6 +872,17 @@
     }
 
     hotspot.addEventListener("click", openArchive);
+    bookHotspot.addEventListener("click", openBookCollection);
+    bookCloseBtn.addEventListener("click", closeBookCollection);
+    bookRefreshBtn.addEventListener("click", loadBooks);
+    bookSearchInput.addEventListener("input", applyBookSearch);
+    bookLabelFilters.addEventListener("click", event => {
+      const button = event.target.closest("[data-book-label]");
+      if (!button) return;
+      selectedBookLabel = button.dataset.bookLabel || "all";
+      bookLabelFilters.querySelectorAll(".collection-btn").forEach(el => el.classList.toggle("active", el === button));
+      applyBookSearch();
+    });
     closeBtn.addEventListener("click", closeArchive);
     refreshBtn.addEventListener("click", loadMemories);
     searchInput.addEventListener("input", applyFilters);
@@ -627,17 +919,38 @@
       }
     });
     let resizeTimer;
-    window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => loadedOnce && applyFilters(), 120); });
+    window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { if (loadedOnce) applyFilters(); if (booksLoadedOnce) applyBookSearch(); }, 120); });
     shelvesEl.addEventListener("click", event => {
       const book = event.target.closest("[data-memory-id]");
       if (book) loadMemory(book.dataset.memoryId);
     });
+    bookShelvesEl.addEventListener("click", event => {
+      const external = event.target.closest("[data-external-url]");
+      if (external) {
+        const url = safeUrl(external.dataset.externalUrl || "");
+        if (url !== "#") window.open(url, "_blank", "noopener,noreferrer");
+        return;
+      }
+      const notionBook = event.target.closest("[data-book-source][data-book-page]");
+      if (notionBook) loadBook(notionBook.dataset.bookSource, notionBook.dataset.bookPage);
+    });
     readerCloseBtn.addEventListener("click", closeReader);
-    readerBackBtn.addEventListener("click", closeReader);
+    readerScroll.addEventListener("click", event => {
+      const chapter = event.target.closest("[data-akailem-chapter]");
+      if (chapter) loadAkailemChapter(chapter.dataset.akailemChapter);
+    });
+    readerBackBtn.addEventListener("click", () => {
+      if (activeSeriesBook && readerBackBtn.textContent !== "← Book Collection") {
+        loadBook(activeSeriesBook.sourceKey, activeSeriesBook.pageId);
+        return;
+      }
+      closeReader();
+    });
     readerShell.addEventListener("click", event => { if (event.target === readerShell) closeReader(); });
     document.addEventListener("keydown", event => {
       if (event.key !== "Escape") return;
       if (readerShell.classList.contains("open")) closeReader();
+      else if (bookShell.classList.contains("open")) closeBookCollection();
       else closeArchive();
     });
   </script>

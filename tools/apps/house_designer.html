@@ -1,0 +1,2066 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>House Designer v1.0.0</title>
+<style>
+  body.dark-mode{filter:invert(1);}
+  html.dark-mode{background:#000;}
+  .dark-toggle{display:flex;align-items:center;gap:7px;white-space:nowrap;font-size:12px;user-select:none}
+  .dark-toggle input{position:absolute;opacity:0;pointer-events:none}
+  .dark-toggle-track{position:relative;width:40px;height:22px;border-radius:999px;background:#c9cdd3;border:1px solid #9ba2aa;cursor:pointer;transition:background .15s ease;flex:0 0 auto}
+  .dark-toggle-track::after{content:'';position:absolute;width:16px;height:16px;left:2px;top:2px;border-radius:50%;background:#fff;border:1px solid #858b93;transition:transform .15s ease}
+  .dark-toggle input:checked + .dark-toggle-track{background:#252a31}
+  .dark-toggle input:checked + .dark-toggle-track::after{transform:translateX(18px)}
+  .dark-toggle input:focus-visible + .dark-toggle-track{outline:2px solid #405cf5;outline-offset:2px}
+
+  :root{
+    --bg:#f4f5f7; --panel:#ffffff; --ink:#1f2328; --muted:#6e7781; --line:#d8dee4;
+    --accent:#405cf5; --accent-soft:#eef1ff; --danger:#c62828; --ok:#177245;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font:14px/1.35 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:var(--bg)}
+  button,input,select{font:inherit}
+  button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 10px;cursor:pointer}
+  button:hover{background:#f7f8fa}
+  button.active{background:var(--accent-soft);border-color:#aeb8ff;color:#2338ba}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  .app{height:100%;display:grid;grid-template-rows:auto 1fr auto}
+  .topbar{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--panel);border-bottom:1px solid var(--line);overflow:auto}
+  .brand{font-weight:800;white-space:nowrap;margin-right:6px}
+  .spacer{flex:1}
+  .workspace{min-height:0;display:grid;grid-template-columns:190px 1fr 260px}
+  .workspace.presentation{grid-template-columns:1fr}
+  .workspace.presentation .canvas-wrap{grid-column:1}
+  .workspace.presentation .left,
+  .workspace.presentation .right{display:none}
+  .presentation-exit{
+    display:none;
+    position:absolute;
+    top:12px;
+    right:12px;
+    z-index:20;
+    border:1px solid var(--line);
+    background:rgba(255,255,255,.94);
+    border-radius:8px;
+    padding:8px 11px;
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
+  }
+  .workspace.presentation .presentation-exit{display:block}
+  .panel{background:var(--panel);padding:12px;overflow:auto}
+  .left{border-right:1px solid var(--line)}
+  .right{border-left:1px solid var(--line)}
+  .panel h3{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:14px 0 7px}
+  .panel h3:first-child{margin-top:0}
+  .toolgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .toolgrid button{padding:9px 6px}
+  .field{display:grid;gap:5px;margin:8px 0}
+  .field label{font-size:12px;color:var(--muted)}
+  .field input,.field select{width:100%;border:1px solid var(--line);border-radius:7px;padding:7px;background:#fff}
+  .canvas-wrap{position:relative;overflow:hidden;background:#e9ebef}
+  canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
+  .hint{position:absolute;left:12px;top:12px;background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:8px;padding:7px 9px;color:var(--muted);pointer-events:none;max-width:440px}
+  .statusbar{display:flex;gap:16px;align-items:center;padding:7px 12px;background:var(--panel);border-top:1px solid var(--line);font-size:12px;color:var(--muted);overflow:auto}
+  .statusbar .ok{color:var(--ok);font-weight:700}
+  .statusbar .bad{color:var(--danger);font-weight:700}
+  .floor-row{display:flex;gap:6px}
+  .floor-row select{min-width:110px}
+  .list{display:grid;gap:6px}
+  .validation{font-size:12px}
+  .validation .item{border:1px solid var(--line);border-radius:7px;padding:7px;margin:5px 0;background:#fff}
+  .validation .warn{border-left:4px solid #d97706}
+  .validation .err{border-left:4px solid var(--danger)}
+  .muted{color:var(--muted)}
+  .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 4px;background:#fff}
+  .compact{padding:6px 8px}
+  @media(max-width:900px){
+    .workspace{grid-template-columns:150px 1fr}
+    .right{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">House Designer <span class="muted">v1.7.4</span></div>
+    <div class="field" style="margin:0;min-width:210px">
+      <label style="font-size:11px">House Name</label>
+      <input id="houseName" type="text" value="Untitled House" style="padding:6px 8px">
+    </div>
+    <label class="dark-toggle" title="Invert all editor colors">
+      <span>Dark Mode</span>
+      <input id="darkModeToggle" type="checkbox" aria-label="Dark Mode">
+      <span class="dark-toggle-track" aria-hidden="true"></span>
+    </label>
+    <div class="floor-row">
+      <select id="floorSelect"></select>
+      <button id="addFloor" title="Add floor">+ Floor</button>
+      <button id="duplicateFloor" title="Duplicate floor">Duplicate</button>
+      <button id="moveFloorUp" title="Move floor up">↑</button>
+      <button id="moveFloorDown" title="Move floor down">↓</button>
+      <button id="renameFloor" title="Rename floor">Rename</button>
+      <button id="deleteFloor" title="Delete floor">Delete</button>
+    </div>
+    <button id="undoBtn">Undo</button>
+    <button id="redoBtn">Redo</button>
+    <button id="walkBtn">Enter Walk Test</button>
+    <div class="spacer"></div>
+    <button id="saveBtn">Save Project</button>
+    <button id="loadBtn">Load Project</button>
+    <input id="loadInput" type="file" accept=".json,application/json" hidden>
+  </header>
+
+  <main class="workspace">
+    <aside class="panel left">
+      <h3>Build</h3>
+      <div class="toolgrid" id="tools">
+        <button data-tool="select">Select</button>
+        <button data-tool="wall" class="active">Wall</button>
+        <button data-tool="room">Room</button>
+        <button data-tool="door">Door</button>
+        <button data-tool="window">Window</button>
+        <button data-tool="stairs">Stairs</button>
+        <button data-tool="spawn">Spawn</button>
+        <button data-tool="label">Label</button>
+        <button data-tool="erase">Erase</button>
+      </div>
+
+      <h3>Objects</h3>
+      <div class="field">
+        <label>Object type</label>
+        <select id="objectType">
+          <optgroup label="Bedroom">
+            <option value="f:bed">Bed</option>
+            <option value="f:wardrobe">Wardrobe</option>
+          </optgroup>
+          <optgroup label="Living">
+            <option value="f:sofa">Sofa</option>
+            <option value="f:chair">Chair</option>
+            <option value="f:table">Table</option>
+            <option value="f:desk">Desk</option>
+            <option value="f:rug">Rug</option>
+          </optgroup>
+          <optgroup label="Kitchen">
+            <option value="f:counter">Counter</option>
+            <option value="f:cabinet">Cabinet</option>
+            <option value="f:sink">Sink</option>
+            <option value="a:island">Kitchen Island</option>
+          </optgroup>
+          <optgroup label="Bathroom">
+            <option value="f:toilet">Toilet</option>
+            <option value="f:tub">Tub / Shower</option>
+          </optgroup>
+          <optgroup label="Architecture">
+            <option value="a:column">Column / Pillar</option>
+            <option value="a:railing">Railing / Banister</option>
+            <option value="a:fireplace">Fireplace</option>
+            <option value="a:shelving">Built-in Shelving</option>
+          </optgroup>
+          <optgroup label="Generic">
+            <option value="f:custom">Custom Rectangle</option>
+            <option value="a:shape">Decorative Rectangle</option>
+          </optgroup>
+        </select>
+      </div>
+      <button id="placeObject" style="width:100%">Place Object</button>
+      <div class="muted" style="margin-top:5px">Placement stays active until you choose another tool.</div>
+      <label style="display:block;margin-top:8px"><input id="showFurnitureToggle" type="checkbox" checked> Show objects</label>
+      <label style="display:block;margin-top:6px"><input id="wallSnapToggle" type="checkbox" checked> Snap objects/stairs to nearby walls</label>
+
+      <h3>Walls</h3>
+      <div class="field">
+        <label>Default wall thickness (px)</label>
+        <input id="defaultWallThickness" type="number" min="3" max="40" step="1" value="7">
+      </div>
+      <button id="cleanupWalls" style="width:100%">Clean Duplicate Walls</button>
+
+      <h3>Grid</h3>
+      <div class="field">
+        <label>Grid spacing</label>
+        <select id="gridSize">
+          <option value="12.5">0.25 m / 0.82 ft</option>
+          <option value="25" selected>0.50 m / 1.64 ft</option>
+          <option value="50">1.00 m / 3.28 ft</option>
+        </select>
+      </div>
+      <label><input id="snapToggle" type="checkbox" checked> Snap to grid</label>
+      <div class="muted" style="margin-top:6px">Fixed scale: 50 px = 1 metre. Measurements are automatic.</div>
+      <label><input id="showRoomsToggle" type="checkbox" checked> Show detected rooms</label>
+
+      <h3>Floor Overlay</h3>
+      <div class="field">
+        <label>Show another floor underneath</label>
+        <select id="overlayFloorSelect"><option value="">None</option></select>
+      </div>
+      <div class="field">
+        <label>Overlay opacity</label>
+        <input id="overlayOpacity" type="range" min="0.05" max="0.75" step="0.05" value="0.25">
+      </div>
+
+      <h3>Visibility</h3>
+      <label style="display:block"><input id="showStairsToggle" type="checkbox" checked> Show stairs</label>
+      <label style="display:block;margin-top:6px"><input id="showLabelsToggle" type="checkbox" checked> Show labels</label>
+      <label style="display:block;margin-top:6px"><input id="showReferenceToggle" type="checkbox" checked> Show reference image</label>
+
+      <h3>Reference</h3>
+      <div class="list">
+        <button id="refBtn">Load Floor Plan Image</button>
+        <input id="refInput" type="file" accept="image/*" hidden>
+        <div class="field">
+          <label>Opacity</label>
+          <input id="refOpacity" type="range" min="0" max="1" step=".05" value=".35">
+        </div>
+        <button id="clearRef" class="compact">Clear Reference</button>
+      </div>
+
+      <h3>View</h3>
+      <div class="list">
+        <button id="zoomIn">Zoom In</button>
+        <button id="zoomOut">Zoom Out</button>
+        <button id="resetView">Reset View</button>
+        <button id="fitView">Fit House in View</button>
+        <button id="presentationMode">Presentation Mode</button>
+        <button id="exportPNG">Export PNG</button>
+      </div>
+
+      <h3>Shortcuts</h3>
+      <div class="muted">
+        <div><span class="kbd">Del</span> delete selected</div>
+        <div><span class="kbd">Ctrl/Cmd Z</span> undo</div>
+        <div><span class="kbd">Ctrl/Cmd Y</span> redo</div>
+        <div><span class="kbd">Esc</span> cancel drawing</div>
+        <div>Two-finger scroll: pan</div>
+        <div>Trackpad pinch: zoom</div>
+        <div>Click inside a closed room to select it</div>
+      </div>
+    </aside>
+
+    <section class="canvas-wrap" id="canvasWrap">
+      <button id="presentationExit" class="presentation-exit">Exit Presentation</button>
+      <canvas id="canvas"></canvas>
+      <div class="hint" id="hint">Wall: drag from one point to another. Hold Shift for perfectly horizontal/vertical walls.</div>
+    </section>
+
+    <aside class="panel right">
+      <h3>Selected</h3>
+      <div id="selectionPanel" class="muted">Nothing selected.</div>
+
+      <h3>Selection Tools</h3>
+      <div class="toolgrid">
+        <button id="copySelected">Copy</button>
+        <button id="pasteSelected">Paste</button>
+        <button id="lockSelected">Lock</button>
+        <button id="unlockSelected">Unlock</button>
+      </div>
+      <div class="toolgrid" style="margin-top:6px">
+        <button id="alignLeft">Align Left</button>
+        <button id="alignRight">Align Right</button>
+        <button id="alignTop">Align Top</button>
+        <button id="alignBottom">Align Bottom</button>
+        <button id="distributeH">Distribute H</button>
+        <button id="distributeV">Distribute V</button>
+      </div>
+
+      <h3>Validation</h3>
+      <button id="validateBtn">Check House</button>
+      <div id="validation" class="validation muted">No validation run yet.</div>
+    </aside>
+  </main>
+
+  <footer class="statusbar">
+    <span id="statusTool">Tool: Wall</span>
+    <span id="statusCoords">X: 0, Y: 0</span>
+    <span id="statusFloor">Floor: Floor 1</span>
+    <span id="statusState" class="ok">Ready</span>
+  </footer>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const VERSION = '1.7.4';
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const wrap = document.getElementById('canvasWrap');
+  const floorSelect = document.getElementById('floorSelect');
+  const toolsEl = document.getElementById('tools');
+  const hint = document.getElementById('hint');
+  const selectionPanel = document.getElementById('selectionPanel');
+  const validationEl = document.getElementById('validation');
+  const statusTool = document.getElementById('statusTool');
+  const statusCoords = document.getElementById('statusCoords');
+  const statusFloor = document.getElementById('statusFloor');
+  const statusState = document.getElementById('statusState');
+  const walkBtn = document.getElementById('walkBtn');
+
+  const state = {
+    projectName: 'Untitled House',
+    floors: [{ id: crypto.randomUUID(), name: 'Floor 1', elements: [], reference: null, roomMeta: {} }],
+    activeFloorId: null,
+    tool: 'wall',
+    selectedId: null,
+    selectedRoomKey: null,
+    drawing: null,
+    grid: 25,
+    snap: true,
+    showRooms: true,
+    zoom: 1,
+    panX: 0,
+    panY: 0,
+    undo: [],
+    redo: [],
+    walkMode: false,
+    player: { floorId:null, x:0, y:0, radius:8, speed:2.8 },
+    keys: new Set(),
+    stairCooldown: 0,
+    stairLockedUntilExit: false,
+    showFurniture: true,
+    wallSnapFurniture: true,
+    selectedIds: [],
+    clipboard: [],
+    overlayFloorId: null,
+    overlayOpacity: 0.25,
+    showStairs: true,
+    showLabels: true,
+    showReference: true,
+    boxSelect: null,
+    defaultWallThickness: 7,
+    presentationMode: false,
+    darkMode: false
+  };
+  state.activeFloorId = state.floors[0].id;
+
+  const toolHints = {
+    select: 'Select: click an object or room. Drag walls perpendicular to themselves to resize rooms; connected walls stretch automatically.',
+    wall: 'Wall: drag from one point to another. Hold Shift for perfectly horizontal/vertical walls.',
+    room: 'Room: drag a rectangle. Four real walls are created; the enclosed room is detected automatically.',
+    door: 'Door: click near a wall to place it. Select it later to slide it, resize it, or flip the swing.',
+    window: 'Window: click near a wall to place it. Select it later to slide it or resize it.',
+    stairs: 'Stairs: click to place stairs. Select them to pair them to another floor.',
+    spawn: 'Spawn: click where Walk Test should begin on this floor.',
+    label: 'Label: click to place a free text label.',
+    erase: 'Erase: click an element to remove it.',
+    object: 'Objects: click to place the selected object. Keep clicking to place more until you choose another tool.'
+  };
+
+  const floor = () => state.floors.find(f => f.id === state.activeFloorId);
+  const floorById = id => state.floors.find(f => f.id === id);
+  const FIXED_PX_PER_METER = 50;
+  const mpx = metres => metres * FIXED_PX_PER_METER;
+  const METERS_TO_FEET = 3.280839895;
+  const SQ_METERS_TO_SQ_FEET = 10.763910417;
+  const pxPerMeter = () => FIXED_PX_PER_METER;
+  const meters = px => px / FIXED_PX_PER_METER;
+  const feet = px => meters(px) * METERS_TO_FEET;
+  const sqMeters = px2 => px2 / (FIXED_PX_PER_METER * FIXED_PX_PER_METER);
+  const sqFeet = px2 => sqMeters(px2) * SQ_METERS_TO_SQ_FEET;
+  const formatLength = px => `${meters(px).toFixed(2)} m · ${feet(px).toFixed(2)} ft`;
+  const formatArea = px2 => `${sqMeters(px2).toFixed(2)} m² · ${sqFeet(px2).toFixed(2)} ft²`;
+  const wallThickness = w => Math.max(3, Number(w?.thickness)||state.defaultWallThickness||7);
+  const wallHalf = w => wallThickness(w)/2;
+
+  function ensureFloorShape(f) {
+    if (!f.roomMeta) f.roomMeta = {};
+    if (!Array.isArray(f.elements)) f.elements = [];
+    if (f.reference === undefined) f.reference = null;
+    if (f.spawn === undefined) f.spawn = null;
+  }
+
+  function safeProjectFilename(name){
+    const cleaned=String(name||'Untitled House')
+      .trim()
+      .replace(/[<>:"/\\|?*\x00-\x1F]/g,'')
+      .replace(/\s+/g,' ')
+      .replace(/[. ]+$/g,'');
+    return cleaned || 'Untitled House';
+  }
+
+  function cloneProjectData() {
+    const floors = state.floors.map(f => ({
+      id:f.id, name:f.name, elements:f.elements,
+      reference:f.reference ? {src:f.reference.src,name:f.reference.name||''}:null,
+      roomMeta:f.roomMeta||{}, spawn:f.spawn||null
+    }));
+    return JSON.stringify({
+      projectName:state.projectName,floors,activeFloorId:state.activeFloorId,
+      grid:state.grid,snap:state.snap,showRooms:state.showRooms,showFurniture:state.showFurniture,wallSnapFurniture:state.wallSnapFurniture,overlayFloorId:state.overlayFloorId,overlayOpacity:state.overlayOpacity,showStairs:state.showStairs,showLabels:state.showLabels,showReference:state.showReference,defaultWallThickness:state.defaultWallThickness
+    });
+  }
+
+  function migrateLegacyScaleData(d){
+    const legacy=Number(d?.metersPerGrid);
+    const grid=Number(d?.grid)||25;
+    if(!legacy || !grid || legacy<=0)return d;
+    const oldPxPerMeter=grid/legacy;
+    if(Math.abs(oldPxPerMeter-FIXED_PX_PER_METER)<1e-9){delete d.metersPerGrid;return d;}
+    const factor=FIXED_PX_PER_METER/oldPxPerMeter;
+    const out=JSON.parse(JSON.stringify(d));
+    for(const f of out.floors||[]){
+      if(f.spawn){f.spawn.x*=factor;f.spawn.y*=factor;}
+      for(const e of f.elements||[]){
+        for(const k of ['x','y','x1','y1','x2','y2','w','h','widthPx']){if(Number.isFinite(e[k]))e[k]*=factor;}
+      }
+    }
+    delete out.metersPerGrid;
+    return out;
+  }
+
+  function restoreProjectData(json) {
+    let d=JSON.parse(json);
+    d=migrateLegacyScaleData(d);
+    state.projectName=d.projectName||'Untitled House';
+    state.floors=d.floors||[];
+    const houseNameInput=document.getElementById('houseName');
+    if(houseNameInput)houseNameInput.value=state.projectName;
+    state.floors.forEach(ensureFloorShape);
+    state.activeFloorId=d.activeFloorId||state.floors[0]?.id;
+    state.grid=[12.5,25,50].includes(Number(d.grid))?Number(d.grid):25;
+    state.snap=d.snap!==false;
+    state.showRooms=d.showRooms!==false;
+    state.showFurniture=d.showFurniture!==false;
+    state.wallSnapFurniture=d.wallSnapFurniture!==false;
+    state.overlayFloorId=d.overlayFloorId||null;
+    state.overlayOpacity=Number(d.overlayOpacity)||0.25;
+    state.showStairs=d.showStairs!==false;
+    state.showLabels=d.showLabels!==false;
+    state.showReference=d.showReference!==false;
+    state.defaultWallThickness=Number(d.defaultWallThickness)||7;
+    state.selectedId=null;state.selectedRoomKey=null;state.drawing=null;
+    state.walkMode=false;state.keys.clear();walkBtn.textContent='Enter Walk Test';
+    document.getElementById('gridSize').value=state.grid;
+    document.getElementById('snapToggle').checked=state.snap;
+    document.getElementById('showRoomsToggle').checked=state.showRooms;
+    document.getElementById('showFurnitureToggle').checked=state.showFurniture;
+    document.getElementById('wallSnapToggle').checked=state.wallSnapFurniture;
+    document.getElementById('overlayOpacity').value=state.overlayOpacity;
+    document.getElementById('showStairsToggle').checked=state.showStairs;
+    document.getElementById('showLabelsToggle').checked=state.showLabels;
+    document.getElementById('showReferenceToggle').checked=state.showReference;
+    document.getElementById('defaultWallThickness').value=state.defaultWallThickness;
+    refreshFloorSelect();renderSelection();draw();
+  }
+
+  function checkpoint(){
+    state.undo.push(cloneProjectData());
+    if(state.undo.length>80)state.undo.shift();
+    state.redo.length=0;updateUndoButtons();
+  }
+  function undo(){if(!state.undo.length||state.walkMode)return;state.redo.push(cloneProjectData());restoreProjectData(state.undo.pop());updateUndoButtons();}
+  function redo(){if(!state.redo.length||state.walkMode)return;state.undo.push(cloneProjectData());restoreProjectData(state.redo.pop());updateUndoButtons();}
+  function updateUndoButtons(){
+    document.getElementById('undoBtn').disabled=!state.undo.length||state.walkMode;
+    document.getElementById('redoBtn').disabled=!state.redo.length||state.walkMode;
+  }
+
+
+  function refreshOverlayFloorSelect(){
+    const sel=document.getElementById('overlayFloorSelect');
+    if(!sel)return;
+    const current=state.activeFloorId;
+    sel.innerHTML='<option value="">None</option>';
+    state.floors.filter(f=>f.id!==current).forEach(f=>{
+      const o=document.createElement('option');o.value=f.id;o.textContent=f.name;sel.appendChild(o);
+    });
+    if(state.overlayFloorId===current || !state.floors.some(f=>f.id===state.overlayFloorId))state.overlayFloorId=null;
+    sel.value=state.overlayFloorId||'';
+  }
+
+  function currentSelectedElements(){
+    const ids=new Set(state.selectedIds.length?state.selectedIds:((state.selectedId&&state.selectedId!=='__spawn__')?[state.selectedId]:[]));
+    return floor()?.elements.filter(e=>ids.has(e.id))||[];
+  }
+
+  function setSingleSelection(id){
+    state.selectedId=id||null;
+    state.selectedIds=id?[id]:[];
+    state.selectedRoomKey=null;
+  }
+
+  function clearSelection(){
+    state.selectedId=null;state.selectedIds=[];state.selectedRoomKey=null;
+  }
+
+  function toggleSelection(id){
+    const s=new Set(state.selectedIds);
+    if(s.has(id))s.delete(id);else s.add(id);
+    state.selectedIds=[...s];
+    state.selectedId=state.selectedIds.length===1?state.selectedIds[0]:null;
+    state.selectedRoomKey=null;
+  }
+
+  function furnitureCorners(e,pad=0){
+    const hw=(Number(e.w)||0)/2 + pad;
+    const hh=(Number(e.h)||0)/2 + pad;
+    const a=(Number(e.rotation)||0)*Math.PI/180;
+    const c=Math.cos(a),s=Math.sin(a);
+
+    return [
+      {x:e.x + (-hw*c - -hh*s), y:e.y + (-hw*s + -hh*c)},
+      {x:e.x + ( hw*c - -hh*s), y:e.y + ( hw*s + -hh*c)},
+      {x:e.x + ( hw*c -  hh*s), y:e.y + ( hw*s +  hh*c)},
+      {x:e.x + (-hw*c -  hh*s), y:e.y + (-hw*s +  hh*c)}
+    ];
+  }
+
+  function pointInsideFurniture(px,py,e,pad=0){
+    if(!e || !Number.isFinite(e.x) || !Number.isFinite(e.y))return false;
+
+    const a=-(Number(e.rotation)||0)*Math.PI/180;
+    const dx=px-e.x,dy=py-e.y;
+    const c=Math.cos(a),s=Math.sin(a);
+    const lx=dx*c-dy*s;
+    const ly=dx*s+dy*c;
+
+    return Math.abs(lx)<=((Number(e.w)||0)/2+pad)
+        && Math.abs(ly)<=((Number(e.h)||0)/2+pad);
+  }
+
+  function elementBounds(e){
+    if(e.type==='wall'||e.type==='door'||e.type==='window'){
+      return {minX:Math.min(e.x1,e.x2),maxX:Math.max(e.x1,e.x2),minY:Math.min(e.y1,e.y2),maxY:Math.max(e.y1,e.y2)};
+    }
+    if(e.type==='furniture'||e.type==='stairs'||e.type==='arch'){
+      const c=furnitureCorners(e);
+      return {minX:Math.min(...c.map(p=>p.x)),maxX:Math.max(...c.map(p=>p.x)),minY:Math.min(...c.map(p=>p.y)),maxY:Math.max(...c.map(p=>p.y))};
+    }
+    if(e.type==='label')return {minX:e.x-30,maxX:e.x+30,minY:e.y-15,maxY:e.y+15};
+    return {minX:e.x||0,maxX:e.x||0,minY:e.y||0,maxY:e.y||0};
+  }
+
+  function moveElementBy(e,dx,dy){
+    if(e.locked)return;
+    if(e.x1!==undefined){e.x1+=dx;e.x2+=dx;e.y1+=dy;e.y2+=dy;}
+    else {e.x+=dx;e.y+=dy;}
+  }
+
+  function copySelection(){
+    const items=currentSelectedElements();
+    if(!items.length)return;
+    state.clipboard=items.map(e=>JSON.parse(JSON.stringify(e)));
+    statusState.textContent=`Copied ${items.length} object${items.length===1?'':'s'}`;statusState.className='ok';
+  }
+
+  function pasteSelection(){
+    if(!state.clipboard.length||state.walkMode)return;
+    checkpoint();
+    clearSelection();
+    const created=[];
+    for(const src of state.clipboard){
+      const e=JSON.parse(JSON.stringify(src));
+      e.id=crypto.randomUUID();
+      if(e.wallId)e.wallId=null;
+      if(e.linkedStairId){e.linkedStairId=null;e.targetFloorId=null;}
+      e.locked=false;
+      moveElementBy(e,state.grid,state.grid);
+      floor().elements.push(e);created.push(e.id);
+    }
+    state.selectedIds=created;state.selectedId=created.length===1?created[0]:null;
+    normalizeFurnitureZ(floor());renderSelection();draw();
+  }
+
+  function setSelectionLocked(locked){
+    const items=currentSelectedElements();if(!items.length)return;
+    checkpoint();items.forEach(e=>e.locked=locked);renderSelection();draw();
+  }
+
+  function alignSelection(kind){
+    const items=currentSelectedElements().filter(e=>!e.locked);if(items.length<2)return;
+    checkpoint();
+    const bs=items.map(e=>({e,b:elementBounds(e)}));
+    if(kind==='left'){const x=Math.min(...bs.map(x=>x.b.minX));bs.forEach(({e,b})=>moveElementBy(e,x-b.minX,0));}
+    if(kind==='right'){const x=Math.max(...bs.map(x=>x.b.maxX));bs.forEach(({e,b})=>moveElementBy(e,x-b.maxX,0));}
+    if(kind==='top'){const y=Math.min(...bs.map(x=>x.b.minY));bs.forEach(({e,b})=>moveElementBy(e,0,y-b.minY));}
+    if(kind==='bottom'){const y=Math.max(...bs.map(x=>x.b.maxY));bs.forEach(({e,b})=>moveElementBy(e,0,y-b.maxY));}
+    draw();renderSelection();
+  }
+
+  function distributeSelection(axis){
+    const items=currentSelectedElements().filter(e=>!e.locked);if(items.length<3)return;
+    checkpoint();
+    const arr=items.map(e=>({e,b:elementBounds(e)}));
+
+    if(axis==='h'){
+      arr.sort((a,b)=>a.b.minX-b.b.minX);
+
+      const first=arr[0],last=arr.at(-1);
+      const outerStart=first.b.minX;
+      const outerEnd=last.b.maxX;
+      const totalWidth=arr.reduce((sum,it)=>sum+(it.b.maxX-it.b.minX),0);
+      const gap=(outerEnd-outerStart-totalWidth)/(arr.length-1);
+
+      let cursor=first.b.maxX+gap;
+      for(let i=1;i<arr.length-1;i++){
+        const it=arr[i];
+        const width=it.b.maxX-it.b.minX;
+        const dx=cursor-it.b.minX;
+        moveElementBy(it.e,dx,0);
+        cursor+=width+gap;
+      }
+    }else{
+      arr.sort((a,b)=>a.b.minY-b.b.minY);
+
+      const first=arr[0],last=arr.at(-1);
+      const outerStart=first.b.minY;
+      const outerEnd=last.b.maxY;
+      const totalHeight=arr.reduce((sum,it)=>sum+(it.b.maxY-it.b.minY),0);
+      const gap=(outerEnd-outerStart-totalHeight)/(arr.length-1);
+
+      let cursor=first.b.maxY+gap;
+      for(let i=1;i<arr.length-1;i++){
+        const it=arr[i];
+        const height=it.b.maxY-it.b.minY;
+        const dy=cursor-it.b.minY;
+        moveElementBy(it.e,0,dy);
+        cursor+=height+gap;
+      }
+    }
+
+    draw();renderSelection();
+  }
+
+  function refreshFloorSelect(){
+    floorSelect.innerHTML='';
+    state.floors.forEach(f=>{const o=document.createElement('option');o.value=f.id;o.textContent=f.name;floorSelect.appendChild(o);});
+    floorSelect.value=state.activeFloorId;
+    floorSelect.disabled=state.walkMode;
+    statusFloor.textContent='Floor: '+(floor()?.name||'—');
+    refreshOverlayFloorSelect();
+  }
+
+  function resize(){
+    const r=wrap.getBoundingClientRect(),dpr=window.devicePixelRatio||1;
+    canvas.width=Math.max(1,Math.floor(r.width*dpr));canvas.height=Math.max(1,Math.floor(r.height*dpr));
+    canvas.style.width=r.width+'px';canvas.style.height=r.height+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);draw();
+  }
+
+  function screenToWorld(clientX,clientY){
+    const r=canvas.getBoundingClientRect();
+    return{x:(clientX-r.left-state.panX)/state.zoom,y:(clientY-r.top-state.panY)/state.zoom};
+  }
+  function snapped(p){if(!state.snap)return p;const g=state.grid;return{x:Math.round(p.x/g)*g,y:Math.round(p.y/g)*g};}
+
+  function drawGrid(w,h){
+    const g=state.grid*state.zoom;if(g<8)return;
+    const ox=((state.panX%g)+g)%g,oy=((state.panY%g)+g)%g;
+    ctx.save();ctx.strokeStyle='#dfe3e8';ctx.lineWidth=1;ctx.beginPath();
+    for(let x=ox;x<w;x+=g){ctx.moveTo(x,0);ctx.lineTo(x,h);}
+    for(let y=oy;y<h;y+=g){ctx.moveTo(0,y);ctx.lineTo(w,y);}
+    ctx.stroke();ctx.restore();
+  }
+
+  function drawReference(f){
+    if(!state.showReference||!f.reference?.src)return;
+    if(!f.reference.img){const img=new Image();img.onload=()=>{f.reference.img=img;draw();};img.src=f.reference.src;return;}
+    const img=f.reference.img;ctx.save();ctx.globalAlpha=Number(document.getElementById('refOpacity').value);
+    const s=Math.min(900/img.width,650/img.height,1);ctx.drawImage(img,0,0,img.width*s,img.height*s);ctx.restore();
+  }
+
+  function distPointSeg(px,py,x1,y1,x2,y2){
+    const vx=x2-x1,vy=y2-y1,wx=px-x1,wy=py-y1,c1=vx*wx+vy*wy;
+    if(c1<=0)return Math.hypot(px-x1,py-y1);const c2=vx*vx+vy*vy;
+    if(c2<=c1)return Math.hypot(px-x2,py-y2);const b=c1/c2,bx=x1+b*vx,by=y1+b*vy;return Math.hypot(px-bx,py-by);
+  }
+
+  function pointInPolygon(p,poly){
+    let inside=false;
+    for(let i=0,j=poly.length-1;i<poly.length;j=i++){
+      const a=poly[i],b=poly[j];
+      const hit=((a.y>p.y)!==(b.y>p.y))&&(p.x<(b.x-a.x)*(p.y-a.y)/((b.y-a.y)||1e-12)+a.x);
+      if(hit)inside=!inside;
+    }
+    return inside;
+  }
+
+  function detectRooms(f){
+    const walls=f.elements.filter(e=>e.type==='wall');if(walls.length<3)return[];
+    const allX=walls.flatMap(w=>[w.x1,w.x2]),allY=walls.flatMap(w=>[w.y1,w.y2]);
+    const pad=Math.max(state.grid*2,50),minX=Math.min(...allX)-pad,maxX=Math.max(...allX)+pad,minY=Math.min(...allY)-pad,maxY=Math.max(...allY)+pad;
+    const cell=Math.max(4,Math.min(10,state.grid/4)),cols=Math.ceil((maxX-minX)/cell),rows=Math.ceil((maxY-minY)/cell);
+    if(cols*rows>250000)return[];
+    const blocked=new Uint8Array(cols*rows),idx=(x,y)=>y*cols+x,inb=(x,y)=>x>=0&&y>=0&&x<cols&&y<rows;
+    const wallRadius=Math.max(4,cell*.7);
+    for(let gy=0;gy<rows;gy++){const cy=minY+(gy+.5)*cell;
+      for(let gx=0;gx<cols;gx++){const cx=minX+(gx+.5)*cell;let hit=false;
+        for(const w of walls){
+          if(cx<Math.min(w.x1,w.x2)-wallRadius||cx>Math.max(w.x1,w.x2)+wallRadius||cy<Math.min(w.y1,w.y2)-wallRadius||cy>Math.max(w.y1,w.y2)+wallRadius)continue;
+          if(distPointSeg(cx,cy,w.x1,w.y1,w.x2,w.y2)<=wallRadius){hit=true;break;}
+        }
+        if(hit)blocked[idx(gx,gy)]=1;
+      }
+    }
+    const seen=new Uint8Array(cols*rows),rooms=[];
+    const flood=(sx,sy)=>{const q=[[sx,sy]],cells=[];let qi=0,touchesEdge=false;seen[idx(sx,sy)]=1;
+      while(qi<q.length){const[x,y]=q[qi++];cells.push([x,y]);if(x===0||y===0||x===cols-1||y===rows-1)touchesEdge=true;
+        for(const[nx,ny]of[[x+1,y],[x-1,y],[x,y+1],[x,y-1]]){if(!inb(nx,ny))continue;const ii=idx(nx,ny);if(seen[ii]||blocked[ii])continue;seen[ii]=1;q.push([nx,ny]);}
+      }return{cells,touchesEdge};};
+    for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){const ii=idx(x,y);if(blocked[ii]||seen[ii])continue;const region=flood(x,y);
+      if(region.touchesEdge||region.cells.length<4)continue;
+      const regionSet=new Set(region.cells.map(([cx,cy])=>`${cx},${cy}`)),edges=[],add=(x1,y1,x2,y2)=>edges.push({x1,y1,x2,y2});
+      for(const[cx,cy]of region.cells){
+        if(!regionSet.has(`${cx},${cy-1}`))add(cx,cy,cx+1,cy);
+        if(!regionSet.has(`${cx+1},${cy}`))add(cx+1,cy,cx+1,cy+1);
+        if(!regionSet.has(`${cx},${cy+1}`))add(cx+1,cy+1,cx,cy+1);
+        if(!regionSet.has(`${cx-1},${cy}`))add(cx,cy+1,cx,cy);
+      }
+      const map=new Map();for(const e of edges){const k=`${e.x1},${e.y1}`;if(!map.has(k))map.set(k,[]);map.get(k).push(e);}
+      let loop=[];if(edges.length){let e=edges[0],guard=0,startKey=`${e.x1},${e.y1}`,curKey=startKey;
+        while(guard++<edges.length+10){const choices=map.get(curKey)||[];if(!choices.length)break;const ne=choices.shift();loop.push({x:minX+ne.x1*cell,y:minY+ne.y1*cell});curKey=`${ne.x2},${ne.y2}`;if(curKey===startKey)break;}}
+      if(loop.length<3)continue;
+      const areaPx=region.cells.length*cell*cell,centroid={x:region.cells.reduce((s,c)=>s+(minX+(c[0]+.5)*cell),0)/region.cells.length,y:region.cells.reduce((s,c)=>s+(minY+(c[1]+.5)*cell),0)/region.cells.length};
+      const key=`${Math.round(centroid.x/cell)},${Math.round(centroid.y/cell)}:${region.cells.length}`;
+      rooms.push({key,poly:loop,areaPx,centroid,minX:Math.min(...loop.map(p=>p.x)),maxX:Math.max(...loop.map(p=>p.x)),minY:Math.min(...loop.map(p=>p.y)),maxY:Math.max(...loop.map(p=>p.y))});
+    }
+    return rooms;
+  }
+
+  function getRoomByKey(key){return key?detectRooms(floor()).find(r=>r.key===key)||null:null;}
+
+  function drawRooms(f){
+    if(!state.showRooms||state.walkMode)return;
+    const rooms=detectRooms(f);ctx.save();
+    for(const room of rooms){
+      const selected=room.key===state.selectedRoomKey;ctx.beginPath();room.poly.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();
+      const meta=f.roomMeta?.[room.key];ctx.fillStyle=selected?'rgba(64,92,245,.20)':(meta?.color||'rgba(64,92,245,.055)');ctx.globalAlpha=selected?1:(meta?.color?0.18:1);ctx.fill();ctx.globalAlpha=1;
+      if(selected){ctx.strokeStyle='#405cf5';ctx.lineWidth=2;ctx.setLineDash([7,5]);ctx.stroke();ctx.setLineDash([]);}
+      if(meta?.name){ctx.fillStyle=selected?'#2338ba':'#717a86';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=(selected?'600 ':'')+'13px system-ui';ctx.fillText(meta.name,room.centroid.x,room.centroid.y-8);ctx.font='11px system-ui';ctx.fillText(formatArea(room.areaPx),room.centroid.x,room.centroid.y+9);}
+    }ctx.restore();
+  }
+
+  function drawWall(e,selected=false){
+    ctx.save();ctx.strokeStyle=selected?'#405cf5':'#252a31';ctx.lineWidth=selected?Math.max(wallThickness(e)+2,5):wallThickness(e);ctx.lineCap='round';ctx.beginPath();ctx.moveTo(e.x1,e.y1);ctx.lineTo(e.x2,e.y2);ctx.stroke();
+    if(selected&&!state.walkMode){const mx=(e.x1+e.x2)/2,my=(e.y1+e.y2)/2,label=formatLength(Math.hypot(e.x2-e.x1,e.y2-e.y1));ctx.font='12px system-ui';ctx.textAlign='center';ctx.textBaseline='bottom';const tw=ctx.measureText(label).width;ctx.fillStyle='rgba(255,255,255,.92)';ctx.fillRect(mx-tw/2-5,my-25,tw+10,18);ctx.fillStyle='#2338ba';ctx.fillText(label,mx,my-10);}
+    ctx.restore();
+  }
+
+  function wallForOpening(e,f=floor()){return f?.elements.find(x=>x.type==='wall'&&x.id===e.wallId)||null;}
+  function syncOpening(e,f=floor()){
+    const w=wallForOpening(e,f);if(!w)return;
+    const vx=w.x2-w.x1,vy=w.y2-w.y1,len=Math.hypot(vx,vy)||1,ux=vx/len,uy=vy/len,t=Math.max(0,Math.min(1,Number(e.t??.5))),width=Math.max(8,Math.min(Number(e.widthPx)||30,len)),half=width/2,cx=w.x1+vx*t,cy=w.y1+vy*t;
+    e.t=t;e.widthPx=width;e.x1=cx-ux*half;e.y1=cy-uy*half;e.x2=cx+ux*half;e.y2=cy+uy*half;
+  }
+  function drawOpening(e,selected=false){
+    syncOpening(e);const isDoor=e.type==='door',dx=e.x2-e.x1,dy=e.y2-e.y1,len=Math.hypot(dx,dy)||1,ux=dx/len,uy=dy/len,nx=-uy,ny=ux,swing=e.swing===-1?-1:1;
+    ctx.save();ctx.strokeStyle='#f7f8fa';ctx.lineWidth=11;ctx.lineCap='butt';ctx.beginPath();ctx.moveTo(e.x1,e.y1);ctx.lineTo(e.x2,e.y2);ctx.stroke();
+    if(isDoor){ctx.strokeStyle=selected?'#405cf5':'#9a5c24';ctx.lineWidth=selected?3:2;ctx.beginPath();ctx.moveTo(e.x1,e.y1);ctx.lineTo(e.x1+nx*len*swing,e.y1+ny*len*swing);ctx.stroke();const base=Math.atan2(uy,ux);ctx.beginPath();if(swing===1)ctx.arc(e.x1,e.y1,len,base,base+Math.PI/2,false);else ctx.arc(e.x1,e.y1,len,base,base-Math.PI/2,true);ctx.stroke();}
+    else{ctx.strokeStyle=selected?'#405cf5':'#2c74b3';ctx.lineWidth=selected?5:4;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(e.x1,e.y1);ctx.lineTo(e.x2,e.y2);ctx.stroke();}
+    ctx.restore();
+  }
+
+  function drawStairs(e,selected=false){
+    ctx.save();ctx.translate(e.x,e.y);ctx.rotate((e.rotation||0)*Math.PI/180);ctx.strokeStyle=selected?'#405cf5':'#555b66';ctx.fillStyle=e.linkedStairId?'#eef1ff':'#f5f6f8';ctx.lineWidth=selected?3:2;ctx.fillRect(-e.w/2,-e.h/2,e.w,e.h);ctx.strokeRect(-e.w/2,-e.h/2,e.w,e.h);
+    for(let i=1;i<7;i++){const yy=-e.h/2+e.h*i/7;ctx.beginPath();ctx.moveTo(-e.w/2,yy);ctx.lineTo(e.w/2,yy);ctx.stroke();}
+    ctx.fillStyle='#353a42';ctx.font='12px system-ui';ctx.textAlign='center';ctx.fillText(e.name||'Stairs',0,4);ctx.restore();
+  }
+  function drawLabel(e,selected=false){
+    ctx.save();ctx.font=(e.size||16)+'px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';const m=ctx.measureText(e.text);
+    if(selected){ctx.fillStyle='rgba(64,92,245,.12)';ctx.strokeStyle='#405cf5';ctx.fillRect(e.x-m.width/2-7,e.y-14,m.width+14,28);ctx.strokeRect(e.x-m.width/2-7,e.y-14,m.width+14,28);}
+    ctx.fillStyle='#343941';ctx.fillText(e.text,e.x,e.y);ctx.restore();
+  }
+  function drawSpawn(f){
+    if(!f.spawn)return;ctx.save();ctx.strokeStyle='#177245';ctx.fillStyle='rgba(23,114,69,.15)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(f.spawn.x,f.spawn.y,10,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#177245';ctx.font='11px system-ui';ctx.textAlign='center';ctx.fillText('Spawn',f.spawn.x,f.spawn.y-15);ctx.restore();
+  }
+  function drawPlayer(){
+    if(!state.walkMode||state.player.floorId!==state.activeFloorId)return;
+    ctx.save();ctx.fillStyle='#111827';ctx.beginPath();ctx.arc(state.player.x,state.player.y,state.player.radius,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();ctx.restore();
+  }
+
+
+  const furniturePresets = {
+    bed:{name:'Bed',w:mpx(1.6),h:mpx(2.0),blocking:true},
+    wardrobe:{name:'Wardrobe',w:mpx(1.2),h:mpx(0.6),blocking:true},
+    sofa:{name:'Sofa',w:mpx(2.0),h:mpx(0.9),blocking:true},
+    chair:{name:'Chair',w:mpx(0.6),h:mpx(0.6),blocking:true},
+    table:{name:'Table',w:mpx(1.6),h:mpx(0.9),blocking:true},
+    desk:{name:'Desk',w:mpx(1.4),h:mpx(0.7),blocking:true},
+    rug:{name:'Rug',w:mpx(2.0),h:mpx(1.5),blocking:false},
+    counter:{name:'Counter',w:mpx(1.8),h:mpx(0.65),blocking:true},
+    cabinet:{name:'Cabinet',w:mpx(1.0),h:mpx(0.55),blocking:true},
+    sink:{name:'Sink',w:mpx(0.7),h:mpx(0.55),blocking:true},
+    toilet:{name:'Toilet',w:mpx(0.7),h:mpx(0.8),blocking:true},
+    tub:{name:'Tub / Shower',w:mpx(1.7),h:mpx(0.8),blocking:true},
+    custom:{name:'Custom Rectangle',w:mpx(1.0),h:mpx(1.0),blocking:true}
+  };
+
+  function drawFurniture(e,selected=false){
+    if(!state.showFurniture)return;
+    ctx.save();
+    ctx.translate(e.x,e.y);
+    ctx.rotate((e.rotation||0)*Math.PI/180);
+    ctx.fillStyle=e.blocking===false?'rgba(120,130,145,.12)':'#eceff3';
+    ctx.strokeStyle=selected?'#405cf5':'#747d89';
+    ctx.lineWidth=selected?3:1.5;
+    ctx.fillRect(-e.w/2,-e.h/2,e.w,e.h);
+    ctx.strokeRect(-e.w/2,-e.h/2,e.w,e.h);
+
+    // simple visual glyphs
+    ctx.strokeStyle=selected?'#405cf5':'#9aa2ad';
+    ctx.lineWidth=1;
+    if(e.furnitureType==='bed'){
+      ctx.strokeRect(-e.w/2+6,-e.h/2+6,e.w-12,e.h-12);
+      ctx.strokeRect(-e.w/2+12,-e.h/2+12,e.w-24,28);
+    } else if(e.furnitureType==='sofa'){
+      ctx.strokeRect(-e.w/2+6,-e.h/2+8,e.w-12,e.h-16);
+      ctx.beginPath();ctx.moveTo(-e.w/2+12,0);ctx.lineTo(e.w/2-12,0);ctx.stroke();
+    } else if(e.furnitureType==='table'||e.furnitureType==='desk'||e.furnitureType==='counter'){
+      ctx.strokeRect(-e.w/2+5,-e.h/2+5,e.w-10,e.h-10);
+    } else if(e.furnitureType==='toilet'){
+      ctx.beginPath();ctx.ellipse(0,8,e.w*.28,e.h*.28,0,0,Math.PI*2);ctx.stroke();
+      ctx.strokeRect(-e.w*.28,-e.h*.42,e.w*.56,e.h*.25);
+    } else if(e.furnitureType==='sink'){
+      ctx.beginPath();ctx.ellipse(0,0,e.w*.3,e.h*.28,0,0,Math.PI*2);ctx.stroke();
+    } else if(e.furnitureType==='rug'){
+      ctx.setLineDash([5,4]);ctx.strokeRect(-e.w/2+5,-e.h/2+5,e.w-10,e.h-10);ctx.setLineDash([]);
+    }
+
+    ctx.fillStyle='#3e4650';
+    ctx.font='11px system-ui';
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.fillText(e.name||furniturePresets[e.furnitureType]?.name||'Object',0,0);
+    ctx.restore();
+  }
+
+  function nearestWallSnapInfo(x,y,maxDistance=null){
+    const f=floor();if(!f)return null;
+    const limit=maxDistance ?? Math.max(36,state.grid*1.5);
+    let best=null,bestD=limit;
+    for(const w of f.elements.filter(e=>e.type==='wall')){
+      const q=projectToSegment({x,y},w);
+      const d=Math.hypot(x-q.x,y-q.y);
+      if(d<bestD){best={w,q,d};bestD=d;}
+    }
+    return best;
+  }
+
+  function rectHalfExtentAlongNormal(e,nx,ny,rotation=e.rotation||0){
+    const a=rotation*Math.PI/180;
+    const ux={x:Math.cos(a),y:Math.sin(a)};
+    const uy={x:-Math.sin(a),y:Math.cos(a)};
+    return Math.abs(nx*ux.x+ny*ux.y)*(e.w/2)+Math.abs(nx*uy.x+ny*uy.y)*(e.h/2);
+  }
+
+  function wallConstraintForObject(e,w,rotation,preferredSide=null){
+    const vx=w.x2-w.x1,vy=w.y2-w.y1,len=Math.hypot(vx,vy)||1;
+    const tx=vx/len,ty=vy/len,nx=-ty,ny=tx;
+    const q=projectToSegment({x:e.x,y:e.y},w);
+    const sideDot=(e.x-q.x)*nx+(e.y-q.y)*ny;
+    const side=preferredSide ?? (sideDot>=0?1:-1);
+    const half=rectHalfExtentAlongNormal(e,nx,ny,rotation);
+    const gap=wallHalf(w)+2;
+    return {
+      w,q,tx,ty,nx,ny,side,half,
+      targetX:q.x+nx*(half+gap)*side,
+      targetY:q.y+ny*(half+gap)*side
+    };
+  }
+
+  function findNearbyWallsForObject(e,maxDistance){
+    const f=floor();if(!f)return [];
+    return f.elements.filter(x=>x.type==='wall').map(w=>{
+      const q=projectToSegment({x:e.x,y:e.y},w);
+      return {w,q,d:Math.hypot(e.x-q.x,e.y-q.y)};
+    }).filter(x=>x.d<=maxDistance).sort((a,b)=>a.d-b.d);
+  }
+
+  function signedDistanceToWallLine(x,y,w){
+    const vx=w.x2-w.x1,vy=w.y2-w.y1,len=Math.hypot(vx,vy)||1;
+    const nx=-vy/len,ny=vx/len;
+    const q=projectToSegment({x,y},w);
+    return {signed:(x-q.x)*nx+(y-q.y)*ny,nx,ny,q};
+  }
+
+  function objectPenetrationAgainstWall(e,w,rotation=e.rotation||0){
+    const info=signedDistanceToWallLine(e.x,e.y,w);
+    const half=rectHalfExtentAlongNormal(e,info.nx,info.ny,rotation);
+    const gap=4;
+    const absDist=Math.abs(info.signed);
+    return {
+      ...info,
+      half,
+      penetration:(half+gap)-absDist,
+      side:info.signed>=0?1:-1
+    };
+  }
+
+  function clampObjectAgainstNearbyWalls(e,primaryWall,rotation,force=false){
+    e.rotation=rotation;
+
+    const snapRange=force?Infinity:Math.max(70,state.grid*3);
+    const nearby=findNearbyWallsForObject(e,snapRange);
+    if(!nearby.length)return false;
+
+    // Primary wall decides initial alignment/side.
+    const pwall=primaryWall||nearby[0].w;
+    const primary=wallConstraintForObject(e,pwall,e.rotation);
+    e.x=primary.targetX;
+    e.y=primary.targetY;
+
+    // Iteratively push the full rectangle out of every wall it overlaps.
+    // Multiple passes make corners stable instead of only reacting to one wall.
+    for(let pass=0;pass<6;pass++){
+      let changed=false;
+
+      for(const cand of findNearbyWallsForObject(e,force?Infinity:Math.max(80,state.grid*3.2))){
+        const w=cand.w;
+        const pen=objectPenetrationAgainstWall(e,w,e.rotation);
+
+        // Ignore walls whose projected closest point is far beyond the wall segment.
+        const q=projectToSegment({x:e.x,y:e.y},w);
+        const segDx=q.x-e.x,segDy=q.y-e.y;
+        const centerToSeg=Math.hypot(segDx,segDy);
+        const reach=Math.hypot(e.w,e.h)/2+12;
+        if(centerToSeg>reach)continue;
+
+        if(pen.penetration>0.01){
+          e.x+=pen.nx*pen.side*pen.penetration;
+          e.y+=pen.ny*pen.side*pen.penetration;
+          changed=true;
+        }
+      }
+
+      if(!changed)break;
+    }
+
+    return true;
+  }
+
+  function resolveObjectAgainstWalls(e,primaryWall,rotation,force=false){
+    return clampObjectAgainstNearbyWalls(e,primaryWall,rotation,force);
+  }
+
+  function snapRectObjectToWall(e,force=false){
+    if(!force && !state.wallSnapFurniture)return false;
+    const best=nearestWallSnapInfo(e.x,e.y,force?Infinity:Math.max(24,state.grid*.9));
+    if(!best)return false;
+
+    const wallAngle=Math.atan2(best.w.y2-best.w.y1,best.w.x2-best.w.x1)*180/Math.PI;
+    const longAxisAlongWidth=e.w>=e.h;
+    const rotation=longAxisAlongWidth?wallAngle:wallAngle+90;
+    return resolveObjectAgainstWalls(e,best.w,rotation,force);
+  }
+
+  function snapStairToWall(e,force=false){
+    const best=nearestWallSnapInfo(e.x,e.y,force?Infinity:Math.max(28,state.grid));
+    if(!best)return false;
+
+    const wallAngle=Math.atan2(best.w.y2-best.w.y1,best.w.x2-best.w.x1)*180/Math.PI;
+
+    // Stair long dimension runs away from the wall. Since resize can change
+    // which dimension is longer, use the actual current dimensions.
+    const longAlongHeight=e.h>=e.w;
+    const rotation=longAlongHeight?wallAngle+90:wallAngle;
+    return resolveObjectAgainstWalls(e,best.w,rotation,force);
+  }
+
+
+  function segmentsIntersect(a,b,c,d){
+    const cross=(p,q,r)=>(q.x-p.x)*(r.y-p.y)-(q.y-p.y)*(r.x-p.x);
+    const onSeg=(p,q,r)=>q.x<=Math.max(p.x,r.x)+1e-8&&q.x>=Math.min(p.x,r.x)-1e-8&&q.y<=Math.max(p.y,r.y)+1e-8&&q.y>=Math.min(p.y,r.y)-1e-8;
+    const c1=cross(a,b,c),c2=cross(a,b,d),c3=cross(c,d,a),c4=cross(c,d,b);
+    if(((c1>0&&c2<0)||(c1<0&&c2>0))&&((c3>0&&c4<0)||(c3<0&&c4>0)))return true;
+    if(Math.abs(c1)<1e-8&&onSeg(a,c,b))return true;
+    if(Math.abs(c2)<1e-8&&onSeg(a,d,b))return true;
+    if(Math.abs(c3)<1e-8&&onSeg(c,a,d))return true;
+    if(Math.abs(c4)<1e-8&&onSeg(c,b,d))return true;
+    return false;
+  }
+
+  function pointSegClosest(px,py,x1,y1,x2,y2){
+    const vx=x2-x1,vy=y2-y1,len2=vx*vx+vy*vy||1;
+    let t=((px-x1)*vx+(py-y1)*vy)/len2;
+    t=Math.max(0,Math.min(1,t));
+    return {x:x1+vx*t,y:y1+vy*t,t};
+  }
+
+  function segmentSegmentDistance(a,b,c,d){
+    if(segmentsIntersect(a,b,c,d))return 0;
+    return Math.min(
+      distPointSeg(a.x,a.y,c.x,c.y,d.x,d.y),
+      distPointSeg(b.x,b.y,c.x,c.y,d.x,d.y),
+      distPointSeg(c.x,c.y,a.x,a.y,b.x,b.y),
+      distPointSeg(d.x,d.y,a.x,a.y,b.x,b.y)
+    );
+  }
+
+  function rectObjectWallDistance(e,w){
+    const corners=furnitureCorners(e);
+    const edges=[
+      [corners[0],corners[1]],[corners[1],corners[2]],
+      [corners[2],corners[3]],[corners[3],corners[0]]
+    ];
+    const a={x:w.x1,y:w.y1},b={x:w.x2,y:w.y2};
+
+    if(pointInsideFurniture(w.x1,w.y1,e,0)||pointInsideFurniture(w.x2,w.y2,e,0))return 0;
+    return Math.min(...edges.map(([p,q])=>segmentSegmentDistance(p,q,a,b)));
+  }
+
+  function rectObjectHitsWall(e,w){
+    return rectObjectWallDistance(e,w) < wallHalf(w) + 1.5;
+  }
+
+  function rectObjectHitsAnyWall(e,f){
+    return f.elements.some(w=>w.type==='wall'&&rectObjectHitsWall(e,w));
+  }
+
+  function collidingWallsForObject(e,f){
+    return f.elements.filter(w=>w.type==='wall'&&rectObjectHitsWall(e,w));
+  }
+
+  function nearestCollisionNormal(e,w){
+    const vx=w.x2-w.x1,vy=w.y2-w.y1,len=Math.hypot(vx,vy)||1;
+    const nx=-vy/len,ny=vx/len;
+    const q=projectToSegment({x:e.x,y:e.y},w);
+    const side=((e.x-q.x)*nx+(e.y-q.y)*ny)>=0?1:-1;
+    return {nx:nx*side,ny:ny*side};
+  }
+
+  function moveRectObjectSingleStep(e,targetX,targetY,f){
+    const startX=e.x,startY=e.y;
+    const dx=targetX-startX,dy=targetY-startY;
+    if(dx===0&&dy===0)return;
+
+    // First try the full micro-step.
+    e.x=targetX;e.y=targetY;
+    if(!rectObjectHitsAnyWall(e,f))return;
+
+    // Restore and try each axis independently so the object can slide.
+    e.x=startX;e.y=startY;
+
+    if(dx!==0){
+      e.x=startX+dx;
+      if(rectObjectHitsAnyWall(e,f))e.x=startX;
+    }
+    if(dy!==0){
+      const oldY=e.y;
+      e.y=startY+dy;
+      if(rectObjectHitsAnyWall(e,f))e.y=oldY;
+    }
+
+    // Angled-wall fallback: project the blocked motion onto the nearest wall tangent.
+    if((Math.abs(e.x-startX)<1e-8&&dx!==0)||(Math.abs(e.y-startY)<1e-8&&dy!==0)){
+      const test={...e,x:targetX,y:targetY};
+      const walls=collidingWallsForObject(test,f);
+      if(walls.length){
+        const w=walls[0],vx=w.x2-w.x1,vy=w.y2-w.y1,len=Math.hypot(vx,vy)||1;
+        const tx=vx/len,ty=vy/len;
+        const along=dx*tx+dy*ty;
+        const oldX=e.x,oldY=e.y;
+        e.x+=tx*along;e.y+=ty*along;
+        if(rectObjectHitsAnyWall(e,f)){e.x=oldX;e.y=oldY;}
+      }
+    }
+  }
+
+  function moveRectObjectWithWallSlide(e,targetX,targetY,f){
+    const startX=e.x,startY=e.y;
+    const dx=targetX-startX,dy=targetY-startY;
+    const distance=Math.hypot(dx,dy);
+    if(distance===0)return;
+
+    // Break fast drags into small collision-tested increments to prevent
+    // tunneling through walls when the pointer moves a long distance in one event.
+    const maxStep=Math.max(3,Math.min(8,(state.defaultWallThickness||7)/2+2));
+    const steps=Math.max(1,Math.ceil(distance/maxStep));
+
+    for(let i=1;i<=steps;i++){
+      const tx=startX+dx*(i/steps);
+      const ty=startY+dy*(i/steps);
+      moveRectObjectSingleStep(e,tx,ty,f);
+    }
+  }
+
+  function pushObjectClearOfWalls(e,f){
+    // Small iterative correction used after snapping/resizing so the object
+    // sits just inside the room and outside the visible wall thickness.
+    for(let pass=0;pass<6;pass++){
+      const hits=collidingWallsForObject(e,f);
+      if(!hits.length)break;
+      let moved=false;
+      for(const w of hits){
+        const {nx,ny}=nearestCollisionNormal(e,w);
+        e.x+=nx*(wallHalf(w)+2);
+        e.y+=ny*(wallHalf(w)+2);
+        moved=true;
+      }
+      if(!moved)break;
+    }
+  }
+
+
+  const archPresets = {
+    column:{name:'Column',w:mpx(0.45),h:mpx(0.45),blocking:true},
+    railing:{name:'Railing',w:mpx(2.0),h:mpx(0.12),blocking:true},
+    fireplace:{name:'Fireplace',w:mpx(1.5),h:mpx(0.5),blocking:true},
+    island:{name:'Kitchen Island',w:mpx(2.0),h:mpx(1.0),blocking:true},
+    shelving:{name:'Built-in Shelving',w:mpx(1.8),h:mpx(0.35),blocking:true},
+    shape:{name:'Decorative Shape',w:mpx(1.0),h:mpx(1.0),blocking:false}
+  };
+
+  function createArchObject(type,p){
+    const preset=archPresets[type]||archPresets.shape;
+    return {
+      id:crypto.randomUUID(),type:'arch',archType:type,name:preset.name,
+      x:p.x,y:p.y,w:preset.w,h:preset.h,rotation:0,blocking:preset.blocking,locked:false
+    };
+  }
+
+  function drawArchObject(e,selected=false){
+    ctx.save();
+    ctx.translate(e.x,e.y);ctx.rotate((e.rotation||0)*Math.PI/180);
+    ctx.fillStyle=e.archType==='column'?'#e5e7eb':e.blocking===false?'rgba(160,165,175,.12)':'#f0f1f3';
+    ctx.strokeStyle=selected?'#405cf5':'#6f7782';ctx.lineWidth=selected?3:1.5;
+    if(e.archType==='column'){
+      ctx.beginPath();ctx.arc(0,0,Math.min(e.w,e.h)/2,0,Math.PI*2);ctx.fill();ctx.stroke();
+    }else{
+      ctx.fillRect(-e.w/2,-e.h/2,e.w,e.h);ctx.strokeRect(-e.w/2,-e.h/2,e.w,e.h);
+      if(e.archType==='railing'){
+        for(let x=-e.w/2+10;x<e.w/2;x+=14){ctx.beginPath();ctx.moveTo(x,-e.h/2);ctx.lineTo(x,e.h/2);ctx.stroke();}
+      }
+    }
+    ctx.fillStyle='#3f4650';ctx.font='11px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(e.name||'Object',0,0);
+    ctx.restore();
+  }
+
+  function pointInsideArch(px,py,e,pad=0){
+    if(e.archType==='column')return Math.hypot(px-e.x,py-e.y)<=Math.min(e.w,e.h)/2+pad;
+    return pointInsideFurniture(px,py,e,pad);
+  }
+
+  function createFurniture(type,p){
+    const preset=furniturePresets[type]||furniturePresets.custom;
+    return {
+      id:crypto.randomUUID(),type:'furniture',furnitureType:type,
+      name:preset.name,x:p.x,y:p.y,w:preset.w,h:preset.h,
+      rotation:0,blocking:preset.blocking,z:floor().elements.filter(x=>x.type==='furniture').length,
+      locked:false
+    };
+  }
+
+  function normalizeFurnitureZ(f){
+    const items=f.elements.filter(e=>e.type==='furniture').sort((a,b)=>(a.z||0)-(b.z||0));
+    items.forEach((e,i)=>e.z=i);
+  }
+
+  function moveFurnitureLayer(e,dir){
+    const items=floor().elements.filter(x=>x.type==='furniture').sort((a,b)=>(a.z||0)-(b.z||0));
+    const i=items.indexOf(e);if(i<0)return;
+    const j=Math.max(0,Math.min(items.length-1,i+dir));if(i===j)return;
+    checkpoint();
+    const zi=items[i].z||i,zj=items[j].z||j;
+    items[i].z=zj;items[j].z=zi;normalizeFurnitureZ(floor());draw();renderSelection();
+  }
+
+  function duplicateFurniture(e){
+    checkpoint();
+    const copy={...e,id:crypto.randomUUID(),x:e.x+state.grid,y:e.y+state.grid,z:(e.z||0)+1};
+    floor().elements.push(copy);normalizeFurnitureZ(floor());setSingleSelection(copy.id);draw();renderSelection();
+  }
+
+
+  function drawFloorOverlay(){
+    if(!state.overlayFloorId)return;
+    const of=floorById(state.overlayFloorId);if(!of)return;
+    ctx.save();ctx.globalAlpha=state.overlayOpacity;
+    const elems=of.elements||[];
+    elems.filter(e=>e.type==='wall').forEach(e=>drawWall(e,false));
+    elems.filter(e=>e.type==='door'||e.type==='window').forEach(e=>drawOpening(e,false));
+    if(state.showStairs)elems.filter(e=>e.type==='stairs').forEach(e=>drawStairs(e,false));
+    if(state.showFurniture)elems.filter(e=>e.type==='arch').forEach(e=>drawArchObject(e,false));
+    if(state.showFurniture)elems.filter(e=>e.type==='furniture').sort((a,b)=>(a.z||0)-(b.z||0)).forEach(e=>drawFurniture(e,false));
+    if(state.showLabels)elems.filter(e=>e.type==='label').forEach(e=>drawLabel(e,false));
+    ctx.restore();
+  }
+
+  function drawBoxSelection(){
+    if(!state.boxSelect)return;
+    const b=state.boxSelect;
+    ctx.save();ctx.strokeStyle='#405cf5';ctx.fillStyle='rgba(64,92,245,.08)';ctx.setLineDash([6,4]);ctx.lineWidth=1.5;
+    ctx.fillRect(Math.min(b.x1,b.x2),Math.min(b.y1,b.y2),Math.abs(b.x2-b.x1),Math.abs(b.y2-b.y1));
+    ctx.strokeRect(Math.min(b.x1,b.x2),Math.min(b.y1,b.y2),Math.abs(b.x2-b.x1),Math.abs(b.y2-b.y1));
+    ctx.restore();
+  }
+
+  function draw(){
+    const r=canvas.getBoundingClientRect();ctx.clearRect(0,0,r.width,r.height);ctx.fillStyle='#f7f8fa';ctx.fillRect(0,0,r.width,r.height);drawGrid(r.width,r.height);
+    ctx.save();ctx.translate(state.panX,state.panY);ctx.scale(state.zoom,state.zoom);
+    const f=floor();if(f){ensureFloorShape(f);drawReference(f);drawFloorOverlay();drawRooms(f);const elems=f.elements;const selectedSet=new Set(state.selectedIds);
+      elems.filter(e=>e.type==='wall').forEach(e=>drawWall(e,selectedSet.has(e.id)));
+      elems.filter(e=>e.type==='door'||e.type==='window').forEach(e=>drawOpening(e,selectedSet.has(e.id)));
+      if(state.showStairs)elems.filter(e=>e.type==='stairs').forEach(e=>drawStairs(e,selectedSet.has(e.id)));
+      if(state.showFurniture)elems.filter(e=>e.type==='arch').forEach(e=>drawArchObject(e,selectedSet.has(e.id)));
+      if(state.showFurniture)elems.filter(e=>e.type==='furniture').sort((a,b)=>(a.z||0)-(b.z||0)).forEach(e=>drawFurniture(e,selectedSet.has(e.id)));
+
+      // Selected rectangular objects are redrawn last so their outline is never obscured.
+      for(const id of selectedSet){
+        const sel=elems.find(e=>e.id===id);
+        if(!sel)continue;
+        if(sel.type==='furniture' && state.showFurniture)drawFurniture(sel,true);
+        else if(sel.type==='arch' && state.showFurniture)drawArchObject(sel,true);
+        else if(sel.type==='stairs' && state.showStairs)drawStairs(sel,true);
+      }
+      if(state.showLabels)elems.filter(e=>e.type==='label').forEach(e=>drawLabel(e,selectedSet.has(e.id)));
+      drawSpawn(f);drawPlayer();drawBoxSelection();}
+    if(state.drawing){const d=state.drawing;ctx.save();ctx.strokeStyle='#405cf5';ctx.fillStyle='rgba(64,92,245,.08)';ctx.lineWidth=2;ctx.setLineDash([8,6]);if(d.type==='wall'){ctx.beginPath();ctx.moveTo(d.x1,d.y1);ctx.lineTo(d.x2,d.y2);ctx.stroke();}else if(d.type==='room'){ctx.fillRect(Math.min(d.x1,d.x2),Math.min(d.y1,d.y2),Math.abs(d.x2-d.x1),Math.abs(d.y2-d.y1));ctx.strokeRect(Math.min(d.x1,d.x2),Math.min(d.y1,d.y2),Math.abs(d.x2-d.x1),Math.abs(d.y2-d.y1));}ctx.restore();}
+    ctx.restore();
+  }
+
+  function samePoint(a,b,eps=1.5){
+    return Math.hypot(a.x-b.x,a.y-b.y)<=eps;
+  }
+
+  function normalizedWallEndpoints(w){
+    const a={x:w.x1,y:w.y1},b={x:w.x2,y:w.y2};
+    if(a.x<b.x || (Math.abs(a.x-b.x)<1e-8 && a.y<=b.y))return[a,b];
+    return[b,a];
+  }
+
+  function wallsCoincident(a,b,eps=1.5){
+    const[a1,a2]=normalizedWallEndpoints(a),[b1,b2]=normalizedWallEndpoints(b);
+    return samePoint(a1,b1,eps)&&samePoint(a2,b2,eps);
+  }
+
+  function mergeDuplicateWalls(f){
+    const walls=f.elements.filter(e=>e.type==='wall');
+    const removed=new Set();
+
+    for(let i=0;i<walls.length;i++){
+      const keep=walls[i];
+      if(removed.has(keep.id))continue;
+
+      for(let j=i+1;j<walls.length;j++){
+        const dup=walls[j];
+        if(removed.has(dup.id)||!wallsCoincident(keep,dup))continue;
+
+        keep.thickness=Math.max(wallThickness(keep),wallThickness(dup));
+
+        for(const o of f.elements.filter(e=>(e.type==='door'||e.type==='window')&&e.wallId===dup.id)){
+          o.wallId=keep.id;
+          syncOpening(o,f);
+        }
+        removed.add(dup.id);
+      }
+    }
+
+    if(removed.size)f.elements=f.elements.filter(e=>!removed.has(e.id));
+    return removed.size;
+  }
+
+  function cleanupAllWalls(){
+    let count=0;
+    for(const f of state.floors)count+=mergeDuplicateWalls(f);
+    statusState.textContent=count?`Removed ${count} duplicate wall${count===1?'':'s'}`:'No duplicate walls found';
+    statusState.className='ok';
+    return count;
+  }
+
+  function wallOrientation(w){
+    const dx=w.x2-w.x1,dy=w.y2-w.y1;
+    return Math.abs(dx)>=Math.abs(dy)?'horizontal':'vertical';
+  }
+
+  function connectedWallEndpoints(target,f){
+    const eps=2;
+    const out=[];
+    for(const w of f.elements.filter(e=>e.type==='wall'&&e.id!==target.id)){
+      for(const [kx,ky] of [['x1','y1'],['x2','y2']]){
+        if(Math.hypot(w[kx]-target.x1,w[ky]-target.y1)<=eps) out.push({wall:w,kx,ky,targetEnd:1});
+        else if(Math.hypot(w[kx]-target.x2,w[ky]-target.y2)<=eps) out.push({wall:w,kx,ky,targetEnd:2});
+      }
+    }
+    return out;
+  }
+
+  function wallMoveWouldHitObjects(w,newCoords,f){
+    const test={...w,...newCoords};
+    const half=wallHalf(test)+1;
+    const objs=f.elements.filter(e=>
+      (e.type==='furniture'||e.type==='stairs'||e.type==='arch') && e.blocking!==false
+    );
+    for(const obj of objs){
+      const corners=furnitureCorners(obj);
+      const edges=[
+        [corners[0],corners[1]],[corners[1],corners[2]],
+        [corners[2],corners[3]],[corners[3],corners[0]]
+      ];
+      const a={x:test.x1,y:test.y1},b={x:test.x2,y:test.y2};
+      if(pointInsideFurniture(test.x1,test.y1,obj,half)||pointInsideFurniture(test.x2,test.y2,obj,half))return true;
+      for(const [p,q] of edges)if(segmentSegmentDistance(a,b,p,q)<=half)return true;
+    }
+    return false;
+  }
+
+  function slideWall(target,delta,f){
+    if(!target||target.locked)return false;
+    const orient=wallOrientation(target);
+    const conns=connectedWallEndpoints(target,f);
+    const next={x1:target.x1,y1:target.y1,x2:target.x2,y2:target.y2};
+
+    if(orient==='horizontal'){next.y1+=delta;next.y2+=delta;}
+    else{next.x1+=delta;next.x2+=delta;}
+
+    if(wallMoveWouldHitObjects(target,next,f))return false;
+
+    Object.assign(target,next);
+
+    for(const c of conns){
+      if(c.targetEnd===1){
+        if(orient==='horizontal')c.wall[c.ky]=target.y1;
+        else c.wall[c.kx]=target.x1;
+      }else{
+        if(orient==='horizontal')c.wall[c.ky]=target.y2;
+        else c.wall[c.kx]=target.x2;
+      }
+    }
+
+    for(const o of f.elements.filter(e=>(e.type==='door'||e.type==='window')&&e.wallId===target.id))syncOpening(o,f);
+    return true;
+  }
+
+  function hitSpawn(p){
+    const f=floor();if(!f?.spawn)return false;
+    return Math.hypot(p.x-f.spawn.x,p.y-f.spawn.y) <= 16/state.zoom;
+  }
+
+  function hitTest(p){
+    const f=floor();
+    if(!f)return null;
+
+    const elems=[...f.elements].reverse();
+    const zoomPad=8/state.zoom;
+
+    // Objects first, then openings, then walls.
+    for(const e of elems){
+      if(e.locked)continue;
+
+      if(e.type==='furniture'){
+        if(pointInsideFurniture(p.x,p.y,e,zoomPad))return e;
+      }else if(e.type==='arch'){
+        if(pointInsideArch(p.x,p.y,e,zoomPad))return e;
+      }else if(e.type==='stairs'){
+        if(pointInsideFurniture(p.x,p.y,e,zoomPad))return e;
+      }else if(e.type==='label'){
+        if(Math.hypot(p.x-e.x,p.y-e.y)<=45/state.zoom)return e;
+      }
+    }
+
+    for(const e of elems){
+      if(e.locked)continue;
+      if(e.type==='door'||e.type==='window'){
+        if(distPointSeg(p.x,p.y,e.x1,e.y1,e.x2,e.y2)<=12/state.zoom)return e;
+      }
+    }
+
+    for(const e of elems){
+      if(e.locked)continue;
+      if(e.type==='wall'){
+        const hitWidth=Math.max(12/state.zoom,wallHalf(e)+6/state.zoom);
+        if(distPointSeg(p.x,p.y,e.x1,e.y1,e.x2,e.y2)<=hitWidth)return e;
+      }
+    }
+
+    return null;
+  }
+
+  function roomCentroid(room){
+    let sx=0,sy=0;
+    const pts=room.poly||[];
+    if(!pts.length)return{x:(room.minX+room.maxX)/2,y:(room.minY+room.maxY)/2};
+    for(const p of pts){sx+=p.x;sy+=p.y;}
+    return{x:sx/pts.length,y:sy/pts.length};
+  }
+
+  function roomOverlapScore(a,b){
+    const ix=Math.max(0,Math.min(a.maxX,b.maxX)-Math.max(a.minX,b.minX));
+    const iy=Math.max(0,Math.min(a.maxY,b.maxY)-Math.max(a.minY,b.minY));
+    const inter=ix*iy;
+    if(inter<=0)return 0;
+    const aArea=Math.max(1,(a.maxX-a.minX)*(a.maxY-a.minY));
+    const bArea=Math.max(1,(b.maxX-b.minX)*(b.maxY-b.minY));
+    return inter/Math.min(aArea,bArea);
+  }
+
+  function preserveRoomMetadata(f,oldRooms,newRooms){
+    if(!f.roomMeta)f.roomMeta={};
+    const oldMeta=f.roomMeta;
+    const nextMeta={};
+    const usedOld=new Set();
+
+    for(const nr of newRooms){
+      if(oldMeta[nr.key]){
+        nextMeta[nr.key]=oldMeta[nr.key];
+        usedOld.add(nr.key);
+        continue;
+      }
+
+      let best=null,bestScore=0;
+      const nc=roomCentroid(nr);
+
+      for(const or of oldRooms){
+        if(usedOld.has(or.key) || !oldMeta[or.key])continue;
+
+        let score=roomOverlapScore(or,nr);
+
+        // Strong bonus when one room's centroid remains inside the other.
+        const oc=roomCentroid(or);
+        if(pointInPolygon(oc,nr.poly))score+=0.75;
+        if(pointInPolygon(nc,or.poly))score+=0.75;
+
+        // Slight preference for rooms that remain spatially close.
+        const dist=Math.hypot(nc.x-oc.x,nc.y-oc.y);
+        score+=Math.max(0,0.25-dist/500);
+
+        if(score>bestScore){
+          bestScore=score;
+          best=or;
+        }
+      }
+
+      if(best && bestScore>=0.45){
+        nextMeta[nr.key]=oldMeta[best.key];
+        usedOld.add(best.key);
+      }
+    }
+
+    f.roomMeta=nextMeta;
+  }
+
+
+  function hitRoom(p){return detectRooms(floor()).filter(r=>pointInPolygon(p,r.poly)).sort((a,b)=>a.areaPx-b.areaPx)[0]||null;}
+  function nearestWall(p,max=24){let best=null,bestD=max/state.zoom;for(const e of floor().elements){if(e.type!=='wall')continue;const d=distPointSeg(p.x,p.y,e.x1,e.y1,e.x2,e.y2);if(d<bestD){best=e;bestD=d;}}return best;}
+  function projectToSegment(p,w){const vx=w.x2-w.x1,vy=w.y2-w.y1,len2=vx*vx+vy*vy||1;let t=((p.x-w.x1)*vx+(p.y-w.y1)*vy)/len2;t=Math.max(0,Math.min(1,t));return{x:w.x1+t*vx,y:w.y1+t*vy,t};}
+  function openingOnWall(type,p,w){const q=projectToSegment(p,w),e={id:crypto.randomUUID(),type,wallId:w.id,t:q.t,widthPx:type==='door'?Math.max(20,pxPerMeter()*.9):Math.max(20,pxPerMeter()*1.2)};if(type==='door')e.swing=1;syncOpening(e);return e;}
+
+  function addRoom(d){
+    let x1=Math.min(d.x1,d.x2),x2=Math.max(d.x1,d.x2),y1=Math.min(d.y1,d.y2),y2=Math.max(d.y1,d.y2);if(x2-x1<state.grid||y2-y1<state.grid)return;
+    checkpoint();
+    [{x1,y1,x2,y2:y1},{x1:x2,y1,x2,y2},{x1:x2,y1:y2,x2:x1,y2},{x1,y1:y2,x2:x1,y2:y1}].forEach(w=>{
+      const candidate={id:crypto.randomUUID(),type:'wall',thickness:state.defaultWallThickness,...w};
+      const existing=floor().elements.find(e=>e.type==='wall'&&wallsCoincident(e,candidate));
+      if(existing)existing.thickness=Math.max(wallThickness(existing),state.defaultWallThickness);
+      else floor().elements.push(candidate);
+    });
+    const center={x:(x1+x2)/2,y:(y1+y2)/2},found=detectRooms(floor()).filter(r=>pointInPolygon(center,r.poly)).sort((a,b)=>a.areaPx-b.areaPx)[0];
+    if(found && !floor().roomMeta[found.key])floor().roomMeta[found.key]={name:'Room'};state.selectedId=null;state.selectedRoomKey=found?.key||null;renderSelection();
+  }
+
+  function placeSelectedObject(p){
+    const choice=document.getElementById('objectType').value||'f:custom';
+    const [kind,type]=choice.split(':');
+    const f=floor();
+    if(!f)return null;
+
+    checkpoint();
+
+    const e=kind==='a'?createArchObject(type,p):createFurniture(type,p);
+    f.elements.push(e);
+
+    if(kind==='f')normalizeFurnitureZ(f);
+
+    // Placement is intentionally exact and immediate. Wall snapping happens
+    // only while dragging after placement, never during creation.
+    setSingleSelection(e.id);
+
+    state.drawing=null;
+    state.boxSelect=null;
+
+    statusState.textContent=`Placed ${e.name||'object'}`;
+    statusState.className='ok';
+
+    return e;
+  }
+
+  function setTool(tool){
+    if(state.walkMode)return;
+    state.tool=tool;
+    state.drawing=null;
+    state.boxSelect=null;
+    dragMove=null;
+    [...toolsEl.querySelectorAll('button[data-tool]')].forEach(b=>b.classList.toggle('active',b.dataset.tool===tool));
+    hint.textContent=toolHints[tool]||'';
+    statusTool.textContent='Tool: '+tool[0].toUpperCase()+tool.slice(1);
+    canvas.style.cursor=tool==='select'?'default':tool==='erase'?'not-allowed':'crosshair';
+    draw();
+  }
+
+  function syncLinkedStairGeometry(e){
+    if(e?.type!=='stairs'||!e.linkedStairId)return;
+    for(const ff of state.floors){
+      const mate=ff.elements.find(x=>x.id===e.linkedStairId);
+      if(mate){
+        mate.x=e.x;
+        mate.y=e.y;
+        mate.w=e.w;
+        mate.h=e.h;
+        mate.rotation=e.rotation||0;
+        mate.name=e.name||'Stairs';
+        return;
+      }
+    }
+  }
+
+  function pairStair(e,targetFloorId){
+    if(!targetFloorId||targetFloorId===state.activeFloorId)return;
+    const target=floorById(targetFloorId);if(!target)return;
+    checkpoint();
+    // Unlink old pair.
+    if(e.linkedStairId){
+      for(const ff of state.floors){const old=ff.elements.find(x=>x.id===e.linkedStairId);if(old){old.linkedStairId=null;old.targetFloorId=null;break;}}
+    }
+    let mate=target.elements.find(x=>x.type==='stairs'&&x.linkedStairId===e.id);
+    if(!mate){
+      mate={id:crypto.randomUUID(),type:'stairs',x:e.x,y:e.y,w:e.w,h:e.h,rotation:e.rotation||0,name:'Stairs',linkedStairId:e.id,targetFloorId:state.activeFloorId};
+      target.elements.push(mate);
+    }
+    e.linkedStairId=mate.id;e.targetFloorId=targetFloorId;mate.linkedStairId=e.id;mate.targetFloorId=state.activeFloorId;syncLinkedStairGeometry(e);
+  }
+
+  function renderSelection(){
+    const f=floor();
+    if(state.selectedId==='__spawn__' && f?.spawn){
+      selectionPanel.innerHTML=`<div><strong>Walk Test Spawn</strong></div>
+        <div class="field"><label>X</label><div>${Math.round(f.spawn.x)} px</div></div>
+        <div class="field"><label>Y</label><div>${Math.round(f.spawn.y)} px</div></div>
+        <button id="deleteSpawn" style="margin-top:10px">Delete Spawn</button>`;
+      document.getElementById('deleteSpawn')?.addEventListener('click',()=>{
+        checkpoint();f.spawn=null;state.selectedId=null;state.selectedIds=[];renderSelection();draw();
+      });
+      return;
+    }
+    const multi=currentSelectedElements();
+    if(multi.length>1){
+      const locked=multi.filter(e=>e.locked).length;
+      selectionPanel.innerHTML=`<div><strong>${multi.length} objects selected</strong></div><div class="muted">${locked} locked · ${multi.length-locked} editable</div><div class="muted" style="margin-top:8px">Use the Selection Tools below for copy, lock, alignment, and distribution.</div>`;
+      return;
+    }
+    const e=f?.elements.find(x=>x.id===state.selectedId),room=!e?getRoomByKey(state.selectedRoomKey):null;
+    if(room){
+      const areaM2=sqMeters(room.areaPx),areaFt2=sqFeet(room.areaPx),widthPx=room.maxX-room.minX,heightPx=room.maxY-room.minY,meta=f.roomMeta[room.key]||{};
+      selectionPanel.innerHTML=`<div><strong>Detected Room</strong></div>
+        <div class="field"><label>Name</label><input id="roomName" value="${escapeHtml(meta.name||'Room')}"></div>
+        <div class="field"><label>Floor finish</label><select id="roomFinish">
+          ${['None','Wood','Tile','Carpet','Stone','Concrete'].map(v=>`<option ${meta.finish===v?'selected':''}>${v}</option>`).join('')}
+        </select></div>
+        <div class="field"><label>Room fill</label><input id="roomColor" type="color" value="${meta.color||'#eef1ff'}"></div>
+        <div class="field"><label>Area</label><div><strong>${areaM2.toFixed(2)} m² · ${areaFt2.toFixed(2)} ft²</strong></div></div>
+        <div class="field"><label>Bounding size</label><div>${formatLength(widthPx)} × ${formatLength(heightPx)}</div></div>
+        <div class="muted">This region comes from the surrounding wall geometry.</div>`;
+      document.getElementById('roomName').addEventListener('change',n=>{checkpoint();f.roomMeta[room.key]={...(f.roomMeta[room.key]||{}),name:n.target.value||'Room'};draw();renderSelection();});
+      document.getElementById('roomFinish').addEventListener('change',n=>{checkpoint();f.roomMeta[room.key]={...(f.roomMeta[room.key]||{}),finish:n.target.value};draw();});
+      document.getElementById('roomColor').addEventListener('input',n=>{f.roomMeta[room.key]={...(f.roomMeta[room.key]||{}),color:n.target.value};draw();});
+      return;
+    }
+    if(!e){selectionPanel.innerHTML='<span class="muted">Nothing selected.</span>';return;}
+    let body=`<div><strong>${e.type[0].toUpperCase()+e.type.slice(1)}</strong>${e.locked?' <span class="muted">(Locked)</span>':''}</div>`;
+    if(e.type==='label')body+=`<div class="field"><label>Text</label><input id="selText" value="${escapeHtml(e.text)}"></div><div class="field"><label>Font size</label><input id="selSize" type="number" min="10" max="42" value="${e.size||16}"></div>`;
+    else if(e.type==='stairs'){
+      body+=`<div class="field"><label>Name</label><input id="selName" value="${escapeHtml(e.name||'Stairs')}"></div><div class="field"><label>Width (m)</label><input id="selW" type="number" min="0.2" max="10" step="0.05" value="${meters(e.w).toFixed(2)}"><div class="muted">${feet(e.w).toFixed(2)} ft</div></div><div class="field"><label>Length (m)</label><input id="selH" type="number" min="0.2" max="20" step="0.05" value="${meters(e.h).toFixed(2)}"><div class="muted">${feet(e.h).toFixed(2)} ft</div></div><div class="field"><label>Rotation</label><select id="selRot">${[0,90,180,270].map(v=>`<option ${v===(e.rotation||0)?'selected':''}>${v}</option>`).join('')}</select></div>`;
+      const others=state.floors.filter(ff=>ff.id!==state.activeFloorId);
+      if(others.length)body+=`<div class="field"><label>Connect to floor</label><select id="stairTarget"><option value="">Unpaired</option>${others.map(ff=>`<option value="${ff.id}" ${e.targetFloorId===ff.id?'selected':''}>${escapeHtml(ff.name)}</option>`).join('')}</select></div><button id="snapStairNow" class="compact">Snap Stair to Wall</button><div class="muted">${e.linkedStairId?'Paired stair connection active.':'Choose a floor to create/pair the matching stair.'}</div>`;
+      else body+=`<div class="muted">Add another floor before pairing stairs.</div>`;
+    }
+    else if(e.type==='furniture'){
+      body+=`<div class="field"><label>Name</label><input id="furnName" value="${escapeHtml(e.name||'Object')}"></div>
+      <div class="field"><label>Width (m)</label><input id="furnW" type="number" min="0.1" max="20" step="0.05" value="${meters(e.w).toFixed(2)}"><div class="muted">${feet(e.w).toFixed(2)} ft</div></div>
+      <div class="field"><label>Depth (m)</label><input id="furnH" type="number" min="0.1" max="20" step="0.05" value="${meters(e.h).toFixed(2)}"><div class="muted">${feet(e.h).toFixed(2)} ft</div></div>
+      <div class="field"><label>Rotation</label><input id="furnRot" type="number" step="5" value="${e.rotation||0}"></div>
+      <label style="display:block;margin:8px 0"><input id="furnBlock" type="checkbox" ${e.blocking!==false?'checked':''}> Blocks Walk Test</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <button id="dupFurniture">Duplicate</button>
+        <button id="snapFurnitureNow">Snap to Wall</button>
+        <button id="sendBack">Send Back</button>
+        <button id="bringForward">Bring Forward</button>
+      </div>`;
+    }
+    else if(e.type==='wall')body+=`<div class="field"><label>Length</label><div><strong>${formatLength(Math.hypot(e.x2-e.x1,e.y2-e.y1))}</strong></div></div><div class="field"><label>Thickness (px)</label><input id="wallThicknessInput" type="number" min="3" max="40" value="${wallThickness(e)}"></div><div class="muted">Drag this wall perpendicular to itself to resize connected rooms.</div>`;
+    else if(e.type==='arch'){
+      body+=`<div class="field"><label>Name</label><input id="archName" value="${escapeHtml(e.name||'Object')}"></div>
+      <div class="field"><label>Width (m)</label><input id="archW" type="number" min="0.1" max="20" step="0.05" value="${meters(e.w).toFixed(2)}"><div class="muted">${feet(e.w).toFixed(2)} ft</div></div>
+      <div class="field"><label>Depth (m)</label><input id="archH" type="number" min="0.1" max="20" step="0.05" value="${meters(e.h).toFixed(2)}"><div class="muted">${feet(e.h).toFixed(2)} ft</div></div>
+      <div class="field"><label>Rotation</label><input id="archRot" type="number" step="5" value="${e.rotation||0}"></div>
+      <label style="display:block;margin:8px 0"><input id="archBlock" type="checkbox" ${e.blocking!==false?'checked':''}> Blocks Walk Test</label>`;
+    }
+    else if(e.type==='door'||e.type==='window'){syncOpening(e);body+=`<div class="field"><label>Width (metres)</label><input id="openingWidth" type="number" min="0.2" max="10" step="0.05" value="${meters(e.widthPx).toFixed(2)}"></div><div class="field"><label>Position along wall</label><input id="openingPos" type="range" min="0" max="1" step="0.01" value="${e.t??.5}"></div>`;if(e.type==='door')body+=`<button id="flipSwing" class="compact">Flip Door Swing</button>`;}
+    body+=`<button id="deleteSelected" style="margin-top:10px">Delete Selected</button>`;selectionPanel.innerHTML=body;
+    const bind=(id,fn)=>{const n=document.getElementById(id);if(!n)return;n.addEventListener('change',()=>{checkpoint();fn(n);draw();renderSelection();});};
+    bind('wallThicknessInput',n=>e.thickness=Math.max(3,Math.min(40,+n.value||state.defaultWallThickness)));
+    bind('archName',n=>e.name=n.value||'Object');
+    bind('archW',n=>e.w=Math.max(5,(+n.value||meters(e.w))*pxPerMeter()));
+    bind('archH',n=>e.h=Math.max(5,(+n.value||meters(e.h))*pxPerMeter()));
+    bind('archRot',n=>e.rotation=(+n.value||0)%360);
+    const ab=document.getElementById('archBlock');if(ab)ab.addEventListener('change',()=>{checkpoint();e.blocking=ab.checked;draw();});
+    bind('furnName',n=>e.name=n.value||'Object');
+    bind('furnW',n=>{const old=e.w;e.w=Math.max(5,(+n.value||meters(old))*pxPerMeter());if(rectObjectHitsAnyWall(e,floor()))e.w=old;else pushObjectClearOfWalls(e,floor());});
+    bind('furnH',n=>{const old=e.h;e.h=Math.max(5,(+n.value||meters(old))*pxPerMeter());if(rectObjectHitsAnyWall(e,floor()))e.h=old;else pushObjectClearOfWalls(e,floor());});
+    bind('furnRot',n=>{const old=e.rotation||0;e.rotation=(+n.value||0)%360;if(rectObjectHitsAnyWall(e,floor()))e.rotation=old;else pushObjectClearOfWalls(e,floor());});
+    const fb=document.getElementById('furnBlock');if(fb)fb.addEventListener('change',()=>{checkpoint();e.blocking=fb.checked;draw();});
+    document.getElementById('dupFurniture')?.addEventListener('click',()=>duplicateFurniture(e));
+    document.getElementById('snapFurnitureNow')?.addEventListener('click',()=>{checkpoint();snapRectObjectToWall(e,true);draw();renderSelection();});
+    document.getElementById('sendBack')?.addEventListener('click',()=>moveFurnitureLayer(e,-1));
+    document.getElementById('bringForward')?.addEventListener('click',()=>moveFurnitureLayer(e,1));
+    bind('selText',n=>e.text=n.value||'Label');bind('selSize',n=>e.size=Math.max(10,Math.min(42,+n.value||16)));bind('selName',n=>{e.name=n.value||'Stairs';if(e.type==='stairs')syncLinkedStairGeometry(e);});bind('selW',n=>{const old=e.w;e.w=Math.max(10,(+n.value||meters(old))*pxPerMeter());if(e.type==='stairs'&&rectObjectHitsAnyWall(e,floor()))e.w=old;else if(e.type==='stairs'){pushObjectClearOfWalls(e,floor());syncLinkedStairGeometry(e);}});
+    bind('selH',n=>{const old=e.h;e.h=Math.max(10,(+n.value||meters(old))*pxPerMeter());if(e.type==='stairs'&&rectObjectHitsAnyWall(e,floor()))e.h=old;else if(e.type==='stairs'){pushObjectClearOfWalls(e,floor());syncLinkedStairGeometry(e);}});bind('selRot',n=>{e.rotation=+n.value||0;if(e.type==='stairs')syncLinkedStairGeometry(e);});bind('openingWidth',n=>{e.widthPx=Math.max(8,(+n.value||.9)*pxPerMeter());syncOpening(e);});bind('openingPos',n=>{e.t=+n.value;syncOpening(e);});
+    const target=document.getElementById('stairTarget');if(target)target.addEventListener('change',()=>{pairStair(e,target.value);draw();renderSelection();});
+    document.getElementById('snapStairNow')?.addEventListener('click',()=>{checkpoint();snapStairToWall(e,true);syncLinkedStairGeometry(e);draw();renderSelection();});
+    document.getElementById('flipSwing')?.addEventListener('click',()=>{checkpoint();e.swing=e.swing===-1?1:-1;draw();renderSelection();});
+    document.getElementById('deleteSelected')?.addEventListener('click',deleteSelected);
+  }
+
+  function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  function deleteSelected(){
+    if(!state.selectedId)return;const id=state.selectedId,f=floor(),victim=f.elements.find(e=>e.id===id);if(victim?.locked)return;checkpoint();
+    if(victim?.type==='stairs'&&victim.linkedStairId){for(const ff of state.floors){const mate=ff.elements.find(x=>x.id===victim.linkedStairId);if(mate){mate.linkedStairId=null;mate.targetFloorId=null;break;}}}
+    f.elements=f.elements.filter(e=>e.id!==id&&e.wallId!==id);normalizeFurnitureZ(f);state.selectedId=null;state.selectedRoomKey=null;renderSelection();draw();
+  }
+
+  let dragMove=null;
+  canvas.addEventListener('pointerdown',ev=>{
+    if(state.walkMode||ev.button===1||ev.altKey)return;
+    canvas.setPointerCapture(ev.pointerId);const raw=screenToWorld(ev.clientX,ev.clientY),p=snapped(raw);
+    if(state.tool==='wall'||state.tool==='room'){state.drawing={type:state.tool,x1:p.x,y1:p.y,x2:p.x,y2:p.y};draw();return;}
+    if(state.tool==='door'||state.tool==='window'){const w=nearestWall(raw);if(!w){statusState.textContent='Place it closer to a wall';statusState.className='bad';return;}checkpoint();const e=openingOnWall(state.tool,raw,w);floor().elements.push(e);state.selectedId=e.id;state.selectedRoomKey=null;renderSelection();draw();return;}
+    if(state.tool==='stairs'){checkpoint();const e={id:crypto.randomUUID(),type:'stairs',x:p.x,y:p.y,w:75,h:140,rotation:0,name:'Stairs',linkedStairId:null,targetFloorId:null};snapStairToWall(e);floor().elements.push(e);state.selectedId=e.id;state.selectedRoomKey=null;renderSelection();draw();return;}
+    if(state.tool==='spawn'){checkpoint();floor().spawn={x:p.x,y:p.y};state.player.floorId=state.activeFloorId;state.player.x=p.x;state.player.y=p.y;draw();return;}
+    if(state.tool==='object'){
+      placeSelectedObject(p);
+      dragMove=null;
+      renderSelection();
+      draw();
+      return;
+    }
+    if(state.tool==='label'){const label=prompt('Label text:','Room')||'Room';checkpoint();const e={id:crypto.randomUUID(),type:'label',x:p.x,y:p.y,text:label,size:16};floor().elements.push(e);state.selectedId=e.id;renderSelection();draw();return;}
+    const spawnHit=hitSpawn(raw);
+    if(state.tool==='erase'&&spawnHit){
+      checkpoint();floor().spawn=null;clearSelection();renderSelection();draw();return;
+    }
+    if(state.tool==='select'&&spawnHit){
+      state.selectedId='__spawn__';state.selectedIds=[];state.selectedRoomKey=null;renderSelection();draw();return;
+    }
+
+    const hit=hitTest(raw);if(state.tool==='erase'){if(hit){state.selectedId=hit.id;deleteSelected();}return;}
+    if(state.tool==='select'){
+      if(hit){
+        if(ev.shiftKey){
+          toggleSelection(hit.id);
+        }else{
+          setSingleSelection(hit.id);
+        }
+
+        if(state.selectedIds.length===1 && !hit.locked){
+          if(hit.type==='wall'){
+            dragMove={
+              kind:'wall',
+              id:hit.id,
+              startX:raw.x,
+              startY:raw.y,
+              lastDelta:0,
+              moved:false,
+              oldRooms:detectRooms(floor()),
+              oldRoomMeta:JSON.parse(JSON.stringify(floor().roomMeta||{}))
+            };
+          }else if(hit.type==='door'||hit.type==='window'){
+            dragMove={kind:'opening',id:hit.id,moved:false};
+          }else if(hit.type==='furniture'||hit.type==='arch'||hit.type==='stairs'||hit.type==='label'){
+            dragMove={
+              kind:'free',
+              id:hit.id,
+              ox:raw.x-(hit.x||0),
+              oy:raw.y-(hit.y||0),
+              moved:false
+            };
+          }
+        }
+      }else{
+        const room=hitRoom(raw);
+        if(room){
+          clearSelection();
+          state.selectedRoomKey=room.key;
+        }else if(ev.shiftKey){
+          state.boxSelect={x1:raw.x,y1:raw.y,x2:raw.x,y2:raw.y,additive:true};
+        }else{
+          clearSelection();
+          state.boxSelect={x1:raw.x,y1:raw.y,x2:raw.x,y2:raw.y,additive:false};
+        }
+      }
+
+      renderSelection();
+      draw();
+    }
+  });
+  canvas.addEventListener('pointermove',ev=>{
+    const raw=screenToWorld(ev.clientX,ev.clientY),p=snapped(raw);statusCoords.textContent=`X ${meters(p.x).toFixed(2)} m / ${feet(p.x).toFixed(2)} ft · Y ${meters(p.y).toFixed(2)} m / ${feet(p.y).toFixed(2)} ft`;
+    if(state.boxSelect){state.boxSelect.x2=raw.x;state.boxSelect.y2=raw.y;draw();}
+    else if(state.drawing){let x=p.x,y=p.y;if(ev.shiftKey&&state.drawing.type==='wall'){const dx=Math.abs(x-state.drawing.x1),dy=Math.abs(y-state.drawing.y1);if(dx>dy)y=state.drawing.y1;else x=state.drawing.x1;}state.drawing.x2=x;state.drawing.y2=y;draw();}
+    else if(dragMove){
+      const f=floor();
+      const e=f?.elements.find(x=>x.id===dragMove.id);
+      if(!e)return;
+
+      if(!dragMove.moved){
+        checkpoint();
+        dragMove.moved=true;
+      }
+
+      if(dragMove.kind==='free'){
+        const q=snapped({x:raw.x-dragMove.ox,y:raw.y-dragMove.oy});
+
+        if(e.type==='label'){
+          e.x=q.x;e.y=q.y;
+        }else if(e.type==='furniture'){
+          moveRectObjectWithWallSlide(e,q.x,q.y,f);
+          if(state.wallSnapFurniture){
+            const close=nearestWallSnapInfo(e.x,e.y,Math.max(24,state.grid*.9));
+            if(close){
+              const wallAngle=Math.atan2(close.w.y2-close.w.y1,close.w.x2-close.w.x1)*180/Math.PI;
+              e.rotation=e.w>=e.h?wallAngle:wallAngle+90;
+            }
+          }
+        }else if(e.type==='arch'){
+          moveRectObjectWithWallSlide(e,q.x,q.y,f);
+        }else if(e.type==='stairs'){
+          moveRectObjectWithWallSlide(e,q.x,q.y,f);
+          if(state.wallSnapFurniture){
+            const close=nearestWallSnapInfo(e.x,e.y,Math.max(28,state.grid));
+            if(close){
+              const wallAngle=Math.atan2(close.w.y2-close.w.y1,close.w.x2-close.w.x1)*180/Math.PI;
+              e.rotation=e.h>=e.w?wallAngle+90:wallAngle;
+            }
+          }
+          syncLinkedStairGeometry(e);
+        }
+      }else if(dragMove.kind==='opening'){
+        const w=wallForOpening(e);
+        if(w){
+          e.t=projectToSegment(raw,w).t;
+          syncOpening(e);
+        }
+      }else if(dragMove.kind==='wall'){
+        const orient=wallOrientation(e);
+        const rawDelta=orient==='horizontal'?(raw.y-dragMove.startY):(raw.x-dragMove.startX);
+        const snappedDelta=state.snap?Math.round(rawDelta/state.grid)*state.grid:rawDelta;
+        const step=snappedDelta-dragMove.lastDelta;
+
+        if(Math.abs(step)>1e-8){
+          const ok=slideWall(e,step,f);
+          if(ok){
+            dragMove.lastDelta=snappedDelta;
+            if(dragMove.oldRooms && dragMove.oldRoomMeta){
+              f.roomMeta=JSON.parse(JSON.stringify(dragMove.oldRoomMeta));
+              preserveRoomMetadata(f,dragMove.oldRooms,detectRooms(f));
+            }
+            statusState.textContent='Wall moved';
+            statusState.className='ok';
+          }else{
+            statusState.textContent='Wall move blocked';
+            statusState.className='bad';
+          }
+        }
+      }
+
+      renderSelection();
+      draw();
+    }
+  });
+  canvas.addEventListener('pointerup',()=>{
+    if(state.boxSelect){
+      const b=state.boxSelect;state.boxSelect=null;
+      const minX=Math.min(b.x1,b.x2),maxX=Math.max(b.x1,b.x2),minY=Math.min(b.y1,b.y2),maxY=Math.max(b.y1,b.y2);
+      const ids=floor().elements.filter(e=>{
+        const eb=elementBounds(e);
+        return eb.minX>=minX&&eb.maxX<=maxX&&eb.minY>=minY&&eb.maxY<=maxY;
+      }).map(e=>e.id);
+      if(b.additive)state.selectedIds=[...new Set([...state.selectedIds,...ids])];else state.selectedIds=ids;
+      state.selectedId=state.selectedIds.length===1?state.selectedIds[0]:null;
+      renderSelection();draw();
+    }
+    if(state.drawing){const d=state.drawing;state.drawing=null;if(d.type==='wall'&&Math.hypot(d.x2-d.x1,d.y2-d.y1)>2){checkpoint();
+      const candidate={id:crypto.randomUUID(),type:'wall',x1:d.x1,y1:d.y1,x2:d.x2,y2:d.y2,thickness:state.defaultWallThickness};
+      const existing=floor().elements.find(w=>w.type==='wall'&&wallsCoincident(w,candidate));
+      if(existing){setSingleSelection(existing.id);statusState.textContent='Duplicate wall ignored';statusState.className='bad';}
+      else{floor().elements.push(candidate);setSingleSelection(candidate.id);}
+    }else if(d.type==='room')addRoom(d);renderSelection();draw();}dragMove=null;});
+
+  toolsEl.addEventListener('click',e=>{const b=e.target.closest('button[data-tool]');if(b)setTool(b.dataset.tool);});
+  document.getElementById('placeObject').addEventListener('click',()=>setTool('object'));
+  document.getElementById('cleanupWalls').addEventListener('click',()=>{if(state.walkMode)return;checkpoint();cleanupAllWalls();clearSelection();renderSelection();draw();});
+  floorSelect.addEventListener('change',()=>{if(state.walkMode)return;state.activeFloorId=floorSelect.value;state.selectedId=null;state.selectedRoomKey=null;renderSelection();refreshFloorSelect();draw();});
+  document.getElementById('duplicateFloor').addEventListener('click',()=>{
+    if(state.walkMode)return;const src=floor();if(!src)return;checkpoint();
+    const map=new Map();
+    const elems=src.elements.map(e=>{const n=JSON.parse(JSON.stringify(e));const old=n.id;n.id=crypto.randomUUID();map.set(old,n.id);return n;});
+    elems.forEach(e=>{if(e.wallId&&map.has(e.wallId))e.wallId=map.get(e.wallId);if(e.linkedStairId){e.linkedStairId=null;e.targetFloorId=null;}});
+    const nf={id:crypto.randomUUID(),name:src.name+' Copy',elements:elems,reference:src.reference?{src:src.reference.src,name:src.reference.name||''}:null,roomMeta:JSON.parse(JSON.stringify(src.roomMeta||{})),spawn:src.spawn?{...src.spawn}:null};
+    const idx=state.floors.indexOf(src);state.floors.splice(idx+1,0,nf);mergeDuplicateWalls(nf);state.activeFloorId=nf.id;clearSelection();refreshFloorSelect();renderSelection();draw();
+  });
+  document.getElementById('moveFloorUp').addEventListener('click',()=>{
+    if(state.walkMode)return;const i=state.floors.findIndex(f=>f.id===state.activeFloorId);if(i<=0)return;checkpoint();[state.floors[i-1],state.floors[i]]=[state.floors[i],state.floors[i-1]];refreshFloorSelect();
+  });
+  document.getElementById('moveFloorDown').addEventListener('click',()=>{
+    if(state.walkMode)return;const i=state.floors.findIndex(f=>f.id===state.activeFloorId);if(i<0||i>=state.floors.length-1)return;checkpoint();[state.floors[i+1],state.floors[i]]=[state.floors[i],state.floors[i+1]];refreshFloorSelect();
+  });
+  document.getElementById('addFloor').addEventListener('click',()=>{if(state.walkMode)return;const name=prompt('Floor name:',`Floor ${state.floors.length+1}`);if(!name)return;checkpoint();const f={id:crypto.randomUUID(),name,elements:[],reference:null,roomMeta:{},spawn:null};state.floors.push(f);state.activeFloorId=f.id;refreshFloorSelect();renderSelection();draw();});
+  document.getElementById('renameFloor').addEventListener('click',()=>{if(state.walkMode)return;const f=floor(),name=prompt('New floor name:',f.name);if(!name||name===f.name)return;checkpoint();f.name=name;refreshFloorSelect();});
+  document.getElementById('deleteFloor').addEventListener('click',()=>{if(state.walkMode)return;if(state.floors.length===1){alert('A project must have at least one floor.');return;}const f=floor();if(!confirm(`Delete "${f.name}"?`))return;checkpoint();for(const ff of state.floors){for(const e of ff.elements.filter(x=>x.type==='stairs'&&x.targetFloorId===f.id)){e.linkedStairId=null;e.targetFloorId=null;}}state.floors=state.floors.filter(x=>x.id!==f.id);state.activeFloorId=state.floors[0].id;refreshFloorSelect();renderSelection();draw();});
+
+  document.getElementById('defaultWallThickness').addEventListener('change',e=>{state.defaultWallThickness=Math.max(3,Math.min(40,+e.target.value||7));e.target.value=state.defaultWallThickness;});
+  document.getElementById('houseName').addEventListener('input',e=>{
+    state.projectName=e.target.value || 'Untitled House';
+  });
+  document.getElementById('darkModeToggle').addEventListener('change',e=>{
+    applyDarkMode(e.target.checked);
+  });
+  document.getElementById('gridSize').addEventListener('change',e=>{const v=Math.max(10,Math.min(100,+e.target.value||25));state.grid=v;e.target.value=v;draw();renderSelection();});
+  document.getElementById('snapToggle').addEventListener('change',e=>state.snap=e.target.checked);
+  document.getElementById('showRoomsToggle').addEventListener('change',e=>{state.showRooms=e.target.checked;draw();});
+  document.getElementById('showFurnitureToggle').addEventListener('change',e=>{state.showFurniture=e.target.checked;draw();});
+  document.getElementById('overlayFloorSelect').addEventListener('change',e=>{state.overlayFloorId=e.target.value||null;draw();});
+  document.getElementById('overlayOpacity').addEventListener('input',e=>{state.overlayOpacity=+e.target.value;draw();});
+  document.getElementById('showStairsToggle').addEventListener('change',e=>{state.showStairs=e.target.checked;draw();});
+  document.getElementById('showLabelsToggle').addEventListener('change',e=>{state.showLabels=e.target.checked;draw();});
+  document.getElementById('showReferenceToggle').addEventListener('change',e=>{state.showReference=e.target.checked;draw();});
+
+  document.getElementById('wallSnapToggle').addEventListener('change',e=>{state.wallSnapFurniture=e.target.checked;});
+  document.getElementById('undoBtn').addEventListener('click',undo);document.getElementById('redoBtn').addEventListener('click',redo);
+
+  document.getElementById('saveBtn').addEventListener('click',()=>{const payload={app:'House Designer',version:VERSION,savedAt:new Date().toISOString(),project:JSON.parse(cloneProjectData())};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=safeProjectFilename(state.projectName)+'.house.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);});
+  const loadInput=document.getElementById('loadInput');document.getElementById('loadBtn').addEventListener('click',()=>{if(!state.walkMode)loadInput.click();});loadInput.addEventListener('change',async()=>{const file=loadInput.files?.[0];if(!file)return;try{const obj=JSON.parse(await file.text()),p=obj.project||obj;if(!Array.isArray(p.floors)||!p.floors.length)throw new Error('No floors found');checkpoint();restoreProjectData(JSON.stringify(p));cleanupAllWalls();draw();}catch(err){alert('Could not load project: '+err.message);}loadInput.value='';});
+  const refInput=document.getElementById('refInput');document.getElementById('refBtn').addEventListener('click',()=>{if(!state.walkMode)refInput.click();});refInput.addEventListener('change',()=>{const file=refInput.files?.[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{checkpoint();floor().reference={src:reader.result,img:null,name:file.name};draw();};reader.readAsDataURL(file);refInput.value='';});document.getElementById('clearRef').addEventListener('click',()=>{if(!floor().reference||state.walkMode)return;checkpoint();floor().reference=null;draw();});document.getElementById('refOpacity').addEventListener('input',draw);
+
+  function changeZoom(factor,sx=null,sy=null){const rect=canvas.getBoundingClientRect();if(sx===null){sx=rect.width/2;sy=rect.height/2;}const wx=(sx-state.panX)/state.zoom,wy=(sy-state.panY)/state.zoom,newZoom=Math.max(.35,Math.min(3,state.zoom*factor));state.zoom=newZoom;state.panX=sx-wx*state.zoom;state.panY=sy-wy*state.zoom;draw();}
+
+  // Editor-only visual preference; never stored in house project data.
+  function applyDarkMode(on){
+    state.darkMode=!!on;
+    document.body.classList.toggle('dark-mode',state.darkMode);
+    document.documentElement.classList.toggle('dark-mode',state.darkMode);
+    const toggle=document.getElementById('darkModeToggle');
+    if(toggle)toggle.checked=state.darkMode;
+  }
+
+  function setPresentationMode(on){
+    state.presentationMode=on;
+    const workspace=document.querySelector('.workspace');
+    workspace.classList.toggle('presentation',on);
+    document.querySelector('.statusbar').style.display=on?'none':'flex';
+    document.getElementById('presentationMode').textContent=on?'Exit Presentation':'Presentation Mode';
+    applyDarkMode(state.darkMode);
+  resize();
+  }
+
+  function exportPNG(){
+    const old=state.presentationMode;
+    if(!old)setPresentationMode(true);
+    draw();
+    const link=document.createElement('a');
+    link.download=safeProjectFilename(state.projectName)+'.png';
+    link.href=canvas.toDataURL('image/png');
+    link.click();
+    if(!old)setPresentationMode(false);
+  }
+
+  function fitHouseInView(){
+    const elems=floor()?.elements||[];if(!elems.length){state.zoom=1;state.panX=0;state.panY=0;draw();return;}
+    const bs=elems.map(elementBounds);
+    const minX=Math.min(...bs.map(b=>b.minX)),maxX=Math.max(...bs.map(b=>b.maxX)),minY=Math.min(...bs.map(b=>b.minY)),maxY=Math.max(...bs.map(b=>b.maxY));
+    const rect=canvas.getBoundingClientRect(),pad=60,w=Math.max(1,maxX-minX),h=Math.max(1,maxY-minY);
+    state.zoom=Math.max(.35,Math.min(3,Math.min((rect.width-pad*2)/w,(rect.height-pad*2)/h)));
+    state.panX=rect.width/2-((minX+maxX)/2)*state.zoom;
+    state.panY=rect.height/2-((minY+maxY)/2)*state.zoom;
+    draw();
+  }
+
+  document.getElementById('zoomIn').addEventListener('click',()=>changeZoom(1.2));document.getElementById('zoomOut').addEventListener('click',()=>changeZoom(1/1.2));document.getElementById('resetView').addEventListener('click',()=>{state.zoom=1;state.panX=0;state.panY=0;draw();});document.getElementById('fitView').addEventListener('click',fitHouseInView);document.getElementById('presentationMode').addEventListener('click',()=>setPresentationMode(!state.presentationMode));document.getElementById('exportPNG').addEventListener('click',exportPNG);
+  document.getElementById('presentationExit').addEventListener('click',()=>setPresentationMode(false));
+
+  function circleHitsWall(x,y,r,w,f){
+    // Treat each wall as solid except for the exact intervals occupied by doors.
+    const vx=w.x2-w.x1,vy=w.y2-w.y1,len=Math.hypot(vx,vy)||1;
+    const len2=len*len;
+    const tRaw=((x-w.x1)*vx+(y-w.y1)*vy)/len2;
+    const t=Math.max(0,Math.min(1,tRaw));
+    const closestX=w.x1+vx*t,closestY=w.y1+vy*t;
+    const perpendicularDistance=Math.hypot(x-closestX,y-closestY);
+
+    if(perpendicularDistance>r+4)return false;
+
+    // If the closest point falls inside a door interval, this section of wall is open.
+    const doors=f.elements.filter(e=>e.type==='door'&&e.wallId===w.id);
+    for(const door of doors){
+      syncOpening(door,f);
+
+      // Door interval along the wall. Slightly shrink clearance by the player radius
+      // so the player's circle cannot clip the door frame.
+      const halfDoor=(door.widthPx||0)/2;
+      const centerDist=(door.t||0)*len;
+      const playerDist=t*len;
+      const safeHalf=Math.max(0,halfDoor-r*.85);
+
+      if(Math.abs(playerDist-centerDist)<=safeHalf){
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  function positionCollides(x,y,f){
+    for(const w of f.elements.filter(e=>e.type==='wall'))if(circleHitsWall(x,y,state.player.radius,w,f))return true;
+    for(const obj of f.elements.filter(e=>(e.type==='furniture'||e.type==='arch')&&e.blocking!==false)){
+      if((obj.type==='arch'?pointInsideArch(x,y,obj,state.player.radius*.9):pointInsideFurniture(x,y,obj,state.player.radius*.9)))return true;
+    }
+    return false;
+  }
+
+  function pointInsideStair(x,y,s){
+    const a=-(s.rotation||0)*Math.PI/180,dx=x-s.x,dy=y-s.y;
+    const lx=dx*Math.cos(a)-dy*Math.sin(a),ly=dx*Math.sin(a)+dy*Math.cos(a);
+    return Math.abs(lx)<=s.w/2&&Math.abs(ly)<=s.h/2;
+  }
+
+  function tryStairTransfer(){
+    const f=floorById(state.player.floorId);if(!f)return;
+
+    const standingOnAnyStair=f.elements.some(e=>
+      e.type==='stairs' && pointInsideStair(state.player.x,state.player.y,e)
+    );
+
+    // After a transfer, stairs stay disabled until the player fully leaves
+    // the destination stair footprint. This prevents floor-bounce loops.
+    if(state.stairLockedUntilExit){
+      if(!standingOnAnyStair){
+        state.stairLockedUntilExit=false;
+      }
+      return;
+    }
+
+    const s=f.elements.find(e=>
+      e.type==='stairs' &&
+      e.linkedStairId &&
+      pointInsideStair(state.player.x,state.player.y,e)
+    );
+    if(!s)return;
+
+    const target=floorById(s.targetFloorId);if(!target)return;
+    const mate=target.elements.find(e=>e.id===s.linkedStairId);if(!mate)return;
+
+    state.player.floorId=target.id;
+    state.player.x=mate.x;
+    state.player.y=mate.y;
+    state.activeFloorId=target.id;
+    state.stairLockedUntilExit=true;
+    refreshFloorSelect();
+    draw();
+  }
+
+  function enterWalk(){
+    let f=floor();
+    let spawn=f.spawn;
+    if(!spawn){
+      const candidate=state.floors.find(ff=>ff.spawn);
+      if(candidate){f=candidate;spawn=candidate.spawn;state.activeFloorId=f.id;}
+    }
+    if(!spawn){alert('Place a Spawn point first using the Spawn tool.');return;}
+    if(positionCollides(spawn.x,spawn.y,f)){alert('The Spawn point is too close to or inside a wall. Move it into open floor space first.');return;}
+    state.walkMode=true;state.keys.clear();state.stairLockedUntilExit=false;state.player.floorId=f.id;state.player.x=spawn.x;state.player.y=spawn.y;state.activeFloorId=f.id;state.selectedId=null;state.selectedRoomKey=null;walkBtn.textContent='Exit Walk Test';statusTool.textContent='Walk Test';hint.textContent='Walk Test: use WASD or arrow keys. Doors are passable openings. Step onto paired stairs to change floors.';refreshFloorSelect();renderSelection();updateUndoButtons();draw();
+  }
+  function exitWalk(){state.walkMode=false;state.keys.clear();state.stairLockedUntilExit=false;walkBtn.textContent='Enter Walk Test';setTool(state.tool);refreshFloorSelect();updateUndoButtons();}
+  walkBtn.addEventListener('click',()=>state.walkMode?exitWalk():enterWalk());
+
+  function walkFrame(){
+    if(state.walkMode){
+      let dx=0,dy=0;
+      if(state.keys.has('w')||state.keys.has('arrowup'))dy-=1;
+      if(state.keys.has('s')||state.keys.has('arrowdown'))dy+=1;
+      if(state.keys.has('a')||state.keys.has('arrowleft'))dx-=1;
+      if(state.keys.has('d')||state.keys.has('arrowright'))dx+=1;
+
+      if(dx||dy){
+        const l=Math.hypot(dx,dy)||1,spd=state.player.speed/state.zoom;
+        dx=dx/l*spd;dy=dy/l*spd;
+        const f=floorById(state.player.floorId);
+        if(!positionCollides(state.player.x+dx,state.player.y,f))state.player.x+=dx;
+        if(!positionCollides(state.player.x,state.player.y+dy,f))state.player.y+=dy;
+        tryStairTransfer();
+        draw();
+      }else if(state.stairLockedUntilExit){
+        // Allows the lock to clear as soon as the player is no longer on stairs,
+        // even if movement stopped during that frame.
+        tryStairTransfer();
+      }
+    }
+    requestAnimationFrame(walkFrame);
+  }
+  requestAnimationFrame(walkFrame);
+
+  function validate(){
+    const issues=[];
+    for(const f of state.floors){
+      ensureFloorShape(f);const walls=f.elements.filter(e=>e.type==='wall'),openings=f.elements.filter(e=>e.type==='door'||e.type==='window'),stairs=f.elements.filter(e=>e.type==='stairs'),rooms=detectRooms(f);
+      openings.forEach(o=>{const w=walls.find(x=>x.id===o.wallId);if(!w){issues.push({level:'err',floor:f.name,msg:`A ${o.type} is attached to a missing wall.`});return;}const wallLen=Math.hypot(w.x2-w.x1,w.y2-w.y1);if((o.widthPx||0)>wallLen)issues.push({level:'err',floor:f.name,msg:`A ${o.type} is wider than its wall.`});});
+      stairs.forEach(s=>{if(!s.linkedStairId)issues.push({level:'warn',floor:f.name,msg:'A staircase is not paired to another floor.'});else{const tf=floorById(s.targetFloorId),mate=tf?.elements.find(x=>x.id===s.linkedStairId);if(!tf||!mate)issues.push({level:'err',floor:f.name,msg:'A staircase has a broken floor connection.'});else if(positionCollides(mate.x,mate.y,tf))issues.push({level:'warn',floor:f.name,msg:'A paired staircase overlaps or sits too close to a wall on its matching floor. Move the stair pair together or adjust the surrounding layout.'});}});
+      if(f.spawn&&positionCollides(f.spawn.x,f.spawn.y,f))issues.push({level:'warn',floor:f.name,msg:'The Walk Test spawn point intersects a wall or blocking object.'});
+      for(const obj of f.elements.filter(e=>(e.type==='furniture'||e.type==='arch')&&e.blocking!==false)){
+        for(const door of f.elements.filter(e=>e.type==='door')){syncOpening(door,f);const cx=(door.x1+door.x2)/2,cy=(door.y1+door.y2)/2;if(pointInsideFurniture(cx,cy,obj,6))issues.push({level:'warn',floor:f.name,msg:'A blocking furniture object overlaps a doorway.'});}
+      }
+      if(walls.length>=4&&rooms.length===0)issues.push({level:'warn',floor:f.name,msg:'No enclosed rooms are detected. Check for wall gaps.'});
+    }
+    if(!state.floors.some(f=>f.spawn))issues.push({level:'warn',floor:'Project',msg:'No Walk Test spawn point has been placed.'});
+    if(!issues.length){validationEl.innerHTML='<div class="item" style="border-left:4px solid #177245"><strong>No obvious layout problems found.</strong><br><span class="muted">Walk Test is a planning aid, not a building-code check.</span></div>';statusState.textContent='Layout check passed';statusState.className='ok';}
+    else{const counts=new Map();for(const i of issues){const k=i.level+'|'+i.floor+'|'+i.msg;counts.set(k,(counts.get(k)||0)+1);}validationEl.innerHTML=[...counts.entries()].map(([k,count])=>{const[level,fl,msg]=k.split('|');return`<div class="item ${level}"><strong>${escapeHtml(fl)}</strong><br>${escapeHtml(msg)}${count>1?` <span class="muted">(${count}×)</span>`:''}</div>`;}).join('');statusState.textContent=issues.length+' validation issue(s)';statusState.className='bad';}
+  }
+  document.getElementById('copySelected').addEventListener('click',copySelection);
+  document.getElementById('pasteSelected').addEventListener('click',pasteSelection);
+  document.getElementById('lockSelected').addEventListener('click',()=>setSelectionLocked(true));
+  document.getElementById('unlockSelected').addEventListener('click',()=>setSelectionLocked(false));
+  document.getElementById('alignLeft').addEventListener('click',()=>alignSelection('left'));
+  document.getElementById('alignRight').addEventListener('click',()=>alignSelection('right'));
+  document.getElementById('alignTop').addEventListener('click',()=>alignSelection('top'));
+  document.getElementById('alignBottom').addEventListener('click',()=>alignSelection('bottom'));
+  document.getElementById('distributeH').addEventListener('click',()=>distributeSelection('h'));
+  document.getElementById('distributeV').addEventListener('click',()=>distributeSelection('v'));
+
+  document.getElementById('validateBtn').addEventListener('click',validate);
+
+  window.addEventListener('keydown',e=>{
+    const k=e.key.toLowerCase();
+    if(state.walkMode){
+      if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(k)){e.preventDefault();state.keys.add(k);}
+      if(e.key==='Escape'){e.preventDefault();exitWalk();}
+      return;
+    }
+    if(state.presentationMode && e.key==='Escape'){
+      e.preventDefault();
+      setPresentationMode(false);
+      return;
+    }
+    const tag=document.activeElement?.tagName;if(tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA')return;
+    const selected=floor()?.elements.find(x=>x.id===state.selectedId);
+    if((e.ctrlKey||e.metaKey)&&k==='d'&&selected?.type==='furniture'){e.preventDefault();duplicateFurniture(selected);}
+    else if((e.ctrlKey||e.metaKey)&&k==='z'){e.preventDefault();e.shiftKey?redo():undo();}
+    else if((e.ctrlKey||e.metaKey)&&k==='y'){e.preventDefault();redo();}
+    else if((e.ctrlKey||e.metaKey)&&k==='c'){e.preventDefault();copySelection();}
+    else if((e.ctrlKey||e.metaKey)&&k==='v'){e.preventDefault();pasteSelection();}
+    else if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();
+      if(state.selectedId==='__spawn__'&&floor()?.spawn){checkpoint();floor().spawn=null;clearSelection();renderSelection();draw();}
+      else if(state.selectedIds.length>1){const ids=[...state.selectedIds];checkpoint();floor().elements=floor().elements.filter(x=>!ids.includes(x.id)||x.locked);clearSelection();renderSelection();draw();}
+      else deleteSelected();
+    }
+    else if(e.key==='Escape'){state.drawing=null;dragMove=null;draw();}
+  });
+  window.addEventListener('keyup',e=>state.keys.delete(e.key.toLowerCase()));
+
+  let panning=null;
+  canvas.addEventListener('pointerdown',e=>{if(e.button===1||e.altKey){panning={x:e.clientX,y:e.clientY,px:state.panX,py:state.panY};canvas.setPointerCapture(e.pointerId);}},true);
+  canvas.addEventListener('pointermove',e=>{if(panning){state.panX=panning.px+(e.clientX-panning.x);state.panY=panning.py+(e.clientY-panning.y);draw();}},true);
+  canvas.addEventListener('pointerup',()=>panning=null,true);
+  canvas.addEventListener('wheel',e=>{e.preventDefault();if(e.ctrlKey||e.metaKey){const rect=canvas.getBoundingClientRect(),sx=e.clientX-rect.left,sy=e.clientY-rect.top,factor=Math.exp(-e.deltaY*.01);changeZoom(factor,sx,sy);return;}state.panX-=e.deltaX;state.panY-=e.deltaY;draw();},{passive:false});
+
+  window.addEventListener('resize',resize);
+  refreshFloorSelect();updateUndoButtons();setTool('wall');resize();
+})();
+</script>
+</body>
+</html>

@@ -76,6 +76,22 @@
       "tags": ["image", "converter"]
     },
     {
+      "title": "YT Playlist to CSV List",
+      "file": "tools/apps/converters/youtube_playlist_exporter",
+      "icon": "▧",
+      "accent": "#ffb86b",
+      "description": "Convert YT Playlist into a CSV file list.",
+      "tags": ["playlist", "converter"]
+    },
+    {
+      "title": "YT Playlist to List",
+      "file": "tools/apps/converters/youtube_playlist_link_to_list",
+      "icon": "▧",
+      "accent": "#ffb86b",
+      "description": "Convert YT Playlist into a simple list.",
+      "tags": ["playlist", "converter"]
+    },
+    {
       "title": "Interactive Map",
       "file": "tools/apps/map/map",
       "icon": "▧",
@@ -90,6 +106,14 @@
       "accent": "#79efb4",
       "description": "Interactive Map 3D Test.",
       "tags": ["map", "student handbook"]
+    },
+    {
+      "title": "House Designer",
+      "file": "tools/apps/house_designer",
+      "icon": "▧",
+      "accent": "#79efb4",
+      "description": "Create house plans.",
+      "tags": ["map"]
     },
     {
       "title": "Memories - List View",

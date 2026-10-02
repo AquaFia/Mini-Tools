@@ -44,14 +44,6 @@
       "tags": ["debug", "testing", "companion"]
     },
     {
-      "title": "Jacey Cosmo Companion Chat Box",
-      "file": "tools/apps/companion/jacey/jacey_framework.html",
-      "icon": "▧",
-      "accent": "#4cc9f0",
-      "description": "The Jacey Companion Test.",
-      "tags": ["companion", "jacey"]
-    },
-    {
       "title": "Aria Matsuda Companion Chat Box",
       "file": "tools/apps/companion/aria test/aria_companion.html",
       "icon": "▧",
